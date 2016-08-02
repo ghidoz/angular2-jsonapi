@@ -43,7 +43,6 @@ Add the library's `PROVIDERS` to your bootstrap dependences:
 import { PROVIDERS } from 'angular2-jsonapi';
 
 bootstrap(AppComponent, [
-  HTTP_PROVIDERS,
   PROVIDERS
 ]);
 ```
@@ -65,9 +64,9 @@ export class Datastore extends JsonApiDatastore {
 ```
 
 Then set up your models:
-- Extend the `JsonApiModel´ class
+- Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the relationships attributes with `@HasMany`, passing the class itself
+- Decorate the relationships attributes with `@HasMany`, passing the class itself as `type`
 
 ```typescript
 import { JsonApiModel, HasMany,  JsonApiModelConfig} from 'angular2-jsonapi';
@@ -103,7 +102,7 @@ getPosts(){
 }
 ```
 
-You will get an array of objects like this:
+You will get an array of objects where every mapped relationship will be automatically resolved:
 ```javascript
 [
     Post{
