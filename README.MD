@@ -84,9 +84,20 @@ export class Post extends JsonApiModel {
     })
     comments: Comment[];
 }
+
+@JsonApiModelConfig({
+    type: 'comments'
+})
+export class Comment extends JsonApiModel {
+
+    // ...
+}
 ```
 
 Now, you can use your `Datastore`, in order to query your API:
+- The first argument is the type of object you want to query.
+- The second argument is the list of params: you can write them in JSON format and they will be serialized.
+- When you want to get also the relationships, pass the `include` param with the type of object to be included as relationship.
 
 ```typescript
 // ...
@@ -95,7 +106,7 @@ constructor(private datastore: Datastore) { }
 getPosts(){
     this.datastore.query(Post, {
         page: { size: 10, number: 1},
-        include: 'comments'
+        include: Comment
     }).subscribe(
         (posts: Post[]) => console.log(posts)
     )
@@ -110,10 +121,16 @@ You will get an array of objects where every mapped relationship will be automat
         title: 'My post',
         content: 'My content',
         comments: [
-            Comment{/.../},
-            Comment{/.../}
+            Comment{
+                id: 1,
+                // ...
+            },
+            Comment{
+                id: 1,
+                // ...
+            }
         ]
-    }
+    },
     // ...
 ]
 ```

@@ -17,6 +17,9 @@ export class JsonApiDatastore {
 
     query<Model>(type: { new(data: any, included: any): Model; }, params?: any): Observable<Model[]> {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
+        if (params.include && typeof params.include === 'function') {
+            params.include = Reflect.getMetadata('JsonApiModelConfig', params.include).type;
+        }
         let options = this.getOptions();
         return this.http.get([this.url, typeName, '?', this.toQueryString(params)].join(''), options)
             .map((res: any) => this.extractQueryData<Model>(res, type))
