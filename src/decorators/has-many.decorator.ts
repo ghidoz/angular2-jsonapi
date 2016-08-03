@@ -5,8 +5,7 @@ export function HasMany(config: any = {}) {
     let annotations = Reflect.getMetadata('HasMany', target) || [];
     annotations.push({
         attribute: attributeName,
-        name: config.name || attributeName,
-        type: config.type
+        key: config.key || attributeName
     });
     Reflect.defineMetadata('HasMany', annotations, target);
   };

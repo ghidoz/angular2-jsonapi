@@ -3,11 +3,11 @@ import { Headers, Http, RequestOptions, HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import { JsonApiModel } from '../models/json-api.model';
 
 @Injectable()
 export class JsonApiDatastore {
 
-    protected url: string;
     private http: Http;
 
     constructor() {
@@ -15,22 +15,27 @@ export class JsonApiDatastore {
         this.http = injector.get(Http);
     }
 
-    query<Model>(type: { new(data: any, included: any): Model; }, params?: any): Observable<Model[]> {
+    query(type: { new(data: any): JsonApiModel; }, params?: any): Observable<JsonApiModel[]> {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         if (params.include && typeof params.include === 'function') {
             params.include = Reflect.getMetadata('JsonApiModelConfig', params.include).type;
         }
         let options = this.getOptions();
-        return this.http.get([this.url, typeName, '?', this.toQueryString(params)].join(''), options)
-            .map((res: any) => this.extractQueryData<Model>(res, type))
+        let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
+        return this.http.get([baseUrl, typeName, '?', this.toQueryString(params)].join(''), options)
+            .map((res: any) => this.extractQueryData(res, type))
             .catch((res: any) => this.handleError(res));
     }
 
-    private extractQueryData<Model>(res: any, type: { new(data: any, included: any): Model; }): Model[] {
+    private extractQueryData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel[] {
         let body = res.json();
-        let models: Model[] = [];
+        let models: JsonApiModel[] = [];
         body.data.forEach((data: any) => {
-            models.push(new type(data, body.included));
+            let model: JsonApiModel = new type(data);
+            if (body.included){
+                model.syncRelationships(data, body.included, this);
+            }
+            models.push(model);
         });
         return models;
     }

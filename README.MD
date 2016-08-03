@@ -49,24 +49,29 @@ bootstrap(AppComponent, [
 
 ## Usage
 
-Firstly, create your `Datastore` service, extending the `JsonApiDatastore`, and set the `url` for your APIs:
+Firstly, create your `Datastore` service:
+- Extend the `JsonApiDatastore` class
+- Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models
 
 ```typescript
 import { Injectable } from '@angular/core';
 import { JsonApiDatastore } from 'angular2-jsonapi';
 
 @Injectable()
-export class Datastore extends JsonApiDatastore {
-
-    protected url = 'http://localhost:8000/v1/';
-
-}
+@JsonApiDatastoreConfig({
+  baseUrl: 'http://localhost:8000/v1/',
+  models: {
+    posts: Post,
+    comments: Comment
+  }
+})
+export class Datastore extends JsonApiDatastore { }
 ```
 
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the relationships attributes with `@HasMany`, passing the class itself as `type`
+- Decorate the relationships attributes with `@HasMany`
 
 ```typescript
 import { JsonApiModel, HasMany,  JsonApiModelConfig} from 'angular2-jsonapi';
@@ -79,9 +84,7 @@ export class Post extends JsonApiModel {
     title: string;
     content: string;
 
-    @HasMany({
-        type: Comment
-    })
+    @HasMany()
     comments: Comment[];
 }
 
@@ -126,7 +129,7 @@ You will get an array of objects where every mapped relationship will be automat
                 // ...
             },
             Comment{
-                id: 1,
+                id: 2,
                 // ...
             }
         ]
@@ -160,4 +163,4 @@ This library is inspired by the draft of [this never implemented library](https:
 
 ## License
 
-MIT © [Daniele Ghidoli](daniele.ghidoli@bigthink.it)
+MIT © [Daniele Ghidoli](http://danieleghidoli.it)
