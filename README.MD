@@ -93,8 +93,8 @@ Now, you can use your `Datastore`, in order to query your API:
 constructor(private datastore: Datastore) { }
 
 getPosts(){
-    this.datastore.query<Post>(Post, {
-        size: 10,
+    this.datastore.query(Post, {
+        page: { size: 10, number: 1},
         include: 'comments'
     }).subscribe(
         (posts: Post[]) => console.log(posts)

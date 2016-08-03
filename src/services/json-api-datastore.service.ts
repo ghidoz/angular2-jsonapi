@@ -15,19 +15,19 @@ export class JsonApiDatastore {
         this.http = injector.get(Http);
     }
 
-    query<Model>(type: { new(model: any, included: any): Model; }, params?: any): Observable<Model[]> {
+    query<Model>(type: { new(data: any, included: any): Model; }, params?: any): Observable<Model[]> {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         let options = this.getOptions();
-        return this.http.get(this.url + `${typeName}?include=${params.include}&page[size]=${params.size}&sort=${params.sort}`, options)
+        return this.http.get([this.url, typeName, '?', this.toQueryString(params)].join(''), options)
             .map((res: any) => this.extractQueryData<Model>(res, type))
             .catch((res: any) => this.handleError(res));
     }
 
-    private extractQueryData<Model>(res: any, type: { new(model: any, included: any): Model; }): Model[] {
+    private extractQueryData<Model>(res: any, type: { new(data: any, included: any): Model; }): Model[] {
         let body = res.json();
         let models: Model[] = [];
-        body.data.forEach((model: any) => {
-            models.push(new type(model, body.included));
+        body.data.forEach((data: any) => {
+            models.push(new type(data, body.included));
         });
         return models;
     }
@@ -42,6 +42,35 @@ export class JsonApiDatastore {
     private getOptions() {
         let headers = new Headers({ 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json' });
         return new RequestOptions({ headers: headers });
+    }
+
+    private toQueryString(params: any) {
+        let encodedStr = '';
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+                if (encodedStr && encodedStr[encodedStr.length - 1] !== '&') {
+                    encodedStr = encodedStr + '&';
+                }
+                let value = params[key];
+                if (value instanceof Array) {
+                    for (let i = 0; i < value.length; i++) {
+                        encodedStr = encodedStr + key + '=' + encodeURIComponent(value[i]) + '&';
+                    }
+                } else if (typeof value === 'object') {
+                    for (let innerKey in value) {
+                        if (value.hasOwnProperty(innerKey)) {
+                            encodedStr = encodedStr + key + '[' + innerKey + ']=' + encodeURIComponent(value[innerKey]) + '&';
+                        }
+                    }
+                } else {
+                    encodedStr = encodedStr + key + '=' + encodeURIComponent(value);
+                }
+            }
+        }
+        if (encodedStr[encodedStr.length - 1] === '&') {
+            encodedStr = encodedStr.substr(0, encodedStr.length - 1);
+        }
+        return encodedStr;
     }
 
 }
