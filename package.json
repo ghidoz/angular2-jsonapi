@@ -1,6 +1,7 @@
 {
   "name": "angular2-jsonapi",
   "version": "0.1.0",
+  "description": "A lightweight Angular 2 adapter for JSON API",
   "scripts": {
     "build": "rm -rf dist && tsc",
     "lint": "tslint src/**/*.ts",
