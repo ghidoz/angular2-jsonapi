@@ -4,11 +4,11 @@ import { JsonApiDatastore } from '../services/json-api-datastore.service';
 
 export class JsonApiModel {
 
-    id: number;
+    id: string;
     [key: string]: any;
 
     constructor(data: any) {
-        this.id = +data.id;
+        this.id = data.id;
         _.extend(this, data.attributes);
     }
 
