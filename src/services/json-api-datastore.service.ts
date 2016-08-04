@@ -31,6 +31,37 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
+    createRecord(type: { new(data: any): JsonApiModel; }, data?: any) {
+        let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
+        let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
+        let options = this.getOptions();
+        let relationships: any;
+        for (let key in data) {
+            if (data.hasOwnProperty(key)) {
+                if (data[key] instanceof JsonApiModel) {
+                    relationships = relationships || {};
+                    let relationshipType =  Reflect.getMetadata('JsonApiModelConfig', data[key].constructor).type;
+                    relationships[key] = {
+                        data: {
+                            type: relationshipType,
+                            id: data[key].id
+                        }
+                    }
+                    delete data[key];
+                }
+            }
+        }
+        return this.http.post(baseUrl + typeName, {
+            data: {
+                type: typeName,
+                attributes: data,
+                relationships: relationships
+            }
+        }, options)
+            .map((res: any) => this.extractRecordData(res, type))
+            .catch((res: any) => this.handleError(res))
+    }
+
     private buildUrl(type: { new(data: any): JsonApiModel; }, params: any = {}, id?: number){
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         if (params.include && typeof params.include === 'function') {

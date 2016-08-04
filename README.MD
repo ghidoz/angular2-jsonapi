@@ -11,6 +11,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
     - [Finding Records](#finding-records)
         - [Querying for Multiple Records](#querying-for-multiple-records)
         - [Retrieving a Single Record](#retrieving-a-single-record)
+    - [Creating Records](#creating-records)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
@@ -98,7 +99,9 @@ export class Post extends JsonApiModel {
 })
 export class Comment extends JsonApiModel {
 
-    // ...
+    title: string;
+
+    post: Post;
 }
 ```
 
@@ -167,6 +170,31 @@ this.datastore.findRecord(Post, 1, {
 );
 ```
 
+### Creating Records
+
+You can create records by calling the `createRecord()` method on the datastore:
+- The first argument is the type of object you want to create.
+- The second is a JSON with the object attributes.
+
+```typescript
+this.datastore.createRecord(Post, {
+    title: 'My post',
+    content: 'My content'
+}).subscribe(
+    (post: Post) => console.log(post)
+);
+```
+
+If the object you want to create has a one-to-many relationship, you can do this:
+
+```typescript
+this.datastore.createRecord(Comment, {
+    title: 'My comment',
+    post: Post
+}).subscribe(
+    (comment: Comment) => console.log(comment)
+);
+```
 
 ## TODO
 - Implement everything from the [JSON API](http://jsonapi.org/) specific.
