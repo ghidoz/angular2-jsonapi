@@ -16,15 +16,29 @@ export class JsonApiDatastore {
     }
 
     query(type: { new(data: any): JsonApiModel; }, params?: any): Observable<JsonApiModel[]> {
+        let options = this.getOptions();
+        let url = this.buildUrl(type, params);
+        return this.http.get(url, options)
+            .map((res: any) => this.extractQueryData(res, type))
+            .catch((res: any) => this.handleError(res));
+    }
+
+    findRecord(type: { new(data: any): JsonApiModel; }, id: number, params?: any): Observable<JsonApiModel> {
+        let options = this.getOptions();
+        let url = this.buildUrl(type, params, id);
+        return this.http.get(url, options)
+            .map((res: any) => this.extractRecordData(res, type))
+            .catch((res: any) => this.handleError(res));
+    }
+
+    private buildUrl(type: { new(data: any): JsonApiModel; }, params: any = {}, id?: number){
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         if (params.include && typeof params.include === 'function') {
             params.include = Reflect.getMetadata('JsonApiModelConfig', params.include).type;
         }
-        let options = this.getOptions();
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
-        return this.http.get([baseUrl, typeName, '?', this.toQueryString(params)].join(''), options)
-            .map((res: any) => this.extractQueryData(res, type))
-            .catch((res: any) => this.handleError(res));
+        let idToken = id ? `/${id}` : null;
+        return [baseUrl, typeName, idToken, '?', this.toQueryString(params)].join('');
     }
 
     private extractQueryData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel[] {
@@ -32,12 +46,21 @@ export class JsonApiDatastore {
         let models: JsonApiModel[] = [];
         body.data.forEach((data: any) => {
             let model: JsonApiModel = new type(data);
-            if (body.included){
+            if (body.included) {
                 model.syncRelationships(data, body.included, this);
             }
             models.push(model);
         });
         return models;
+    }
+
+    private extractRecordData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel {
+        let body = res.json();
+        let model: JsonApiModel = new type(body.data);
+        if (body.included) {
+            model.syncRelationships(body.data, body.included, this);
+        }
+        return model;
     }
 
     private handleError(error: any) {

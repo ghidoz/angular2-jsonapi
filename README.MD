@@ -7,6 +7,10 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
+    - [Configuration](#configuration)
+    - [Finding Records](#finding-records)
+        - [Querying for Multiple Records](#querying-for-multiple-records)
+        - [Retrieving a Single Record](#retrieving-a-single-record)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
@@ -49,13 +53,14 @@ bootstrap(AppComponent, [
 
 ## Usage
 
+### Configuration
+
 Firstly, create your `Datastore` service:
 - Extend the `JsonApiDatastore` class
 - Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models
 
 ```typescript
-import { Injectable } from '@angular/core';
-import { JsonApiDatastore } from 'angular2-jsonapi';
+import { JsonApiDatastoreConfig, JsonApiDatastore } from 'angular2-jsonapi';
 
 @Injectable()
 @JsonApiDatastoreConfig({
@@ -74,7 +79,7 @@ Then set up your models:
 - Decorate the relationships attributes with `@HasMany`
 
 ```typescript
-import { JsonApiModel, HasMany,  JsonApiModelConfig} from 'angular2-jsonapi';
+import { JsonApiModelConfig, JsonApiModel, HasMany } from 'angular2-jsonapi';
 
 @JsonApiModelConfig({
     type: 'posts'
@@ -97,9 +102,13 @@ export class Comment extends JsonApiModel {
 }
 ```
 
-Now, you can use your `Datastore`, in order to query your API:
+### Finding Records
+
+#### Querying for Multiple Records
+
+Now, you can use your `Datastore` in order to query your API with the `query()` method:
 - The first argument is the type of object you want to query.
-- The second argument is the list of params: you can write them in JSON format and they will be serialized.
+- The second argument is the list of params: write them in JSON format and they will be serialized.
 - When you want to get also the relationships, pass the `include` param with the type of object to be included as relationship.
 
 ```typescript
@@ -112,7 +121,7 @@ getPosts(){
         include: Comment
     }).subscribe(
         (posts: Post[]) => console.log(posts)
-    )
+    );
 }
 ```
 
@@ -137,6 +146,27 @@ You will get an array of objects where every mapped relationship will be automat
     // ...
 ]
 ```
+
+#### Retrieving a Single Record
+
+Use `findRecord()` to retrieve a record by its type and ID:
+
+```typescript
+this.datastore.findRecord(Post, 1).subscribe(
+    (post: Post) => console.log(post)
+);
+```
+
+You can also pass the options:
+
+```typescript
+this.datastore.findRecord(Post, 1, {
+    include: Comment
+}).subscribe(
+    (post: Post) => console.log(post)
+);
+```
+
 
 ## TODO
 - Implement everything from the [JSON API](http://jsonapi.org/) specific.
