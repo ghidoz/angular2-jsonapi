@@ -24,13 +24,17 @@ To install this library, run:
 $ npm install angular2-jsonapi --save
 ```
 
-If you use [Angular-CLI](https://github.com/angular/angular-cli), add the package to `system-config.ts`:
+If you use [Angular-CLI](https://github.com/angular/angular-cli), add the package (and its dependencies) to `system-config.ts`:
 ```typescript
 const map: any = {
-  'angular2-jsonapi': 'vendor/angular2-jsonapi/dist'
+  'underscore': 'vendor/underscore',
+  'angular2-jsonapi': 'vendor/angular2-jsonapi/dist',
+  'reflect-metadata': 'vendor/reflect-metadata/Reflect.js',
+  'crypto': '@empty'
 };
 
 const packages: any = {
+  'underscore': {format: 'cjs', defaultExtension: 'js', main: 'underscore.js'},
   'angular2-jsonapi': {defaultExtension: 'js', main: 'index.js'}
 };
 ```
@@ -39,6 +43,7 @@ and to `angular-cli-build.js`:
 ```javascript
 vendorNpmFiles: [
     // ...
+    'underscore/underscore.js',
     'angular2-jsonapi/dist/**/*.+(ts|js|js.map)'
 ]
 ```
