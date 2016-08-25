@@ -9,32 +9,33 @@ import { JsonApiModel } from '../models/json-api.model';
 export class JsonApiDatastore {
 
     private http: Http;
+    private _headers: Headers;
 
     constructor() {
         let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS]);
         this.http = injector.get(Http);
     }
 
-    query(type: { new(data: any): JsonApiModel; }, params?: any): Observable<JsonApiModel[]> {
-        let options = this.getOptions();
+    query(type: { new(data: any): JsonApiModel; }, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
+        let options = this.getOptions(headers);
         let url = this.buildUrl(type, params);
         return this.http.get(url, options)
             .map((res: any) => this.extractQueryData(res, type))
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord(type: { new(data: any): JsonApiModel; }, id: number, params?: any): Observable<JsonApiModel> {
-        let options = this.getOptions();
+    findRecord(type: { new(data: any): JsonApiModel; }, id: number, params?: any, headers?: Headers): Observable<JsonApiModel> {
+        let options = this.getOptions(headers);
         let url = this.buildUrl(type, params, id);
         return this.http.get(url, options)
             .map((res: any) => this.extractRecordData(res, type))
             .catch((res: any) => this.handleError(res));
     }
 
-    createRecord(type: { new(data: any): JsonApiModel; }, data?: any) {
+    createRecord(type: { new(data: any): JsonApiModel; }, data?: any, headers?: Headers) {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
-        let options = this.getOptions();
+        let options = this.getOptions(headers);
         let relationships: any;
         for (let key in data) {
             if (data.hasOwnProperty(key)) {
@@ -60,6 +61,10 @@ export class JsonApiDatastore {
         }, options)
             .map((res: any) => this.extractRecordData(res, type))
             .catch((res: any) => this.handleError(res))
+    }
+
+    set headers(headers: Headers){
+        this._headers = headers;
     }
 
     private buildUrl(type: { new(data: any): JsonApiModel; }, params: any = {}, id?: number){
@@ -101,8 +106,15 @@ export class JsonApiDatastore {
         return Observable.throw(errMsg);
     }
 
-    private getOptions() {
-        let headers = new Headers({ 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json' });
+    private getOptions(customHeaders?: Headers) {
+        let headers: Headers = this._headers ? this._headers : new Headers();
+        headers.append('Accept', 'application/vnd.api+json');
+        headers.append('Content-Type', 'application/vnd.api+json');
+        if (customHeaders) {
+            customHeaders.forEach(function(values, name){
+                headers.append(name, values[0]);
+            });
+        }
         return new RequestOptions({ headers: headers });
     }
 

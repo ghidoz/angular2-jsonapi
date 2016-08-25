@@ -12,6 +12,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Querying for Multiple Records](#querying-for-multiple-records)
         - [Retrieving a Single Record](#retrieving-a-single-record)
     - [Creating Records](#creating-records)
+    - [Custom Headers](#custom-headers)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
@@ -200,6 +201,31 @@ this.datastore.createRecord(Comment, {
     (comment: Comment) => console.log(comment)
 );
 ```
+
+### Custom Headers
+
+By default, the library adds these headers, according to the [JSON API MIME Types](http://jsonapi.org/#mime-types):
+
+```
+Accept: application/vnd.api+json
+Content-Type: application/vnd.api+json
+```
+
+You can also add your custom headers to be appended to each http call:
+
+```typescript
+this.datastore.headers = new Headers({'Authorization': 'Bearer ' + accessToken});
+```
+
+Or you can pass the headers as last argument of any datastore call method:
+
+```typescript
+this.datastore.createRecord(Post, {
+    title: 'My post',
+    content: 'My content'
+}, new Headers({'Authorization': 'Bearer ' + accessToken}));
+```
+
 
 ## TODO
 - Implement everything from the [JSON API](http://jsonapi.org/) specific.
