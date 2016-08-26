@@ -32,27 +32,13 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    createRecord(type: { new(data: any): JsonApiModel; }, data?: any, headers?: Headers) {
+
+    createRecord(type: { new(data: any): JsonApiModel; }, data?: any, params?: any, headers?: Headers) {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
-        let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let options = this.getOptions(headers);
-        let relationships: any;
-        for (let key in data) {
-            if (data.hasOwnProperty(key)) {
-                if (data[key] instanceof JsonApiModel) {
-                    relationships = relationships || {};
-                    let relationshipType =  Reflect.getMetadata('JsonApiModelConfig', data[key].constructor).type;
-                    relationships[key] = {
-                        data: {
-                            type: relationshipType,
-                            id: data[key].id
-                        }
-                    }
-                    delete data[key];
-                }
-            }
-        }
-        return this.http.post(baseUrl + typeName, {
+        let relationships = this.getRelationships(data);
+        let url = this.buildUrl(type, params);
+        return this.http.post(url, {
             data: {
                 type: typeName,
                 attributes: data,
@@ -67,14 +53,34 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-    private buildUrl(type: { new(data: any): JsonApiModel; }, params: any = {}, id?: number){
+    private buildUrl(type: { new(data: any): JsonApiModel; }, params?: any, id?: number){
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
-        if (params.include && typeof params.include === 'function') {
+        if (params && params.include && typeof params.include === 'function') {
             params.include = Reflect.getMetadata('JsonApiModelConfig', params.include).type;
         }
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let idToken = id ? `/${id}` : null;
-        return [baseUrl, typeName, idToken, '?', this.toQueryString(params)].join('');
+        return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
+    }
+
+    private getRelationships(data: any): any{
+        let relationships: any;
+        for (let key in data) {
+            if (data.hasOwnProperty(key)) {
+                if (data[key] instanceof JsonApiModel) {
+                    relationships = relationships || {};
+                    let relationshipType =  Reflect.getMetadata('JsonApiModelConfig', data[key].constructor).type;
+                    relationships[key] = {
+                        data: {
+                            type: relationshipType,
+                            id: data[key].id
+                        }
+                    };
+                    delete data[key];
+                }
+            }
+        }
+        return relationships;
     }
 
     private extractQueryData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel[] {

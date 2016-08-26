@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 
-export function HasMany(config: any = {}) {
+export function BelongsTo(config: any = {}) {
   return function(target: any, propertyName: string | symbol) {
-    let annotations = Reflect.getMetadata('HasMany', target) || [];
+    let annotations = Reflect.getMetadata('BelongsTo', target) || [];
     annotations.push({
         propertyName: propertyName,
         relationship: config.key || propertyName
     });
-    Reflect.defineMetadata('HasMany', annotations, target);
+    Reflect.defineMetadata('BelongsTo', annotations, target);
   };
 }

@@ -74,7 +74,8 @@ import { JsonApiDatastoreConfig, JsonApiDatastore } from 'angular2-jsonapi';
   baseUrl: 'http://localhost:8000/v1/',
   models: {
     posts: Post,
-    comments: Comment
+    comments: Comment,
+    users: User
   }
 })
 export class Datastore extends JsonApiDatastore { }
@@ -83,7 +84,7 @@ export class Datastore extends JsonApiDatastore { }
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the relationships attributes with `@HasMany`
+- Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 
 ```typescript
 import { JsonApiModelConfig, JsonApiModel, HasMany } from 'angular2-jsonapi';
@@ -106,8 +107,21 @@ export class Post extends JsonApiModel {
 export class Comment extends JsonApiModel {
 
     title: string;
-
+    
+    @BelongsTo()
     post: Post;
+
+	@BelongsTo()
+    user: User;
+}
+
+@JsonApiModelConfig({
+    type: 'users'
+})
+export class User extends JsonApiModel {
+
+    name: string;
+    // ...
 }
 ```
 
@@ -191,16 +205,33 @@ this.datastore.createRecord(Post, {
 );
 ```
 
-If the object you want to create has a one-to-many relationship, you can do this:
+If the object you want to create has a **one-to-many** relationship, you can do this:
 
 ```typescript
 this.datastore.createRecord(Comment, {
     title: 'My comment',
-    post: Post
+    post: post
 }).subscribe(
     (comment: Comment) => console.log(comment)
 );
 ```
+
+where `post` is an object of type `Post`, previously retrieved from the API.
+
+If you want to include a relationship when creating a record to have it parsed in the response, you can pass the `params` object:
+
+```typescript
+this.datastore.createRecord(Comment, {
+    title: 'My comment',
+    post: post
+}, {
+	include: 'user'
+}).subscribe(
+    (comment: Comment) => console.log(comment)
+);
+```
+
+
 
 ### Custom Headers
 
