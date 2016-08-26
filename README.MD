@@ -132,7 +132,6 @@ export class User extends JsonApiModel {
 Now, you can use your `Datastore` in order to query your API with the `query()` method:
 - The first argument is the type of object you want to query.
 - The second argument is the list of params: write them in JSON format and they will be serialized.
-- When you want to get also the relationships, pass the `include` param with the type of object to be included as relationship.
 
 ```typescript
 // ...
@@ -141,7 +140,7 @@ constructor(private datastore: Datastore) { }
 getPosts(){
     this.datastore.query(Post, {
         page: { size: 10, number: 1},
-        include: Comment
+        include: 'comments'
     }).subscribe(
         (posts: Post[]) => console.log(posts)
     );
@@ -184,7 +183,7 @@ You can also pass the options:
 
 ```typescript
 this.datastore.findRecord(Post, 1, {
-    include: Comment
+    include: 'comments'
 }).subscribe(
     (post: Post) => console.log(post)
 );

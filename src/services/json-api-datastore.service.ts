@@ -55,9 +55,6 @@ export class JsonApiDatastore {
 
     private buildUrl(type: { new(data: any): JsonApiModel; }, params?: any, id?: number){
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
-        if (params && params.include && typeof params.include === 'function') {
-            params.include = Reflect.getMetadata('JsonApiModelConfig', params.include).type;
-        }
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let idToken = id ? `/${id}` : null;
         return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
