@@ -24,14 +24,13 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord(type: { new(data: any): JsonApiModel; }, id: number, params?: any, headers?: Headers): Observable<JsonApiModel> {
+    findRecord(type: { new(data: any): JsonApiModel; }, id: string, params?: any, headers?: Headers): Observable<JsonApiModel> {
         let options = this.getOptions(headers);
         let url = this.buildUrl(type, params, id);
         return this.http.get(url, options)
             .map((res: any) => this.extractRecordData(res, type))
             .catch((res: any) => this.handleError(res));
     }
-
 
     createRecord(type: { new(data: any): JsonApiModel; }, data?: any, params?: any, headers?: Headers) {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
@@ -53,7 +52,7 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-    private buildUrl(type: { new(data: any): JsonApiModel; }, params?: any, id?: number){
+    private buildUrl(type: { new(data: any): JsonApiModel; }, params?: any, id?: string) {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let idToken = id ? `/${id}` : null;

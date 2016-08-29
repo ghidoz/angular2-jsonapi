@@ -87,7 +87,7 @@ Then set up your models:
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 
 ```typescript
-import { JsonApiModelConfig, JsonApiModel, HasMany } from 'angular2-jsonapi';
+import { JsonApiModelConfig, JsonApiModel, HasMany, BelongsTo } from 'angular2-jsonapi';
 
 @JsonApiModelConfig({
     type: 'posts'
