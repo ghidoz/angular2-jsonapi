@@ -1,3 +1,5 @@
+import { NgModule } from '@angular/core';
+import { HttpModule } from '@angular/http';
 import { PROVIDERS } from './services';
 
 export * from './decorators/has-many.decorator';
@@ -9,6 +11,8 @@ export * from './models/json-api.model';
 
 export * from './services';
 
-export default {
-  providers: [PROVIDERS]
-};
+@NgModule({
+  providers: [ PROVIDERS ],
+  exports: [ HttpModule ]
+})
+export class JsonApiModule { }

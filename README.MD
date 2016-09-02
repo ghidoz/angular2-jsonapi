@@ -25,7 +25,7 @@ To install this library, run:
 $ npm install angular2-jsonapi --save
 ```
 
-If you use [Angular-CLI](https://github.com/angular/angular-cli), add the package (and its dependencies) to `system-config.ts`:
+**Note**: If you use [Angular-CLI](https://github.com/angular/angular-cli) with SystemJS, add the package (and its dependencies) to `system-config.ts`:
 ```typescript
 const map: any = {
   'underscore': 'vendor/underscore',
@@ -49,7 +49,27 @@ vendorNpmFiles: [
 ]
 ```
 
-Add the library's `PROVIDERS` to your bootstrap dependences:
+If you use the [Angular-CLI Webpack version](https://github.com/angular/angular-cli/blob/master/WEBPACK_UPDATE.md), just skip to the following configuration step.
+
+Add the `JsonApiModule` to your app module imports:
+```typescript
+import { JsonApiModule } from 'angular2-jsonapi';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    JsonApiModule
+  ],
+  declarations: [
+    AppComponent
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+If you are still using Angular2 RC4, you can just add the library's `PROVIDERS` to your bootstrap dependencies:
+
 ```typescript
 import { PROVIDERS } from 'angular2-jsonapi';
 
@@ -65,6 +85,7 @@ bootstrap(AppComponent, [
 Firstly, create your `Datastore` service:
 - Extend the `JsonApiDatastore` class
 - Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models
+- Pass the `Http` depencency to the parent constructor.
 
 ```typescript
 import { JsonApiDatastoreConfig, JsonApiDatastore } from 'angular2-jsonapi';
@@ -78,7 +99,13 @@ import { JsonApiDatastoreConfig, JsonApiDatastore } from 'angular2-jsonapi';
     users: User
   }
 })
-export class Datastore extends JsonApiDatastore { }
+export class Datastore extends JsonApiDatastore {
+
+    constructor(http: Http) {
+        super(http);
+    }
+
+}
 ```
 
 Then set up your models:
@@ -174,7 +201,7 @@ You will get an array of objects where every mapped relationship will be automat
 Use `findRecord()` to retrieve a record by its type and ID:
 
 ```typescript
-this.datastore.findRecord(Post, 1).subscribe(
+this.datastore.findRecord(Post, '1').subscribe(
     (post: Post) => console.log(post)
 );
 ```
@@ -182,7 +209,7 @@ this.datastore.findRecord(Post, 1).subscribe(
 You can also pass the options:
 
 ```typescript
-this.datastore.findRecord(Post, 1, {
+this.datastore.findRecord(Post, '1', {
     include: 'comments'
 }).subscribe(
     (post: Post) => console.log(post)
