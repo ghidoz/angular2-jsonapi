@@ -1,5 +1,5 @@
-import { Injectable, ReflectiveInjector } from '@angular/core';
-import { Headers, Http, RequestOptions, HTTP_PROVIDERS } from '@angular/http';
+import { Injectable } from '@angular/core';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -8,13 +8,9 @@ import { JsonApiModel } from '../models/json-api.model';
 @Injectable()
 export class JsonApiDatastore {
 
-    private http: Http;
     private _headers: Headers;
 
-    constructor() {
-        let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS]);
-        this.http = injector.get(Http);
-    }
+    constructor(private http: Http) { }
 
     query(type: { new(data: any): JsonApiModel; }, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
         let options = this.getOptions(headers);
