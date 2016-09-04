@@ -11,7 +11,10 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
     - [Finding Records](#finding-records)
         - [Querying for Multiple Records](#querying-for-multiple-records)
         - [Retrieving a Single Record](#retrieving-a-single-record)
-    - [Creating Records](#creating-records)
+    - [Creating, Updating and Deleting](#creating-updating-and-deleting)
+        - [Creating Records](#creating-records)
+        - [Persisting Records](#persisting-records)
+        - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
 - [TODO](#todo)
 - [Development](#development)
@@ -216,7 +219,9 @@ this.datastore.findRecord(Post, '1', {
 );
 ```
 
-### Creating Records
+### Creating, Updating and Deleting 
+
+#### Creating Records
 
 You can create records by calling the `createRecord()` method on the datastore:
 - The first argument is the type of object you want to create.
@@ -226,38 +231,52 @@ You can create records by calling the `createRecord()` method on the datastore:
 this.datastore.createRecord(Post, {
     title: 'My post',
     content: 'My content'
-}).subscribe(
+});
+```
+
+#### Persisting Records
+
+Records are persisted on a per-instance basis. Call `save()` on any instance of `JsonApiModel` and it will make a network request.
+
+```typescript
+let post = this.datastore.createRecord(Post, {
+    title: 'My post',
+    content: 'My content'
+});
+
+post.save();
+```
+
+The `save()` method will return an `Observer` that you can subscribe:
+
+```typescript
+post.save().subscribe(
     (post: Post) => console.log(post)
 );
 ```
 
+#### Relationships
+
 If the object you want to create has a **one-to-many** relationship, you can do this:
 
 ```typescript
-this.datastore.createRecord(Comment, {
+let comment = this.datastore.createRecord(Comment, {
     title: 'My comment',
     post: post
-}).subscribe(
-    (comment: Comment) => console.log(comment)
-);
+});
 ```
 
 where `post` is an object of type `Post`, previously retrieved from the API.
 
-If you want to include a relationship when creating a record to have it parsed in the response, you can pass the `params` object:
+If you want to include a relationship when creating a record to have it parsed in the response, you can pass the `params` object to the `save()` method:
 
 ```typescript
-this.datastore.createRecord(Comment, {
-    title: 'My comment',
-    post: post
-}, {
+comment.save({
 	include: 'user'
 }).subscribe(
     (comment: Comment) => console.log(comment)
 );
 ```
-
-
 
 ### Custom Headers
 
@@ -277,10 +296,15 @@ this.datastore.headers = new Headers({'Authorization': 'Bearer ' + accessToken})
 Or you can pass the headers as last argument of any datastore call method:
 
 ```typescript
-this.datastore.createRecord(Post, {
-    title: 'My post',
-    content: 'My content'
+this.datastore.query(Post, {
+    include: 'comments'
 }, new Headers({'Authorization': 'Bearer ' + accessToken}));
+```
+
+and in the `save()` method:
+
+```typescript
+post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken}));
 ```
 
 

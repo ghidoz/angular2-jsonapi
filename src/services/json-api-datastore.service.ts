@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
@@ -12,7 +13,7 @@ export class JsonApiDatastore {
 
     constructor(private http: Http) { }
 
-    query(type: { new(data: any): JsonApiModel; }, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
+    query(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
         let options = this.getOptions(headers);
         let url = this.buildUrl(type, params);
         return this.http.get(url, options)
@@ -20,7 +21,7 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord(type: { new(data: any): JsonApiModel; }, id: string, params?: any, headers?: Headers): Observable<JsonApiModel> {
+    findRecord(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, id: string, params?: any, headers?: Headers): Observable<JsonApiModel> {
         let options = this.getOptions(headers);
         let url = this.buildUrl(type, params, id);
         return this.http.get(url, options)
@@ -28,11 +29,18 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    createRecord(type: { new(data: any): JsonApiModel; }, data?: any, params?: any, headers?: Headers) {
+    createRecord(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, data?: any): JsonApiModel {
+        return new type(this, { attributes: data });
+    }
+
+    saveRecord(data?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
+        let type = data.constructor;
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         let options = this.getOptions(headers);
         let relationships = this.getRelationships(data);
         let url = this.buildUrl(type, params);
+        data = _.clone(data);
+        delete data._datastore;
         return this.http.post(url, {
             data: {
                 type: typeName,
@@ -41,14 +49,14 @@ export class JsonApiDatastore {
             }
         }, options)
             .map((res: any) => this.extractRecordData(res, type))
-            .catch((res: any) => this.handleError(res))
+            .catch((res: any) => this.handleError(res));
     }
 
     set headers(headers: Headers){
         this._headers = headers;
     }
 
-    private buildUrl(type: { new(data: any): JsonApiModel; }, params?: any, id?: string) {
+    private buildUrl(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, params?: any, id?: string) {
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let idToken = id ? `/${id}` : null;
@@ -75,24 +83,24 @@ export class JsonApiDatastore {
         return relationships;
     }
 
-    private extractQueryData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel[] {
+    private extractQueryData(res: any, type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }): JsonApiModel[] {
         let body = res.json();
         let models: JsonApiModel[] = [];
         body.data.forEach((data: any) => {
-            let model: JsonApiModel = new type(data);
+            let model: JsonApiModel = new type(this, data);
             if (body.included) {
-                model.syncRelationships(data, body.included, this);
+                model.syncRelationships(data, body.included);
             }
             models.push(model);
         });
         return models;
     }
 
-    private extractRecordData(res: any, type: { new(data: any): JsonApiModel; }): JsonApiModel {
+    private extractRecordData(res: any, type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }): JsonApiModel {
         let body = res.json();
-        let model: JsonApiModel = new type(body.data);
+        let model: JsonApiModel = new type(this, body.data);
         if (body.included) {
-            model.syncRelationships(body.data, body.included, this);
+            model.syncRelationships(body.data, body.included);
         }
         return model;
     }
