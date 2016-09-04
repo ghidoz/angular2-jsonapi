@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions } from '@angular/http';
+import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -44,13 +44,21 @@ export class JsonApiDatastore {
         let url = this.buildUrl(modelType, params);
         data = _.clone(data);
         delete data._datastore;
-        return this.http.post(url, {
+        let httpCall: Observable<Response>;
+        let body: any = {
             data: {
                 type: typeName,
+                id: data.id,
                 attributes: data,
                 relationships: relationships
             }
-        }, options)
+        };
+        if (data.id) {
+            httpCall = this.http.patch(url + `/${data.id}`, body, options);
+        } else {
+            httpCall = this.http.post(url, body, options);
+        }
+        return httpCall
             .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
