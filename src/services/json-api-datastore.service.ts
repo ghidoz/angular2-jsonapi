@@ -6,6 +6,8 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import { JsonApiModel } from '../models/json-api.model';
 
+export type ModelType = { new(datastore: JsonApiDatastore, data: any): JsonApiModel; };
+
 @Injectable()
 export class JsonApiDatastore {
 
@@ -13,32 +15,32 @@ export class JsonApiDatastore {
 
     constructor(private http: Http) { }
 
-    query(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
+    query(modelType: ModelType, params?: any, headers?: Headers): Observable<JsonApiModel[]> {
         let options = this.getOptions(headers);
-        let url = this.buildUrl(type, params);
+        let url = this.buildUrl(modelType, params);
         return this.http.get(url, options)
-            .map((res: any) => this.extractQueryData(res, type))
+            .map((res: any) => this.extractQueryData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, id: string, params?: any, headers?: Headers): Observable<JsonApiModel> {
+    findRecord(modelType: ModelType, id: string, params?: any, headers?: Headers): Observable<JsonApiModel> {
         let options = this.getOptions(headers);
-        let url = this.buildUrl(type, params, id);
+        let url = this.buildUrl(modelType, params, id);
         return this.http.get(url, options)
-            .map((res: any) => this.extractRecordData(res, type))
+            .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
-    createRecord(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, data?: any): JsonApiModel {
-        return new type(this, { attributes: data });
+    createRecord(modelType: ModelType, data?: any): JsonApiModel {
+        return new modelType(this, { attributes: data });
     }
 
     saveRecord(data?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
-        let type = data.constructor;
-        let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
+        let modelType = data.constructor;
+        let typeName =  Reflect.getMetadata('JsonApiModelConfig', modelType).type;
         let options = this.getOptions(headers);
         let relationships = this.getRelationships(data);
-        let url = this.buildUrl(type, params);
+        let url = this.buildUrl(modelType, params);
         data = _.clone(data);
         delete data._datastore;
         return this.http.post(url, {
@@ -48,7 +50,7 @@ export class JsonApiDatastore {
                 relationships: relationships
             }
         }, options)
-            .map((res: any) => this.extractRecordData(res, type))
+            .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
@@ -56,8 +58,8 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-    private buildUrl(type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, params?: any, id?: string) {
-        let typeName =  Reflect.getMetadata('JsonApiModelConfig', type).type;
+    private buildUrl(modelType: ModelType, params?: any, id?: string) {
+        let typeName =  Reflect.getMetadata('JsonApiModelConfig', modelType).type;
         let baseUrl = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
         let idToken = id ? `/${id}` : null;
         return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
@@ -83,11 +85,11 @@ export class JsonApiDatastore {
         return relationships;
     }
 
-    private extractQueryData(res: any, type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }): JsonApiModel[] {
+    private extractQueryData(res: any, modelType: ModelType): JsonApiModel[] {
         let body = res.json();
         let models: JsonApiModel[] = [];
         body.data.forEach((data: any) => {
-            let model: JsonApiModel = new type(this, data);
+            let model: JsonApiModel = new modelType(this, data);
             if (body.included) {
                 model.syncRelationships(data, body.included);
             }
@@ -96,9 +98,9 @@ export class JsonApiDatastore {
         return models;
     }
 
-    private extractRecordData(res: any, type: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }): JsonApiModel {
+    private extractRecordData(res: any, modelType: ModelType): JsonApiModel {
         let body = res.json();
-        let model: JsonApiModel = new type(this, body.data);
+        let model: JsonApiModel = new modelType(this, body.data);
         if (body.included) {
             model.syncRelationships(body.data, body.included);
         }

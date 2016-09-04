@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import 'reflect-metadata';
 import { Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import { JsonApiDatastore } from '../services/json-api-datastore.service';
+import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 
 export class JsonApiModel {
 
@@ -31,8 +31,8 @@ export class JsonApiModel {
             for (let metadata of hasMany){
                 if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
                     let typeName: string = data.relationships[metadata.relationship].data[0].type;
-                    let objectType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    this[metadata.propertyName] = this.getHasManyRelationship(objectType, data, included, metadata.relationship, typeName);
+                    let modelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+                    this[metadata.propertyName] = this.getHasManyRelationship(modelType, data, included, metadata.relationship, typeName);
                 }
             }
         }
@@ -44,26 +44,26 @@ export class JsonApiModel {
             for (let metadata of belongsTo){
                 if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
                     let typeName: string = data.relationships[metadata.relationship].data.type;
-                    let objectType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    this[metadata.propertyName] = this.getBelongsToRelationship(objectType, data, included, metadata.relationship, typeName);
+                    let modelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+                    this[metadata.propertyName] = this.getBelongsToRelationship(modelType, data, included, metadata.relationship, typeName);
                 }
             }
         }
     }
 
-    private getHasManyRelationship(objectType: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, data: any, included: any, relationship: string, typeName: string): JsonApiModel[] {
+    private getHasManyRelationship(modelType: ModelType, data: any, included: any, relationship: string, typeName: string): JsonApiModel[] {
         let relationshipList: JsonApiModel[] = [];
         data.relationships[relationship].data.forEach((item: any) => {
             let relationshipData: any = _.findWhere(included, {id: item.id, type: typeName});
-            relationshipList.push(new objectType(this._datastore, relationshipData));
+            relationshipList.push(new modelType(this._datastore, relationshipData));
         });
         return relationshipList;
     }
 
-    private getBelongsToRelationship(objectType: { new(ds: JsonApiDatastore, data: any): JsonApiModel; }, data: any, included: any, relationship: string, typeName: string): JsonApiModel {
+    private getBelongsToRelationship(modelType: ModelType, data: any, included: any, relationship: string, typeName: string): JsonApiModel {
         let id = data.relationships[relationship].data.id;
         let relationshipData: any = _.findWhere(included, {id: id, type: typeName});
-        return new objectType(this._datastore, relationshipData);
+        return new modelType(this._datastore, relationshipData);
     }
 
 }
