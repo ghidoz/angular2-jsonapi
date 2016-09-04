@@ -12,6 +12,7 @@ export type ModelType = { new(datastore: JsonApiDatastore, data: any): JsonApiMo
 export class JsonApiDatastore {
 
     private _headers: Headers;
+    private _store: any = {};
 
     constructor(private http: Http) { }
 
@@ -52,6 +53,16 @@ export class JsonApiDatastore {
         }, options)
             .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
+    }
+
+    peekRecord(modelType: ModelType, id: string) {
+        let type = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+        return this._store[type][id];
+    }
+
+    peekAll(modelType: ModelType) {
+        let type = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+        return _.values(this._store[type]);
     }
 
     set headers(headers: Headers){
@@ -95,6 +106,7 @@ export class JsonApiDatastore {
             }
             models.push(model);
         });
+        this.addToStore(models);
         return models;
     }
 
@@ -104,6 +116,7 @@ export class JsonApiDatastore {
         if (body.included) {
             model.syncRelationships(body.data, body.included);
         }
+        this.addToStore(model);
         return model;
     }
 
@@ -153,6 +166,21 @@ export class JsonApiDatastore {
             encodedStr = encodedStr.substr(0, encodedStr.length - 1);
         }
         return encodedStr;
+    }
+
+    private addToStore(models: JsonApiModel | JsonApiModel[]) {
+        let model = models instanceof Array ? models[0] : models;
+        let type = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
+        if (!this._store[type]) {
+            this._store[type] = {};
+        }
+        let hash = this.fromArrayToHash(models);
+        _.extend(this._store[type], hash);
+    }
+
+    private fromArrayToHash(models: JsonApiModel | JsonApiModel[]) {
+        let modelsArray: JsonApiModel[] = models instanceof Array ? models : [models];
+        return _.indexBy(modelsArray, 'id');
     }
 
 }

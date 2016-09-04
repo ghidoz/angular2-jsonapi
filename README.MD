@@ -199,6 +199,13 @@ You will get an array of objects where every mapped relationship will be automat
 ]
 ```
 
+Use `peekAll()` to retrieve all of the records for a given type that are already loaded into the store, without making a network request:
+
+```typescript
+let posts = this.datastore.peekAll(Post);
+```
+
+
 #### Retrieving a Single Record
 
 Use `findRecord()` to retrieve a record by its type and ID:
@@ -217,6 +224,12 @@ this.datastore.findRecord(Post, '1', {
 }).subscribe(
     (post: Post) => console.log(post)
 );
+```
+
+Use `peekRecord()` to retrieve a record by its type and ID, without making a network request. This will return the record only if it is already present in the store:
+
+```typescript
+let post = this.datastore.peekRecord(Post, '1');
 ```
 
 ### Creating, Updating and Deleting 
