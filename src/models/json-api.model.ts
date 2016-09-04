@@ -22,7 +22,8 @@ export class JsonApiModel {
     }
 
     save(params?: any, headers?: Headers): Observable<JsonApiModel> {
-        return this._datastore.saveRecord(this, params, headers);
+        let attributesMetadata = Reflect.getMetadata('Attribute', this);
+        return this._datastore.saveRecord(attributesMetadata, this, params, headers);
     }
 
     private parseHasMany(data: any, included: any) {

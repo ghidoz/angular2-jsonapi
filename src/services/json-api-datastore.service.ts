@@ -36,30 +36,38 @@ export class JsonApiDatastore {
         return new modelType(this, { attributes: data });
     }
 
-    saveRecord(data?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
+    saveRecord(attributesMetadata: any, data?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
         let modelType = data.constructor;
         let typeName =  Reflect.getMetadata('JsonApiModelConfig', modelType).type;
         let options = this.getOptions(headers);
-        let relationships = this.getRelationships(data);
-        let url = this.buildUrl(modelType, params);
-        data = _.clone(data);
-        delete data._datastore;
+        let relationships = !data.id ? this.getRelationships(data) : undefined;
+        let url = this.buildUrl(modelType, params, data.id);
+        let dirtyData: any = {};
+        for (let propertyName in attributesMetadata) {
+            if (attributesMetadata.hasOwnProperty(propertyName)) {
+                let metadata: any = attributesMetadata[propertyName];
+                if (metadata.hasDirtyAttributes) {
+                    dirtyData[propertyName] = metadata.newValue;
+                }
+            }
+        }
         let httpCall: Observable<Response>;
         let body: any = {
             data: {
                 type: typeName,
                 id: data.id,
-                attributes: data,
+                attributes: dirtyData,
                 relationships: relationships
             }
         };
         if (data.id) {
-            httpCall = this.http.patch(url + `/${data.id}`, body, options);
+            httpCall = this.http.patch(url, body, options);
         } else {
             httpCall = this.http.post(url, body, options);
         }
         return httpCall
             .map((res: any) => this.extractRecordData(res, modelType))
+            .map((res: any) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
@@ -189,6 +197,19 @@ export class JsonApiDatastore {
     private fromArrayToHash(models: JsonApiModel | JsonApiModel[]) {
         let modelsArray: JsonApiModel[] = models instanceof Array ? models : [models];
         return _.indexBy(modelsArray, 'id');
+    }
+
+    private resetMetadataAttributes(res: any, attributesMetadata: any, modelType: ModelType) {
+        for (let propertyName in attributesMetadata) {
+            if (attributesMetadata.hasOwnProperty(propertyName)) {
+                let metadata: any = attributesMetadata[propertyName];
+                if (metadata.hasDirtyAttributes) {
+                    metadata.hasDirtyAttributes = false;
+                }
+            }
+        }
+        Reflect.defineMetadata('Attribute', attributesMetadata, modelType);
+        return res;
     }
 
 }

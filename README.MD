@@ -13,6 +13,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Retrieving a Single Record](#retrieving-a-single-record)
     - [Creating, Updating and Deleting](#creating-updating-and-deleting)
         - [Creating Records](#creating-records)
+        - [Updating Records](#updating-records)
         - [Persisting Records](#persisting-records)
         - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
@@ -114,17 +115,21 @@ export class Datastore extends JsonApiDatastore {
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
+- Decorate the class properties with `@Attribute`
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 
 ```typescript
-import { JsonApiModelConfig, JsonApiModel, HasMany, BelongsTo } from 'angular2-jsonapi';
+import { JsonApiModelConfig, JsonApiModel, Attribute, HasMany, BelongsTo } from 'angular2-jsonapi';
 
 @JsonApiModelConfig({
     type: 'posts'
 })
 export class Post extends JsonApiModel {
 
+	@Attribute
     title: string;
+
+	@Attribute
     content: string;
 
     @HasMany()
@@ -136,6 +141,7 @@ export class Post extends JsonApiModel {
 })
 export class Comment extends JsonApiModel {
 
+	@Attribute
     title: string;
     
     @BelongsTo()
@@ -150,6 +156,7 @@ export class Comment extends JsonApiModel {
 })
 export class User extends JsonApiModel {
 
+	@Attribute
     name: string;
     // ...
 }
@@ -247,9 +254,25 @@ this.datastore.createRecord(Post, {
 });
 ```
 
+#### Updating Records
+
+Making changes to records is as simple as setting the attribute you want to change:
+
+```typescript
+this.datastore.findRecord(Post, '1').subscribe(
+    (post: Post) => {
+		post.title = 'New title';
+	}
+);
+```
+
 #### Persisting Records
 
 Records are persisted on a per-instance basis. Call `save()` on any instance of `JsonApiModel` and it will make a network request.
+
+The library takes care of tracking the state of each record for you, so that newly created records are treated differently from existing records when saving.
+
+Newly created records will be `POST`ed:
 
 ```typescript
 let post = this.datastore.createRecord(Post, {
@@ -257,7 +280,18 @@ let post = this.datastore.createRecord(Post, {
     content: 'My content'
 });
 
-post.save();
+post.save();  // => POST to '/posts'
+```
+
+Records that already exist on the backend are updated using the HTTP `PATCH` verb:
+
+```typescript
+this.datastore.findRecord(Post, '1').subscribe(
+    (post: Post) => {
+		post.title = 'New title';
+		post.save();  // => PATCH to '/posts/1'
+	}
+);
 ```
 
 The `save()` method will return an `Observer` that you can subscribe:
@@ -268,18 +302,19 @@ post.save().subscribe(
 );
 ```
 
+
 #### Relationships
 
 If the object you want to create has a **one-to-many** relationship, you can do this:
 
 ```typescript
+let post = this.datastore.peekRecord(Post, '1');
 let comment = this.datastore.createRecord(Comment, {
     title: 'My comment',
     post: post
 });
+comment.save();
 ```
-
-where `post` is an object of type `Post`, previously retrieved from the API.
 
 If you want to include a relationship when creating a record to have it parsed in the response, you can pass the `params` object to the `save()` method:
 
