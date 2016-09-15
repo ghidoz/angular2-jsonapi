@@ -3,6 +3,7 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
 import { JsonApiModel } from '../models/json-api.model';
 
 @Injectable()
@@ -81,7 +82,7 @@ export class JsonApiDatastore {
         body.data.forEach((data: any) => {
             let model: JsonApiModel = new type(data);
             if (body.included) {
-                model.syncRelationships(data, body.included, this);
+                model.syncRelationships(data, body.included, 0, this);
             }
             models.push(model);
         });
@@ -92,7 +93,7 @@ export class JsonApiDatastore {
         let body = res.json();
         let model: JsonApiModel = new type(body.data);
         if (body.included) {
-            model.syncRelationships(body.data, body.included, this);
+            model.syncRelationships(body.data, body.included, 0, this);
         }
         return model;
     }
