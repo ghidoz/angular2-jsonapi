@@ -67,7 +67,7 @@ export class JsonApiDatastore {
             httpCall = this.http.post(url, body, options);
         }
         return httpCall
-            .map((res: any) => this.extractRecordData(res, modelType))
+            .map((res: any) => this.extractRecordData(res, modelType, data))
             .map((res: any) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
             .catch((res: any) => this.handleError(res));
     }
@@ -127,9 +127,9 @@ export class JsonApiDatastore {
         return models;
     }
 
-    private extractRecordData(res: any, modelType: ModelType): JsonApiModel {
+    private extractRecordData(res: any, modelType: ModelType, data?: any): JsonApiModel {
         let body = res.json();
-        let model: JsonApiModel = new modelType(this, body.data);
+        let model: JsonApiModel = data || new modelType(this, body.data);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
         }
@@ -201,6 +201,7 @@ export class JsonApiDatastore {
     }
 
     private resetMetadataAttributes(res: any, attributesMetadata: any, modelType: ModelType) {
+        attributesMetadata = Reflect.getMetadata('Attribute', res);
         for (let propertyName in attributesMetadata) {
             if (attributesMetadata.hasOwnProperty(propertyName)) {
                 let metadata: any = attributesMetadata[propertyName];
@@ -209,7 +210,7 @@ export class JsonApiDatastore {
                 }
             }
         }
-        Reflect.defineMetadata('Attribute', attributesMetadata, modelType);
+        Reflect.defineMetadata('Attribute', attributesMetadata, res);
         return res;
     }
 

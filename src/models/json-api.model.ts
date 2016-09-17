@@ -28,6 +28,21 @@ export class JsonApiModel {
         return this._datastore.saveRecord(attributesMetadata, this, params, headers);
     }
 
+    hasDirtyAttributes() {
+        let attributesMetadata = Reflect.getMetadata('Attribute', this);
+        let hasDirtyAttributes = false;
+        for (let propertyName in attributesMetadata) {
+            if (attributesMetadata.hasOwnProperty(propertyName)) {
+                let metadata: any = attributesMetadata[propertyName];
+                if (metadata.hasDirtyAttributes) {
+                    hasDirtyAttributes = true;
+                    break;
+                }
+            }
+        }
+        return hasDirtyAttributes;
+    }
+
     private parseHasMany(data: any, included: any, level: number) {
         let hasMany = Reflect.getMetadata('HasMany', this);
         if (hasMany) {

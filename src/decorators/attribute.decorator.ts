@@ -5,6 +5,7 @@ export function Attribute(config: any = {}) {
 
     let saveAnnotations = function (hasDirtyAttributes: boolean, oldValue: any, newValue: any) {
         let annotations = Reflect.getMetadata('Attribute', target) || {};
+        hasDirtyAttributes = typeof oldValue === 'undefined' ? false : hasDirtyAttributes;
         annotations[propertyName] = {
             hasDirtyAttributes: hasDirtyAttributes,
             oldValue: oldValue,
@@ -13,19 +14,19 @@ export function Attribute(config: any = {}) {
         Reflect.defineMetadata('Attribute', annotations, target);
     };
 
-    let _val = target[propertyName];
-    saveAnnotations(false, undefined, _val);
-
     let getter = function () {
-        return _val;
+        return this['_' + propertyName];
     };
 
     let setter = function (newVal: any) {
-        saveAnnotations(true, _val, newVal);
-        _val = newVal;
+        if (newVal !== this['_' + propertyName]) {
+            saveAnnotations(true, this['_' + propertyName], newVal);
+            this['_' + propertyName] = newVal;
+        }
     };
 
     if (delete target[propertyName]) {
+        saveAnnotations(false, undefined, target[propertyName]);
         Object.defineProperty(target, propertyName, {
             get: getter,
             set: setter,
