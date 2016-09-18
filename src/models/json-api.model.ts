@@ -28,7 +28,7 @@ export class JsonApiModel {
         return this._datastore.saveRecord(attributesMetadata, this, params, headers);
     }
 
-    hasDirtyAttributes() {
+    get hasDirtyAttributes() {
         let attributesMetadata = Reflect.getMetadata('Attribute', this);
         let hasDirtyAttributes = false;
         for (let propertyName in attributesMetadata) {
