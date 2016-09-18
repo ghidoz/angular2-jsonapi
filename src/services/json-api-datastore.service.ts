@@ -129,6 +129,10 @@ export class JsonApiDatastore {
 
     private extractRecordData(res: any, modelType: ModelType, data?: any): JsonApiModel {
         let body = res.json();
+        if (data) {
+            data.id = body.data.id;
+            _.extend(data, body.data.attributes);
+        }
         let model: JsonApiModel = data || new modelType(this, body.data);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
