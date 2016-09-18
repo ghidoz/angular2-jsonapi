@@ -43,6 +43,25 @@ export class JsonApiModel {
         return hasDirtyAttributes;
     }
 
+    rollbackAttributes() {
+        let attributesMetadata = Reflect.getMetadata('Attribute', this);
+        let metadata: any;
+        for (let propertyName in attributesMetadata) {
+            if (attributesMetadata.hasOwnProperty(propertyName)) {
+                if (attributesMetadata[propertyName].hasDirtyAttributes) {
+                    this[propertyName] = attributesMetadata[propertyName].oldValue;
+                    metadata = {
+                        hasDirtyAttributes: false,
+                        newValue: attributesMetadata[propertyName].oldValue,
+                        oldValue: undefined
+                    };
+                    attributesMetadata[propertyName] = metadata;
+                }
+            }
+        }
+        Reflect.defineMetadata('Attribute', attributesMetadata, this);
+    }
+
     private parseHasMany(data: any, included: any, level: number) {
         let hasMany = Reflect.getMetadata('HasMany', this);
         if (hasMany) {
