@@ -5,6 +5,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
 [![Angular 2 Style Guide](https://mgechev.github.io/angular2-style-guide/images/badge.svg)](https://angular.io/styleguide) [![Dependency Status](https://david-dm.org/ghidoz/angular2-jsonapi.svg)](https://david-dm.org/ghidoz/angular2-jsonapi) [![devDependency Status](https://david-dm.org/ghidoz/angular2-jsonapi/dev-status.svg)](https://david-dm.org/ghidoz/angular2-jsonapi#info=devDependencies) [![npm version](https://badge.fury.io/js/angular2-jsonapi.svg)](https://badge.fury.io/js/angular2-jsonapi)
 
 ## Table of Contents
+- [Introduction](#Introduction)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Configuration](#configuration)
@@ -15,11 +16,37 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Creating Records](#creating-records)
         - [Updating Records](#updating-records)
         - [Persisting Records](#persisting-records)
-        - [Relationships](#relationships)
+    - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
+
+## Introduction
+Why this library? Because [JSON API](http://jsonapi.org/) is an awesome standard, but the responses that you get and the way to interact with endpoints are not really easy and directly consumable from Angular.
+
+Moreover, using Angular2 and Typescript, we like to interact with classes and models, not with bare JSONs. Thanks to this library, you will be able to map all your data into models and relationships like these:
+
+```javascript
+[
+    Post{
+        id: 1,
+        title: 'My post',
+        content: 'My content',
+        comments: [
+            Comment{
+                id: 1,
+                // ...
+            },
+            Comment{
+                id: 2,
+                // ...
+            }
+        ]
+    },
+    // ...
+]
+```
 
 
 ## Installation
@@ -28,13 +55,6 @@ To install this library, run:
 ```bash
 $ npm install angular2-jsonapi --save
 ```
-
-**Note**: Because in our custom `Datastore` service we will make use of dependency injection into a class that inherits from a class of this module (see [this doc for an example](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#di-inheritance)) the used `@angular/http` module in our base project need to be of the same version as the version used by this module. Otherwise you will get an error like this:
-```
-Argument of type 'Http' is not assignable to parameter of type 'Http'.
-  Property '_backend' is protected but type 'Http' is not a class derived from 'Http'.
-```
-See [this issue](https://github.com/ghidoz/angular2-jsonapi/issues/4) for details.
 
 Add the `JsonApiModule` to your app module imports:
 ```typescript
@@ -52,6 +72,13 @@ import { JsonApiModule } from 'angular2-jsonapi';
 })
 export class AppModule { }
 ```
+
+**Note**: Because in our custom `Datastore` service we will make use of dependency injection into a class that inherits from a class of this module (see [this doc for an example](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#di-inheritance)) the used `@angular/http` module in our base project need to be of the same version as the version used by this module. Otherwise you will get an error like this:
+```
+Argument of type 'Http' is not assignable to parameter of type 'Http'.
+  Property '_backend' is protected but type 'Http' is not a class derived from 'Http'.
+```
+See [this issue](https://github.com/ghidoz/angular2-jsonapi/issues/4) for details.
 
 ## Usage
 
@@ -147,34 +174,11 @@ constructor(private datastore: Datastore) { }
 
 getPosts(){
     this.datastore.query(Post, {
-        page: { size: 10, number: 1},
-        include: 'comments'
+        page: { size: 10, number: 1}
     }).subscribe(
         (posts: Post[]) => console.log(posts)
     );
 }
-```
-
-You will get an array of objects where every mapped relationship will be automatically resolved:
-```javascript
-[
-    Post{
-        id: 1,
-        title: 'My post',
-        content: 'My content',
-        comments: [
-            Comment{
-                id: 1,
-                // ...
-            },
-            Comment{
-                id: 2,
-                // ...
-            }
-        ]
-    },
-    // ...
-]
 ```
 
 Use `peekAll()` to retrieve all of the records for a given type that are already loaded into the store, without making a network request:
@@ -190,16 +194,6 @@ Use `findRecord()` to retrieve a record by its type and ID:
 
 ```typescript
 this.datastore.findRecord(Post, '1').subscribe(
-    (post: Post) => console.log(post)
-);
-```
-
-You can also pass the options:
-
-```typescript
-this.datastore.findRecord(Post, '1', {
-    include: 'comments'
-}).subscribe(
     (post: Post) => console.log(post)
 );
 ```
@@ -294,7 +288,34 @@ this.datastore.findRecord(Post, '1').subscribe(
 ```
 
 
-#### Relationships
+### Relationships
+
+#### Querying records
+
+In order to query an object including its relationships, you can pass in its options the attribute name you want to load with the relationships:
+
+```typescript
+this.datastore.query(Post, {
+    page: { size: 10, number: 1},
+    include: 'comments'
+}).subscribe(
+    (posts: Post[]) => console.log(posts)
+);
+```
+
+The same, if you want to include relationships when finding a record:
+
+```typescript
+this.datastore.findRecord(Post, '1', {
+    include: 'comments,comments.user'
+}).subscribe(
+    (post: Post) => console.log(post)
+);
+```
+
+The library will try to resolve relationships on infinite levels connecting nested objects by reference. So that you can have a `Post`, with a list of `Comment`s, that have a `User` that has `Post`s, that have `Comment`s... etc.
+
+#### Creating Records
 
 If the object you want to create has a **one-to-many** relationship, you can do this:
 
@@ -314,6 +335,24 @@ comment.save({
 	include: 'user'
 }).subscribe(
     (comment: Comment) => console.log(comment)
+);
+```
+
+#### Updating Records
+
+You can also update an object that comes from a relationship:
+
+```typescript
+this.datastore.findRecord(Post, '1', {
+    include: 'comments'
+}).subscribe(
+    (post: Post) => {
+        let comment: Comment = post.comments[0];
+        comment.title = 'Cool';
+        comment.save().subscribe((comment: Comment) => {
+            console.log(comment);
+        });
+    }
 );
 ```
 
