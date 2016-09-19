@@ -97,10 +97,10 @@ import { JsonApiModelConfig, JsonApiModel, Attribute, HasMany, BelongsTo } from 
 })
 export class Post extends JsonApiModel {
 
-	@Attribute
+	@Attribute()
     title: string;
 
-	@Attribute
+	@Attribute()
     content: string;
 
     @HasMany()
@@ -112,7 +112,7 @@ export class Post extends JsonApiModel {
 })
 export class Comment extends JsonApiModel {
 
-	@Attribute
+	@Attribute()
     title: string;
 
     @BelongsTo()
@@ -127,7 +127,7 @@ export class Comment extends JsonApiModel {
 })
 export class User extends JsonApiModel {
 
-	@Attribute
+	@Attribute()
     name: string;
     // ...
 }
@@ -210,7 +210,7 @@ Use `peekRecord()` to retrieve a record by its type and ID, without making a net
 let post = this.datastore.peekRecord(Post, '1');
 ```
 
-### Creating, Updating and Deleting 
+### Creating, Updating and Deleting
 
 #### Creating Records
 
