@@ -75,7 +75,7 @@ export class JsonApiDatastore {
 
     peekRecord(modelType: ModelType, id: string): JsonApiModel {
         let type: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        return this._store[type][id];
+        return this._store[type] ? this._store[type][id] : null;
     }
 
     peekAll(modelType: ModelType): JsonApiModel[] {
@@ -118,12 +118,13 @@ export class JsonApiDatastore {
         let models: JsonApiModel[] = [];
         body.data.forEach((data: any) => {
             let model: JsonApiModel = new modelType(this, data);
+            this.addToStore(model);
             if (body.included) {
                 model.syncRelationships(data, body.included, 0);
+                this.addToStore(model);
             }
             models.push(model);
         });
-        this.addToStore(models);
         return models;
     }
 
@@ -134,10 +135,11 @@ export class JsonApiDatastore {
             _.extend(model, body.data.attributes);
         }
         model = model || new modelType(this, body.data);
+        this.addToStore(model);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
-        }
         this.addToStore(model);
+        }
         return model;
     }
 
@@ -189,7 +191,7 @@ export class JsonApiDatastore {
         return encodedStr;
     }
 
-    private addToStore(models: JsonApiModel | JsonApiModel[]): void {
+    public addToStore(models: JsonApiModel | JsonApiModel[]): void {
         let model: JsonApiModel = models instanceof Array ? models[0] : models;
         let type: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
         if (!this._store[type]) {

@@ -69,7 +69,10 @@ export class JsonApiModel {
                 if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
                     let typeName: string = data.relationships[metadata.relationship].data[0].type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    this[metadata.propertyName] = this.getHasManyRelationship(modelType, data, included, metadata.relationship, typeName, level);
+                    let relationship: JsonApiModel[] = this.getHasManyRelationship(modelType, data, included, metadata.relationship, typeName, level);
+                    if (relationship.length > 0) {
+                        this[metadata.propertyName] = relationship;
+                    }
                 }
             }
         }
@@ -82,7 +85,10 @@ export class JsonApiModel {
                 if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
                     let typeName: string = data.relationships[metadata.relationship].data.type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    this[metadata.propertyName] = this.getBelongsToRelationship(modelType, data, included, metadata.relationship, typeName, level);
+                    let relationship: JsonApiModel = this.getBelongsToRelationship(modelType, data, included, metadata.relationship, typeName, level);
+                    if (relationship) {
+                        this[metadata.propertyName] = relationship;
+                    }
                 }
             }
         }
@@ -92,11 +98,13 @@ export class JsonApiModel {
         let relationshipList: JsonApiModel[] = [];
         data.relationships[relationship].data.forEach((item: any) => {
             let relationshipData: any = _.findWhere(included, {id: item.id, type: typeName});
-            let newObject: JsonApiModel = new modelType(this._datastore, relationshipData);
-            if (level <= 1) {
-              newObject.syncRelationships(relationshipData, included, ++level);
+            if (relationshipData) {
+                let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
+                if (level <= 1) {
+                    newObject.syncRelationships(relationshipData, included, level + 1);
+                }
+                relationshipList.push(newObject);
             }
-            relationshipList.push(newObject);
         });
         return relationshipList;
     }
@@ -105,10 +113,23 @@ export class JsonApiModel {
     private getBelongsToRelationship(modelType: ModelType, data: any, included: any, relationship: string, typeName: string, level: number): JsonApiModel {
         let id: string = data.relationships[relationship].data.id;
         let relationshipData: any = _.findWhere(included, {id: id, type: typeName});
-        let newObject: JsonApiModel = new modelType(this._datastore, relationshipData);
-        if (level <= 1) {
-            newObject.syncRelationships(relationshipData, included, ++level);
+        if (relationshipData) {
+            let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
+            if (level <= 1) {
+                newObject.syncRelationships(relationshipData, included, level + 1);
+            }
+            return newObject;
         }
+        return this._datastore.peekRecord(modelType, id);
+    }
+
+    private createOrPeek(modelType: ModelType, data: any): JsonApiModel {
+        let peek = this._datastore.peekRecord(modelType, data.id);
+        if (peek) {
+            return peek;
+        }
+        let newObject: JsonApiModel = new modelType(this._datastore, data);
+        this._datastore.addToStore(newObject);
         return newObject;
     }
 
