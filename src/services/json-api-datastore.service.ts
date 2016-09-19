@@ -107,7 +107,6 @@ export class JsonApiDatastore {
                             id: data[key].id
                         }
                     };
-                    delete data[key];
                 }
             }
         }
