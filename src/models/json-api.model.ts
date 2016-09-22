@@ -66,12 +66,13 @@ export class JsonApiModel {
         let hasMany: any = Reflect.getMetadata('HasMany', this);
         if (hasMany) {
             for (let metadata of hasMany){
-                if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
-                    let typeName: string = data.relationships[metadata.relationship].data[0].type;
+                let relationship: any = data.relationships[metadata.relationship];
+                if (relationship && relationship.data) {
+                    let typeName: string = relationship.data[0].type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    let relationship: JsonApiModel[] = this.getHasManyRelationship(modelType, data, included, metadata.relationship, typeName, level);
-                    if (relationship.length > 0) {
-                        this[metadata.propertyName] = relationship;
+                    let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included,typeName, level);
+                    if (relationshipModel.length > 0) {
+                        this[metadata.propertyName] = relationshipModel;
                     }
                 }
             }
@@ -82,21 +83,23 @@ export class JsonApiModel {
         let belongsTo: any = Reflect.getMetadata('BelongsTo', this);
         if (belongsTo) {
             for (let metadata of belongsTo){
-                if (data.relationships[metadata.relationship] && data.relationships[metadata.relationship].data) {
-                    let typeName: string = data.relationships[metadata.relationship].data.type;
+                let relationship: any = data.relationships[metadata.relationship];
+                if (relationship && relationship.data) {
+                    let dataRelationship: any = (relationship.data instanceof Array) ? relationship.data[0] : relationship.data;
+                    let typeName: string = dataRelationship.type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    let relationship: JsonApiModel = this.getBelongsToRelationship(modelType, data, included, metadata.relationship, typeName, level);
-                    if (relationship) {
-                        this[metadata.propertyName] = relationship;
+                    let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
+                    if (relationshipModel) {
+                        this[metadata.propertyName] = relationshipModel;
                     }
                 }
             }
         }
     }
 
-    private getHasManyRelationship(modelType: ModelType, data: any, included: any, relationship: string, typeName: string, level: number): JsonApiModel[] {
+    private getHasManyRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel[] {
         let relationshipList: JsonApiModel[] = [];
-        data.relationships[relationship].data.forEach((item: any) => {
+        data.forEach((item: any) => {
             let relationshipData: any = _.findWhere(included, {id: item.id, type: typeName});
             if (relationshipData) {
                 let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
@@ -110,8 +113,8 @@ export class JsonApiModel {
     }
 
 
-    private getBelongsToRelationship(modelType: ModelType, data: any, included: any, relationship: string, typeName: string, level: number): JsonApiModel {
-        let id: string = data.relationships[relationship].data.id;
+    private getBelongsToRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel {
+        let id: string = data.id;
         let relationshipData: any = _.findWhere(included, {id: id, type: typeName});
         if (relationshipData) {
             let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
