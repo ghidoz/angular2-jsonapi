@@ -68,7 +68,6 @@ export class JsonApiModel {
             for (let metadata of hasMany){
                 let relationship: any = data.relationships[metadata.relationship];
                 if (relationship && relationship.data && relationship.data.length > 0) {
-                    console.log(relationship, this);
                     let typeName: string = relationship.data[0].type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
                     let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included,typeName, level);
