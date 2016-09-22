@@ -38,12 +38,12 @@ export class JsonApiDatastore {
         return new modelType(this, { attributes: data });
     }
 
-    saveRecord(attributesMetadata: any, data?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
-        let modelType = data.constructor;
+    saveRecord(attributesMetadata: any, model?: any, params?: any, headers?: Headers): Observable<JsonApiModel> {
+        let modelType = model.constructor;
         let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
         let options: RequestOptions = this.getOptions(headers);
-        let relationships: any = !data.id ? this.getRelationships(data) : undefined;
-        let url: string = this.buildUrl(modelType, params, data.id);
+        let relationships: any = !model.id ? this.getRelationships(model) : undefined;
+        let url: string = this.buildUrl(modelType, params, model.id);
         let dirtyData: any = {};
         for (let propertyName in attributesMetadata) {
             if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -57,12 +57,12 @@ export class JsonApiDatastore {
         let body: any = {
             data: {
                 type: typeName,
-                id: data.id,
+                id: model.id,
                 attributes: dirtyData,
                 relationships: relationships
             }
         };
-        if (data.id) {
+        if (model.id) {
             httpCall = this.http.patch(url, body, options);
         } else {
             httpCall = this.http.post(url, body, options);
