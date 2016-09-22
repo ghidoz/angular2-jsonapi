@@ -389,8 +389,14 @@ post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe
 
 
 ## TODO
-- Implement everything from the [JSON API](http://jsonapi.org/) specific.
-- Add unit testing and E2E testing
+- [ ] Deleting records 
+- [ ] Conversion to and from `Date` property
+- [ ] Handling validation errors
+- [ ] Updating or removing a relationship
+- [ ] [Explicit inverses](https://guides.emberjs.com/v2.8.0/models/relationships/#toc_explicit-inverses)
+- [ ] Loading an object's relationships
+- [ ] Unit testing
+- [ ] Setting a specific baseUrl for each model
 
 
 ## Development
