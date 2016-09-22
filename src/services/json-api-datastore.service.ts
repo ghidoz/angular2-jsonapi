@@ -68,8 +68,9 @@ export class JsonApiDatastore {
             httpCall = this.http.post(url, body, options);
         }
         return httpCall
-            .map((res: any) => this.extractRecordData(res, modelType, data))
+            .map((res: any) => this.extractRecordData(res, modelType, model))
             .map((res: any) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
+            .map((res: any) => this.updateRelationships(res, relationships))
             .catch((res: any) => this.handleError(res));
     }
 
@@ -138,7 +139,7 @@ export class JsonApiDatastore {
         this.addToStore(model);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
-        this.addToStore(model);
+            this.addToStore(model);
         }
         return model;
     }
@@ -219,5 +220,22 @@ export class JsonApiDatastore {
         Reflect.defineMetadata('Attribute', attributesMetadata, res);
         return res;
     }
+
+    private updateRelationships(model: JsonApiModel, relationships: any): JsonApiModel {
+        let modelsTypes: any = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).models;
+        for (let relationship in relationships) {
+            if (relationships.hasOwnProperty(relationship) && model.hasOwnProperty(relationship)) {
+                let relationshipModel: JsonApiModel = model[relationship];
+                let hasMany: any[] = Reflect.getMetadata('HasMany', relationshipModel);
+                let propertyHasMany: any = _.find(hasMany, (property) => {
+                    return modelsTypes[property.relationship] === model.constructor;
+                });
+                if (propertyHasMany) {
+                    relationshipModel[propertyHasMany.propertyName].push(model);
+                }
+            }
+        }
+        return model;
+    };
 
 }

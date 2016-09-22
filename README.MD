@@ -328,6 +328,8 @@ let comment = this.datastore.createRecord(Comment, {
 comment.save().subscribe();
 ```
 
+The library will do its best to discover which relationships map to one another. In the code above, for example, setting the `comment` relationship with the `post` will update the `post.comments` array, automatically adding the `comment` object!
+
 If you want to include a relationship when creating a record to have it parsed in the response, you can pass the `params` object to the `save()` method:
 
 ```typescript
