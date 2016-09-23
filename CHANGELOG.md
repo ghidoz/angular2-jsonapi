@@ -1,29 +1,29 @@
 # [3.1.1](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.0...v3.1.1) (2016-09-22)
 
 ### Bug Fixes
-- Fix one-to-one relationship (21ebac8)
-- Add check on data length parsing the HasMany relationship (0b9ac31)
+- Fix one-to-one relationship ([21ebac8](https://github.com/ghidoz/angular2-jsonapi/commit/21ebac8))
+- Add check on data length parsing the HasMany relationship ([#14](https://github.com/ghidoz/angular2-jsonapi/issues/14)) ([0b9ac31](https://github.com/ghidoz/angular2-jsonapi/commit/0b9ac31))
 
 # [3.1.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.0.0...v3.1.0) (2016-09-22)
 
 ### Bug Fixes
-- Do not delete relationship from object when saving a model (8751d3f)
+- Do not delete relationship from object when saving a model ([8751d3f](https://github.com/ghidoz/angular2-jsonapi/commit/8751d3f))
 
 ### Features
-- Allow overriding of JsonApiDatastore's error handler in derived classes (98a300b)
-- Parse infinite levels of relationships by reference (bd02e3a)
-- Push object to hasMany relationship array when updating object relationship (99d082a)
+- Allow overriding of JsonApiDatastore's error handler in derived classes ([98a300b](https://github.com/ghidoz/angular2-jsonapi/commit/98a300b))
+- Parse infinite levels of relationships by reference ([bd02e3a](https://github.com/ghidoz/angular2-jsonapi/commit/bd02e3a))
+- Push object to hasMany relationship array when updating object relationship ([99d082a](https://github.com/ghidoz/angular2-jsonapi/commit/99d082a))
 
 # [3.0.0](https://github.com/ghidoz/angular2-jsonapi/compare/v2.1.0...v3.0.0) (2016-09-18)
 
 ### Features
-- Implement persistence and save() method (46aa23f)
-- Add peekRecord and peekAll, caching records in the store (43de815)
-- Implement PATCH method (4b47443)
-- Add Attribute decorator and tracking of attributes changes + save only dirty attributes (fe20b8b)
-- Add hasDirtyAttributes property to model (a38fa1c)
-- Add rollbackAttributes() method to model (fc377fb)
-- Upgrade to Angular 2.0.0 final version (3c30cdd)
+- Implement persistence and save() method ([46aa23f](https://github.com/ghidoz/angular2-jsonapi/commit/46aa23f))
+- Add peekRecord and peekAll, caching records in the store ([43de815](https://github.com/ghidoz/angular2-jsonapi/commit/43de815))
+- Implement PATCH method ([#9](https://github.com/ghidoz/angular2-jsonapi/issues/9))  ([4b47443](https://github.com/ghidoz/angular2-jsonapi/commit/4b47443))
+- Add Attribute decorator and tracking of attributes changes + save only dirty attributes ([fe20b8b](https://github.com/ghidoz/angular2-jsonapi/commit/fe20b8b))
+- Add hasDirtyAttributes property to model ([a38fa1c](https://github.com/ghidoz/angular2-jsonapi/commit/a38fa1c))
+- Add rollbackAttributes() method to model ([fc377fb](https://github.com/ghidoz/angular2-jsonapi/commit/fc377fb))
+- Upgrade to Angular 2.0.0 final version ([3c30cdd](https://github.com/ghidoz/angular2-jsonapi/commit/3c30cdd))
 
 ### BREAKING CHANGES
 - It's mandatory decorate each models' property with the `Attribute()` decorator
@@ -33,16 +33,16 @@
 # [2.1.0](https://github.com/ghidoz/angular2-jsonapi/compare/v2.0.0...v2.1.0) (2016-09-16)
 
 ### Bug Fixes
-- Enable nested relationships sync (#7) (8b7b662)
+- Enable nested relationships sync ([#7](https://github.com/ghidoz/angular2-jsonapi/issues/7)) (8b7b662)
 
 # [2.0.0](https://github.com/ghidoz/angular2-jsonapi/compare/v1.2.1...v2.0.0) (2016-09-02)
 
 ### Bug Fixes
-- Allow Http service to be injected in JsonApiDatastore (#4) (1e567c5)
+- Allow Http service to be injected in JsonApiDatastore ([#4](https://github.com/ghidoz/angular2-jsonapi/issues/4)) ([1e567c5](https://github.com/ghidoz/angular2-jsonapi/commit/1e567c5))
 
 ### Features
-- Upgrade to Angular RC6 (4b02c8a)
-- Implement NgModule (410b3b2)
+- Upgrade to Angular RC6 ([4b02c8a](https://github.com/ghidoz/angular2-jsonapi/commit/4b02c8a))
+- Implement NgModule ([410b3b2](https://github.com/ghidoz/angular2-jsonapi/commit/410b3b2))
 
 ### BREAKING CHANGES
 - Since this library uses to the `Http` service of the Angular RC6, you should use this Angular version in your project.
@@ -51,15 +51,15 @@
 # [1.2.1](https://github.com/ghidoz/angular2-jsonapi/compare/v1.2.0...v1.2.1) (2016-08-30)
 
 ### Bug Fixes
-- Fix: id should be a string (#5) (72b7fb0)
+- Fix: id should be a string ([#5](https://github.com/ghidoz/angular2-jsonapi/issues/5)) ([72b7fb0](https://github.com/ghidoz/angular2-jsonapi/commit/72b7fb0))
 
 # [1.2.0](https://github.com/ghidoz/angular2-jsonapi/compare/v1.1.0...v1.2.0) (2016-08-26)
 
 ### Bug Fixes
-- Use a string for include field instead of the class name (e7f7b7f)
+- Use a string for include field instead of the class name ([e7f7b7f](https://github.com/ghidoz/angular2-jsonapi/commit/e7f7b7f))
 
 ### Features
-- Add BelongsTo relationship (edfc2af)
+- Add BelongsTo relationship ([edfc2af](https://github.com/ghidoz/angular2-jsonapi/commit/edfc2af))
 
 ### BREAKING CHANGES
 - You cannot use the class name anymore when including the relationship. You should use the field name as a string. 
@@ -67,7 +67,7 @@
 # [1.1.0](https://github.com/ghidoz/angular2-jsonapi/compare/v1.0.0...v1.1.0) (2016-08-25)
 
 ### Features
-- Can set global custom headers and headers for each call (#2) (bef14f3)
+- Can set global custom headers and headers for each call ([#2](https://github.com/ghidoz/angular2-jsonapi/issues/2)) ([bef14f3](https://github.com/ghidoz/angular2-jsonapi/commit/bef14f3))
 
 # 1.0.0 (2016-08-05)
 
