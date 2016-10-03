@@ -30,7 +30,7 @@ export class JsonApiModel {
 
     get hasDirtyAttributes() {
         let attributesMetadata: any = Reflect.getMetadata('Attribute', this);
-        let hasDirtyAttributes: boolean = false;
+        let hasDirtyAttributes = false;
         for (let propertyName in attributesMetadata) {
             if (attributesMetadata.hasOwnProperty(propertyName)) {
                 let metadata: any = attributesMetadata[propertyName];
@@ -70,7 +70,8 @@ export class JsonApiModel {
                 if (relationship && relationship.data && relationship.data.length > 0) {
                     let typeName: string = relationship.data[0].type;
                     let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                    let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included,typeName, level);
+                    let relationshipModel: JsonApiModel[] =
+                        this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
                     if (relationshipModel.length > 0) {
                         this[metadata.propertyName] = relationshipModel;
                     }
@@ -88,8 +89,10 @@ export class JsonApiModel {
                     let dataRelationship: any = (relationship.data instanceof Array) ? relationship.data[0] : relationship.data;
                     if (dataRelationship) {
                         let typeName: string = dataRelationship.type;
-                        let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                        let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
+                        let modelType: ModelType =
+                            Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+                        let relationshipModel: JsonApiModel =
+                            this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
                         if (relationshipModel) {
                             this[metadata.propertyName] = relationshipModel;
                         }

@@ -7,14 +7,26 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "declaration": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "jasmine",
+      "selenium-webdriver",
+      "es6-shim",
+      "underscore",
+      "reflect-metadata"
+    ]
   },
   "files": [
-    "typings/index.d.ts",
     "src/index.ts"
   ],
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "include": [
+    "node_modules/@types"
   ]
 }
