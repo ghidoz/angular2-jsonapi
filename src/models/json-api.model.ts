@@ -9,7 +9,7 @@ export class JsonApiModel {
   id: string;
   [key: string]: any;
 
-  constructor(private _datastore: JsonApiDatastore, data: any) {
+  constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
       this.id = data.id;
       _.extend(this, data.attributes);
