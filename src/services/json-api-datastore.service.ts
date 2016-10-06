@@ -145,7 +145,7 @@ export class JsonApiDatastore {
     return model;
   }
 
-  protected handleError(error: any) {
+  protected handleError(error: any): ErrorObservable {
     let errMsg: string = (error.message) ? error.message :
         error.status ? `${error.status} - ${error.statusText}` : 'Server error';
     console.error(errMsg);
