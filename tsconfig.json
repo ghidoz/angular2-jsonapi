@@ -15,7 +15,7 @@
       "jasmine",
       "selenium-webdriver",
       "es6-shim",
-      "underscore",
+      "lodash",
       "reflect-metadata"
     ]
   },
