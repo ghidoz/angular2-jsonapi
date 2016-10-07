@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
@@ -82,7 +82,7 @@ export class JsonApiDatastore {
 
   peekAll(modelType: ModelType): JsonApiModel[] {
     let type = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-    return _.values(this._store[type]);
+    return _.values(<JsonApiModel>this._store[type]);
   }
 
   set headers(headers: Headers) {
@@ -205,7 +205,7 @@ export class JsonApiDatastore {
 
   private fromArrayToHash(models: JsonApiModel | JsonApiModel[]): any {
     let modelsArray: JsonApiModel[] = models instanceof Array ? models : [models];
-    return _.indexBy(modelsArray, 'id');
+    return _.keyBy(modelsArray, 'id');
   }
 
   private resetMetadataAttributes(res: any, attributesMetadata: any, modelType: ModelType) {

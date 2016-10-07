@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import 'reflect-metadata';
 import { Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
@@ -102,7 +102,7 @@ export class JsonApiModel {
   private getHasManyRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel[] {
     let relationshipList: JsonApiModel[] = [];
     data.forEach((item: any) => {
-      let relationshipData: any = _.findWhere(included, {id: item.id, type: typeName});
+      let relationshipData: any = _.find(included, {id: item.id, type: typeName});
       if (relationshipData) {
         let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
         if (level <= 1) {
@@ -117,7 +117,7 @@ export class JsonApiModel {
 
   private getBelongsToRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel {
     let id: string = data.id;
-    let relationshipData: any = _.findWhere(included, {id: id, type: typeName});
+    let relationshipData: any = _.find(included, {id: id, type: typeName});
     if (relationshipData) {
       let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
       if (level <= 1) {
