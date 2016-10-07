@@ -75,6 +75,13 @@ export class JsonApiDatastore {
         .catch((res: any) => this.handleError(res));
   }
 
+  deleteRecord(modelType: ModelType, id: string, headers?: Headers): Observable<Response> {
+    let options: RequestOptions = this.getOptions(headers);
+    let url: string = this.buildUrl(modelType, null, id);
+    return this.http.delete(url, options)
+        .catch((res: any) => this.handleError(res));
+  }
+
   peekRecord(modelType: ModelType, id: string): JsonApiModel {
     let type: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
     return this._store[type] ? this._store[type][id] : null;
