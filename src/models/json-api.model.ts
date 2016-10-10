@@ -83,7 +83,7 @@ export class JsonApiModel {
     let belongsTo: any = Reflect.getMetadata('BelongsTo', this);
     if (belongsTo) {
       for (let metadata of belongsTo) {
-        let relationship: any = data.relationships[metadata.relationship];
+        let relationship: any = data.relationshiops ? data.relationships[metadata.relationship]: null;
         if (relationship && relationship.data) {
           let dataRelationship: any = (relationship.data instanceof Array) ? relationship.data[0] : relationship.data;
           if (dataRelationship) {
