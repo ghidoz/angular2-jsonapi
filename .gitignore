@@ -24,3 +24,5 @@ Desktop.ini
 
 # But not these:
 !*.conf.js
+
+/coverage
