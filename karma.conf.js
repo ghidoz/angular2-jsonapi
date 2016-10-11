@@ -1,3 +1,7 @@
+"use strict";
+
+var webpackConfig = require('./webpack.test.conf');
+
 module.exports = function (config) {
   var _config = {
     basePath: '',
@@ -7,8 +11,10 @@ module.exports = function (config) {
       require('karma-webpack'),
       require('karma-sourcemap-loader'),
       require('karma-jasmine'),
-      require('karma-chrome-launcher'),
-      require('karma-spec-reporter')
+      require('karma-phantomjs-launcher'),
+      require('karma-spec-reporter'),
+      require('karma-remap-istanbul'),
+      require('karma-coverage')
     ],
 
     files: [
@@ -19,36 +25,26 @@ module.exports = function (config) {
       './karma-test-shim.conf.js': ['webpack', 'sourcemap']
     },
 
-    webpack: {
-      resolve: {
-        root: __dirname,
-        extensions: ['', '.ts', '.js', '.json'],
-      },
-      devtool: 'inline-source-map',
-      module: {
-        loaders: [
-          {
-            test: /\.ts$/,
-            loader: 'ts',
-            exclude: [/node_modules/]
-          }
-        ]
-      },
-      stats: { colors: true, reasons: true },
-      debug: false
-    },
+    webpack: webpackConfig,
 
     webpackServer: {
       noInfo: true
     },
 
-    reporters: ['spec'],
+    remapIstanbulReporter: {
+      reports: {
+        lcovonly: './coverage/lcov.info',
+        html: './coverage'
+      }
+    },
+
+    reporters: ['spec', 'karma-remap-istanbul'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
-    singleRun: false
+    browsers: ['PhantomJS'],
+    singleRun: true
   };
 
   config.set(_config);
