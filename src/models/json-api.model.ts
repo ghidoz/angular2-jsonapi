@@ -23,7 +23,7 @@ export class JsonApiModel {
     }
   }
 
-  save(params?: any, headers?: Headers): Observable<JsonApiModel> {
+  save(params?: any, headers?: Headers): Observable<this> {
     let attributesMetadata: any = Reflect.getMetadata('Attribute', this);
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }
@@ -69,7 +69,7 @@ export class JsonApiModel {
         let relationship: any = data.relationships ? data.relationships[metadata.relationship]: null;
         if (relationship && relationship.data && relationship.data.length > 0) {
           let typeName: string = relationship.data[0].type;
-          let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+          let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
           let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
           if (relationshipModel.length > 0) {
             this[metadata.propertyName] = relationshipModel;
@@ -88,7 +88,7 @@ export class JsonApiModel {
           let dataRelationship: any = (relationship.data instanceof Array) ? relationship.data[0] : relationship.data;
           if (dataRelationship) {
             let typeName: string = dataRelationship.type;
-            let modelType: ModelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+            let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
             let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
             if (relationshipModel) {
               this[metadata.propertyName] = relationshipModel;
@@ -99,12 +99,12 @@ export class JsonApiModel {
     }
   }
 
-  private getHasManyRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel[] {
-    let relationshipList: JsonApiModel[] = [];
+  private getHasManyRelationship<T extends this>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T[] {
+    let relationshipList: T[] = [];
     data.forEach((item: any) => {
       let relationshipData: any = _.find(included, {id: item.id, type: typeName});
       if (relationshipData) {
-        let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
+        let newObject: T = this.createOrPeek(modelType, relationshipData);
         if (level <= 1) {
           newObject.syncRelationships(relationshipData, included, level + 1);
         }
@@ -115,11 +115,11 @@ export class JsonApiModel {
   }
 
 
-  private getBelongsToRelationship(modelType: ModelType, data: any, included: any, typeName: string, level: number): JsonApiModel {
+  private getBelongsToRelationship<T extends this>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
     let id: string = data.id;
     let relationshipData: any = _.find(included, {id: id, type: typeName});
     if (relationshipData) {
-      let newObject: JsonApiModel = this.createOrPeek(modelType, relationshipData);
+      let newObject: T = this.createOrPeek(modelType, relationshipData);
       if (level <= 1) {
         newObject.syncRelationships(relationshipData, included, level + 1);
       }
@@ -128,12 +128,12 @@ export class JsonApiModel {
     return this._datastore.peekRecord(modelType, id);
   }
 
-  private createOrPeek(modelType: ModelType, data: any): JsonApiModel {
+  private createOrPeek<T extends this>(modelType: ModelType<T>, data: any): T {
     let peek = this._datastore.peekRecord(modelType, data.id);
     if (peek) {
       return peek;
     }
-    let newObject: JsonApiModel = new modelType(this._datastore, data);
+    let newObject: T = new modelType(this._datastore, data);
     this._datastore.addToStore(newObject);
     return newObject;
   }
