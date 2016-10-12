@@ -1,3 +1,14 @@
+# [3.2.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.1..v3.2.0) (2016-10-12)
+
+### Bug Fixes
+- Add existence check on belongs to parsing ([3f538a0](https://github.com/ghidoz/angular2-jsonapi/commit/3f538a0))
+- Removed dependency on typings ([#22](https://github.com/ghidoz/angular2-jsonapi/issues/22)) ([cec0a6a](https://github.com/ghidoz/angular2-jsonapi/commit/cec0a6a))
+- Fix optional relationship on BelongsTo and HasMany ([764631c](https://github.com/ghidoz/angular2-jsonapi/commit/764631c))
+
+### Features
+- Add delete record method ([#28](https://github.com/ghidoz/angular2-jsonapi/issues/28)) ([2f6c380](https://github.com/ghidoz/angular2-jsonapi/commit/2f6c380))
+- Make parameters and return values of JsonApiDatastore generic ([4120437](https://github.com/ghidoz/angular2-jsonapi/commit/4120437))
+
 # [3.1.1](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.0...v3.1.1) (2016-09-22)
 
 ### Bug Fixes
