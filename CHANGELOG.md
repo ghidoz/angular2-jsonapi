@@ -1,4 +1,4 @@
-# [3.2.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.1..v3.2.0) (2016-10-12)
+# [3.2.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.1...v3.2.0) (2016-10-12)
 
 ### Bug Fixes
 - Add existence check on belongs to parsing ([3f538a0](https://github.com/ghidoz/angular2-jsonapi/commit/3f538a0))
