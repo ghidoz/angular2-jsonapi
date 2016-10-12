@@ -21,6 +21,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Creating Records](#creating-records)
         - [Updating Records](#updating-records)
         - [Persisting Records](#persisting-records)
+        - [Deleting Records](#deleting-records)
     - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
 - [TODO](#todo)
@@ -292,6 +293,15 @@ this.datastore.findRecord(Post, '1').subscribe(
 );
 ```
 
+#### Deleting Records
+
+For deleting a record, just call the datastore's method `deleteRecord()`, passing the type and the id of the record:
+
+```typescript
+this.datastore.deleteRecord(Post, '1').subscribe(() => {
+    // deleted!
+});
+```
 
 ### Relationships
 
@@ -394,7 +404,7 @@ post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe
 
 
 ## TODO
-- [ ] Deleting records 
+- [x] Deleting records
 - [ ] Conversion to and from `Date` property
 - [ ] Handling validation errors
 - [ ] Updating or removing a relationship
