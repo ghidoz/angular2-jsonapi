@@ -30,6 +30,7 @@
     "url": "https://github.com/ghidoz/angular2-jsonapi/issues"
   },
   "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "dependencies": {
     "@angular/common": "2.0.0",
     "@angular/compiler": "2.0.0",
