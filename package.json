@@ -36,11 +36,8 @@
     "@angular/core": "2.0.0",
     "@angular/http": "2.0.0",
     "@angular/platform-browser": "2.0.0",
-    "@types/es6-shim": "^0.31.32",
-    "@types/jasmine": "^2.2.34",
     "@types/lodash": "^4.14.37",
     "@types/reflect-metadata": "0.0.4",
-    "@types/selenium-webdriver": "^2.53.30",
     "core-js": "^2.4.1",
     "lodash": "^4.16.4",
     "reflect-metadata": "0.1.3",
@@ -48,6 +45,9 @@
     "zone.js": "0.6.23"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.2.34",
+    "@types/selenium-webdriver": "^2.53.30",
+    "@types/es6-shim": "^0.31.32",
     "@angular/platform-browser-dynamic": "2.0.0",
     "codelyzer": "^0.0.25",
     "coveralls": "^2.11.14",
