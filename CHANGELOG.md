@@ -1,3 +1,9 @@
+# [3.2.1](https://github.com/ghidoz/angular2-jsonapi/compare/v3.2.0...v3.2.1) (2016-10-13)
+
+### Bug Fixes
+- Move some types under devDependencies ([#35](https://github.com/ghidoz/angular2-jsonapi/issues/35)) ([b20df04](https://github.com/ghidoz/angular2-jsonapi/commit/b20df04))
+- Add typings index in package.json ([#36](https://github.com/ghidoz/angular2-jsonapi/issues/36)) ([e5446e6](https://github.com/ghidoz/angular2-jsonapi/commit/e5446e6))
+
 # [3.2.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.1.1...v3.2.0) (2016-10-12)
 
 ### Bug Fixes
