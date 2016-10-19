@@ -161,8 +161,8 @@ export class JsonApiDatastore {
 
   private getOptions(customHeaders?: Headers): RequestOptions {
     let headers: Headers = this._headers ? this._headers : new Headers();
-    headers.append('Accept', 'application/vnd.api+json');
-    headers.append('Content-Type', 'application/vnd.api+json');
+    headers.set('Accept', 'application/vnd.api+json');
+    headers.set('Content-Type', 'application/vnd.api+json');
     if (customHeaders) {
       customHeaders.forEach(function (values, name) {
         headers.append(name, values[0]);
