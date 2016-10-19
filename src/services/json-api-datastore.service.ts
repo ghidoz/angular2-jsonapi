@@ -165,7 +165,7 @@ export class JsonApiDatastore {
     headers.set('Content-Type', 'application/vnd.api+json');
     if (customHeaders) {
       customHeaders.forEach(function (values, name) {
-        headers.append(name, values[0]);
+        headers.set(name, values[0]);
       });
     }
     return new RequestOptions({headers: headers});
