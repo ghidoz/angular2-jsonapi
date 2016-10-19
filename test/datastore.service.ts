@@ -5,9 +5,11 @@ import { Author } from './models/author.model';
 import { Book } from './models/book.model';
 import { Chapter } from './models/chapter.model';
 
+export const BASE_URL = 'http://localhost:8080/v1/'
+
 @Injectable()
 @JsonApiDatastoreConfig({
-  baseUrl: 'http://localhost:8080/v1/',
+  baseUrl: BASE_URL,
   models: {
     authors: Author,
     books: Book,
