@@ -95,7 +95,7 @@ describe('JsonApiDatastore', () => {
         });
 
         it('should get authors', () => {
-            backend.connections.subscribe(c => {
+            backend.connections.subscribe((c: MockConnection) => {
                 c.mockRespond(new Response(
                     new ResponseOptions({
                         body: JSON.stringify({
@@ -114,7 +114,7 @@ describe('JsonApiDatastore', () => {
         });
 
         it('should fire error', () => {
-            backend.connections.subscribe(c => {
+            backend.connections.subscribe((c: MockConnection)=> {
                 c.mockError(new Error("mocked server error"));
             });
             datastore.query(Author).subscribe((authors) => fail("onNext has been called"),
@@ -129,7 +129,7 @@ describe('JsonApiDatastore', () => {
     describe('findRecord', () => {
 
         it('should get author', () => {
-            backend.connections.subscribe(c => {
+            backend.connections.subscribe((c: MockConnection) => {
                 c.mockRespond(new Response(
                     new ResponseOptions({
                         body: JSON.stringify({
