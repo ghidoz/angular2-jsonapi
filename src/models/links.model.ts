@@ -6,7 +6,6 @@ export class LinksModel {
   public updateLinks(links: any) {
     //delete all properties of this object
     Object.keys(this || {}).forEach((name) => {
-      console.log(name);
       delete this[name];
     });
 
