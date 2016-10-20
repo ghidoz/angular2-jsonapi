@@ -7,8 +7,16 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import { JsonApiModel } from '../models/json-api.model';
+import { DocumentModel } from '../models/document.model';
 
-export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
+
+export type ModelType<T extends JsonApiModel> = {
+  new(
+    datastore: JsonApiDatastore,
+    data: any,
+    document: DocumentModel<T>
+  ): T;
+};
 
 @Injectable()
 export class JsonApiDatastore {
@@ -19,7 +27,7 @@ export class JsonApiDatastore {
   constructor(private http: Http) {
   }
 
-  query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<T[]> {
+  query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<DocumentModel<T[]>> {
     let options: RequestOptions = this.getOptions(headers);
     let url: string = this.buildUrl(modelType, params);
     return this.http.get(url, options)
@@ -27,7 +35,7 @@ export class JsonApiDatastore {
         .catch((res: any) => this.handleError(res));
   }
 
-  findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers): Observable<T> {
+  findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers): Observable<DocumentModel<T>> {
     let options: RequestOptions = this.getOptions(headers);
     let url: string = this.buildUrl(modelType, params, id);
     return this.http.get(url, options)
@@ -36,7 +44,7 @@ export class JsonApiDatastore {
   }
 
   createRecord<T extends JsonApiModel>(modelType: ModelType<T>, data?: any): T {
-    return new modelType(this, {attributes: data});
+    return new modelType(this, {attributes: data}, null);
   }
 
   saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
@@ -122,11 +130,12 @@ export class JsonApiDatastore {
     return relationships;
   }
 
-  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): T[] {
+  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): DocumentModel<T> {
     let body: any = res.json();
     let models: T[] = [];
+    let document: DocumentModel<T> = new DocumentModel<T>(body);
     body.data.forEach((data: any) => {
-      let model: T = new modelType(this, data);
+      let model: T = new modelType(this, data, document);
       this.addToStore(model);
       if (body.included) {
         model.syncRelationships(data, body.included, 0);
@@ -134,22 +143,25 @@ export class JsonApiDatastore {
       }
       models.push(model);
     });
-    return models;
+    document.setData(models);
+    return document;
   }
 
-  private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): T {
+  private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): DocumentModel<T> {
     let body: any = res.json();
+    let document: DocumentModel<T> = new DocumentModel<T>(body);
     if (model) {
       model.id = body.data.id;
       _.extend(model, body.data.attributes);
     }
-    model = model || new modelType(this, body.data);
+    model = model || new modelType(this, body.data, document);
     this.addToStore(model);
     if (body.included) {
       model.syncRelationships(body.data, body.included, 0);
       this.addToStore(model);
     }
-    return model;
+    document.setData(model);
+    return document;
   }
 
   protected handleError(error: any): ErrorObservable {
