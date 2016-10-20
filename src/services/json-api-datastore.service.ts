@@ -160,15 +160,21 @@ export class JsonApiDatastore {
   }
 
   private getOptions(customHeaders?: Headers): RequestOptions {
-    let headers: Headers = this._headers ? this._headers : new Headers();
-    headers.append('Accept', 'application/vnd.api+json');
-    headers.append('Content-Type', 'application/vnd.api+json');
+    let requestHeaders = new Headers();
+    requestHeaders.set('Accept', 'application/vnd.api+json');
+    requestHeaders.set('Content-Type', 'application/vnd.api+json');
+    if (this._headers) {
+      this._headers.forEach((values, name) => {
+        requestHeaders.set(name, values);
+      })
+    }
+
     if (customHeaders) {
-      customHeaders.forEach(function (values, name) {
-        headers.append(name, values[0]);
+      customHeaders.forEach((values, name) => {
+        requestHeaders.set(name, values);
       });
     }
-    return new RequestOptions({headers: headers});
+    return new RequestOptions({headers: requestHeaders});
   }
 
   private toQueryString(params: any) {
