@@ -1,4 +1,4 @@
-export interface Error {
+export interface JsonApiError {
     id?: string;
     links ?: Array<any>;
     status ?: string;
@@ -13,9 +13,9 @@ export interface Error {
 }
 
 export class ErrorResponse {
-    errors?: Error[] = [];
+    errors?: JsonApiError[] = [];
 
-    constructor(errors ?: Error[]) {
+    constructor(errors ?: JsonApiError[]) {
         if (errors) {
             this.errors = errors;
         }
