@@ -13,8 +13,7 @@ import { DocumentModel } from '../models/document.model';
 export type ModelType<T extends JsonApiModel> = {
   new(
     datastore: JsonApiDatastore,
-    data: any,
-    document: DocumentModel<T>
+    data: any
   ): T;
 };
 
@@ -44,7 +43,7 @@ export class JsonApiDatastore {
   }
 
   createRecord<T extends JsonApiModel>(modelType: ModelType<T>, data?: any): T {
-    return new modelType(this, {attributes: data}, null);
+    return new modelType(this, {attributes: data});
   }
 
   saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
@@ -130,12 +129,12 @@ export class JsonApiDatastore {
     return relationships;
   }
 
-  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): DocumentModel<T> {
+  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): DocumentModel<T[]> {
     let body: any = res.json();
     let models: T[] = [];
-    let document: DocumentModel<T> = new DocumentModel<T>(body);
+    let document: DocumentModel<T[]> = new DocumentModel<T[]>(body);
     body.data.forEach((data: any) => {
-      let model: T = new modelType(this, data, document);
+      let model: T = new modelType(this, data);
       this.addToStore(model);
       if (body.included) {
         model.syncRelationships(data, body.included, 0);
@@ -143,7 +142,7 @@ export class JsonApiDatastore {
       }
       models.push(model);
     });
-    document.setData(models);
+    document.data = models;
     return document;
   }
 
@@ -154,13 +153,13 @@ export class JsonApiDatastore {
       model.id = body.data.id;
       _.extend(model, body.data.attributes);
     }
-    model = model || new modelType(this, body.data, document);
+    model = model || new modelType(this, body.data);
     this.addToStore(model);
     if (body.included) {
       model.syncRelationships(body.data, body.included, 0);
       this.addToStore(model);
     }
-    document.setData(model);
+    document.data = model;
     return document;
   }
 

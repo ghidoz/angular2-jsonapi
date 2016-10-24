@@ -1,22 +1,22 @@
 import { LinksModel } from './links.model';
 
 export class DocumentModel<T> {
-  _links: LinksModel = new LinksModel;
-  _data: T;
+  private _links: LinksModel = new LinksModel;
+  private _data: T;
 
   constructor(body: any) {
     this._links.updateLinks(body.links);
   }
-  
-  public links(name: string = null) {
-    return this._links.links(name);
+
+  get links() {
+    return this._links;
   }
 
-  public data(): T {
+  get data(): T {
     return this._data;
   }
 
-  public setData(data: any) {
+  set data(data: T) {
     this._data = data;
   }
 }

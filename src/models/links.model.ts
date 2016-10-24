@@ -14,11 +14,4 @@ export class LinksModel {
       this[name] = new LinkModel(name, links[name]);
     });
   }
-
-  public links(name: string = null) {
-    if(name) {
-      return this[name];
-    }
-    return this;
-  }
 }

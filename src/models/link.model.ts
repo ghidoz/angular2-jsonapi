@@ -1,21 +1,18 @@
 export class LinkModel {
-  private _href: string;
   private _name: string;
+  private _href: string;
   //TODO: add meta
 
   constructor(name: string, link: any) {
     this._name = name;
+    this._href = link;
   }
 
-  name() {
+  get name(): string {
     return this._name;
   }
 
-  href() {
+  get href(): string {
     return this._href;
   }
-
-  /*    meta() {
-  return this._meta;
-}*/
 }
