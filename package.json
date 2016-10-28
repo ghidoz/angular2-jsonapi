@@ -51,7 +51,6 @@
     "@types/reflect-metadata": "0.0.4",
     "@types/jasmine": "^2.2.34",
     "@types/selenium-webdriver": "^2.53.30",
-    "@types/es6-shim": "^0.31.32",
     "core-js": "^2.4.1",
     "codelyzer": "^0.0.25",
     "coveralls": "^2.11.14",
