@@ -8,13 +8,19 @@
     "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
+    "lib": [
+      "es5",
+      "es2015.iterable",
+      "es2015.collection",
+      "es2015.promise",
+      "dom"
+    ],
     "typeRoots": [
       "node_modules/@types"
     ],
     "types": [
       "jasmine",
       "selenium-webdriver",
-      "es6-shim",
       "lodash",
       "reflect-metadata"
     ]
