@@ -10,10 +10,17 @@ import {
 } from '@angular/http';
 import {MockBackend, MockConnection} from '@angular/http/testing';
 import {Datastore, BASE_URL} from '../../test/datastore.service';
+import {ErrorResponse} from '../models/error-response.model';
 
 
 let datastore: Datastore;
 let backend: MockBackend;
+
+// workaround, see https://github.com/angular/angular/pull/8961
+class MockError extends Response implements Error {
+    name: any;
+    message: any;
+}
 
 describe('JsonApiDatastore', () => {
 
@@ -22,8 +29,8 @@ describe('JsonApiDatastore', () => {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: Http, useFactory: (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
-                    return new Http(backend, defaultOptions);
+                    provide: Http, useFactory: (connectionBackend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
+                    return new Http(connectionBackend, defaultOptions);
                 }, deps: [MockBackend, BaseRequestOptions]
                 },
                 MockBackend,
@@ -54,7 +61,7 @@ describe('JsonApiDatastore', () => {
                 expect(c.request.url).toEqual(BASE_URL + "authors");
                 expect(c.request.method).toEqual(RequestMethod.Get);
                 expect(c.request.headers.get("Content-Type")).toEqual("application/vnd.api+json");
-                expect(c.request.headers.get("Accept")).toEqual("application/vnd.api+json")
+                expect(c.request.headers.get("Accept")).toEqual("application/vnd.api+json");
             });
             datastore.query(Author).subscribe();
         });
@@ -114,14 +121,33 @@ describe('JsonApiDatastore', () => {
         });
 
         it('should fire error', () => {
-            backend.connections.subscribe((c: MockConnection)=> {
-                c.mockError(new Error("mocked server error"));
+            let resp = {
+                errors: [
+                    {
+                        code: '100',
+                        title: 'Example error',
+                        detail: 'detailed error Message'
+                    }
+                ]
+            };
+
+            backend.connections.subscribe((c: MockConnection) => {
+                c.mockError(new MockError(
+                    new ResponseOptions({
+                        body: JSON.stringify(resp),
+                        status: 500
+                    })
+                ));
             });
-            datastore.query(Author).subscribe((authors) => fail("onNext has been called"),
-                (error) => {
-                    expect(error).toEqual("mocked server error");
+            datastore.query(Author).subscribe((authors) => fail('onNext has been called'),
+                (response) => {
+                    expect(response).toEqual(jasmine.any(ErrorResponse));
+                    expect(response.errors.length).toEqual(1);
+                    expect(response.errors[0].code).toEqual(resp.errors[0].code);
+                    expect(response.errors[0].title).toEqual(resp.errors[0].title);
+                    expect(response.errors[0].detail).toEqual(resp.errors[0].detail);
                 },
-                () => fail("onCompleted has been called"),)
+                () => fail('onCompleted has been called'));
         });
 
     });

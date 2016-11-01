@@ -7,6 +7,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import { JsonApiModel } from '../models/json-api.model';
+import {ErrorResponse} from '../models/error-response.model';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -155,6 +156,17 @@ export class JsonApiDatastore {
   protected handleError(error: any): ErrorObservable {
     let errMsg: string = (error.message) ? error.message :
         error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+    try {
+      let body: any = error.json();
+      if (body.errors && body.errors instanceof Array) {
+        let errors: ErrorResponse = new ErrorResponse(body.errors);
+        console.error(errMsg, errors);
+        return Observable.throw(errors);
+      }
+    } catch (e) {
+      // no valid JSON
+    }
+
     console.error(errMsg);
     return Observable.throw(errMsg);
   }

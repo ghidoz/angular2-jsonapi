@@ -24,6 +24,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Deleting Records](#deleting-records)
     - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
+    - [Error handling](#error-handling)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
@@ -402,6 +403,27 @@ and in the `save()` method:
 post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe();
 ```
 
+### Error handling
+
+Error handling is done in the `subscribe` method of the returned Observables. 
+If your server returns valid [JSON API Error Objects](http://jsonapi.org/format/#error-objects) you can access them in your onError method:
+
+```typescript
+import {ErrorResponse} from "angular2-jsonapi";
+
+...
+
+this.datastore.query(Post).subscribe(
+    (posts: Post[]) => console.log(posts),
+    (errorResponse) => {
+        if (errorResponse instanceof ErrorResponse) {
+              // do something with errorResponse
+              console.log(errorResponse.errors);
+        }
+    }
+);
+````
+It's also possible to handle errors for all requests by overriding `handleError(error: any): ErrorObservable` in the datastore. 
 
 ## TODO
 - [x] Deleting records
