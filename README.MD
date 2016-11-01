@@ -428,7 +428,7 @@ It's also possible to handle errors for all requests by overriding `handleError(
 ## TODO
 - [x] Deleting records
 - [ ] Conversion to and from `Date` property
-- [ ] Handling validation errors
+- [x] Handling validation errors
 - [ ] Updating or removing a relationship
 - [ ] [Explicit inverses](https://guides.emberjs.com/v2.8.0/models/relationships/#toc_explicit-inverses)
 - [ ] Loading an object's relationships
