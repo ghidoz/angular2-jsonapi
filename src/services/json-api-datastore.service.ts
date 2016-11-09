@@ -51,7 +51,7 @@ export class JsonApiDatastore {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         let metadata: any = attributesMetadata[propertyName];
         if (metadata.hasDirtyAttributes) {
-          dirtyData[propertyName] = metadata.newValue;
+          dirtyData[propertyName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
         }
       }
     }
@@ -116,7 +116,7 @@ export class JsonApiDatastore {
               type: relationshipType,
               id: data[key].id
             }
-          };
+          };''
         }
       }
     }
