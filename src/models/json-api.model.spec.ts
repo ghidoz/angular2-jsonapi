@@ -9,7 +9,7 @@ import { Http, BaseRequestOptions, ConnectionBackend } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 import { Datastore } from '../../test/datastore.service';
 import { Chapter } from '../../test/models/chapter.model';
-
+import * as moment from 'moment';
 
 let datastore: Datastore;
 
@@ -48,7 +48,7 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
-      expect(author.date_of_birth).toBe('1987-05-25');
+      expect(author.date_of_birth.getTime()).toBe(moment('1987-05-25T00:00:00Z').toDate().getTime());
     });
 
     it('should be instanciated without attributes', () => {
@@ -69,10 +69,10 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBe(AUTHOR_ID);
       expect(author.name).toBe(AUTHOR_NAME);
-      expect(author.date_of_birth).toBe(AUTHOR_BIRTH);
-      expect(author.date_of_death).toBe(AUTHOR_DEATH);
-      expect(author.created_at).toBe(AUTHOR_CREATED);
-      expect(author.updated_at).toBe(AUTHOR_UPDATED);
+      expect(author.date_of_birth.valueOf()).toBe(moment.utc(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
+      expect(author.date_of_death.valueOf()).toBe(moment.utc(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
+      expect(author.created_at.valueOf()).toBe(moment.utc(AUTHOR_CREATED).valueOf());
+      expect(author.updated_at.valueOf()).toBe(moment.utc(AUTHOR_UPDATED).valueOf());
       expect(author.books).toBeUndefined();
     });
 
@@ -86,17 +86,17 @@ describe('JsonApiModel', () => {
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth).toBe(AUTHOR_BIRTH);
-        expect(author.date_of_death).toBe(AUTHOR_DEATH);
-        expect(author.created_at).toBe(AUTHOR_CREATED);
-        expect(author.updated_at).toBe(AUTHOR_UPDATED);
+        expect(author.date_of_birth.valueOf()).toBe(moment.utc(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
+        expect(author.date_of_death.valueOf()).toBe(moment.utc(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
+        expect(author.created_at.valueOf()).toBe(moment.utc(AUTHOR_CREATED).valueOf());
+        expect(author.updated_at.valueOf()).toBe(moment.utc(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published).toBe(BOOK_PUBLISHED);
+          expect(book.date_published.valueOf()).toBe(moment.utc(BOOK_PUBLISHED, 'YYYY-MM-DD').valueOf());
         });
       });
 
@@ -125,17 +125,17 @@ describe('JsonApiModel', () => {
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth).toBe(AUTHOR_BIRTH);
-        expect(author.date_of_death).toBe(AUTHOR_DEATH);
-        expect(author.created_at).toBe(AUTHOR_CREATED);
-        expect(author.updated_at).toBe(AUTHOR_UPDATED);
+        expect(author.date_of_birth.valueOf()).toBe(moment.utc(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
+        expect(author.date_of_death.valueOf()).toBe(moment.utc(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
+        expect(author.created_at.valueOf()).toBe(moment.utc(AUTHOR_CREATED).valueOf());
+        expect(author.updated_at.valueOf()).toBe(moment.utc(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published).toBe(BOOK_PUBLISHED);
+          expect(book.date_published.valueOf()).toBe(moment.utc(BOOK_PUBLISHED, 'YYYY-MM-DD').valueOf());
           expect(book.chapters).toBeDefined();
           expect(book.chapters.length).toBe(CHAPTERS_NUMBER);
           book.chapters.forEach((chapter: Chapter, cindex: number) => {
@@ -145,7 +145,6 @@ describe('JsonApiModel', () => {
           });
         });
       });
-
     });
   });
 });

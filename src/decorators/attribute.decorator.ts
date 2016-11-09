@@ -4,7 +4,7 @@ import * as moment from 'moment';
 export function Attribute(config: any = {}) {
   return function (target: any, propertyName: string) {
 
-    let converter = function(dataType: any, value: any, forSerialisation: boolean = false): any {
+    let converter = function(dataType: any, value: any, forSerialisation = false): any {
       if (!forSerialisation) {
         if (dataType === Date) {
           return moment.utc(value).toDate();
