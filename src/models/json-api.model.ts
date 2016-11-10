@@ -70,9 +70,13 @@ export class JsonApiModel {
         if (relationship && relationship.data && relationship.data.length > 0) {
           let typeName: string = relationship.data[0].type;
           let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-          let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
-          if (relationshipModel.length > 0) {
-            this[metadata.propertyName] = relationshipModel;
+          if (modelType) {
+            let relationshipModel: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
+            if (relationshipModel.length > 0) {
+              this[metadata.propertyName] = relationshipModel;
+            }
+          } else {
+            throw {message: 'parseHasMany - Model type for relationship ' + typeName + ' not found.'};
           }
         }
       }
@@ -89,9 +93,13 @@ export class JsonApiModel {
           if (dataRelationship) {
             let typeName: string = dataRelationship.type;
             let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-            let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
-            if (relationshipModel) {
-              this[metadata.propertyName] = relationshipModel;
+            if (modelType) {
+              let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
+              if (relationshipModel) {
+                this[metadata.propertyName] = relationshipModel;
+              }
+            } else {
+              throw { message: 'parseBelongsTo - Model type for relationship ' + typeName + ' not found.' };
             }
           }
         }

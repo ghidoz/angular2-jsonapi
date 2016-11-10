@@ -7,7 +7,7 @@ export function Attribute(config: any = {}) {
     let converter = function(dataType: any, value: any, forSerialisation = false): any {
       if (!forSerialisation) {
         if (dataType === Date) {
-          return moment.utc(value).toDate();
+          return moment(value).toDate();
         }
       } else {
         if (dataType === Date) {
