@@ -8,7 +8,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import { JsonApiModel } from '../models/json-api.model';
 import { DocumentModel } from '../models/document.model';
-
+import {ErrorResponse} from '../models/error-response.model';
 
 export type ModelType<T extends JsonApiModel> = {
   new(
@@ -166,20 +166,37 @@ export class JsonApiDatastore {
   protected handleError(error: any): ErrorObservable {
     let errMsg: string = (error.message) ? error.message :
         error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+    try {
+      let body: any = error.json();
+      if (body.errors && body.errors instanceof Array) {
+        let errors: ErrorResponse = new ErrorResponse(body.errors);
+        console.error(errMsg, errors);
+        return Observable.throw(errors);
+      }
+    } catch (e) {
+      // no valid JSON
+    }
+
     console.error(errMsg);
     return Observable.throw(errMsg);
   }
 
   private getOptions(customHeaders?: Headers): RequestOptions {
-    let headers: Headers = this._headers ? this._headers : new Headers();
-    headers.append('Accept', 'application/vnd.api+json');
-    headers.append('Content-Type', 'application/vnd.api+json');
+    let requestHeaders = new Headers();
+    requestHeaders.set('Accept', 'application/vnd.api+json');
+    requestHeaders.set('Content-Type', 'application/vnd.api+json');
+    if (this._headers) {
+      this._headers.forEach((values, name) => {
+        requestHeaders.set(name, values);
+      })
+    }
+
     if (customHeaders) {
-      customHeaders.forEach(function (values, name) {
-        headers.append(name, values[0]);
+      customHeaders.forEach((values, name) => {
+        requestHeaders.set(name, values);
       });
     }
-    return new RequestOptions({headers: headers});
+    return new RequestOptions({headers: requestHeaders});
   }
 
   private toQueryString(params: any) {

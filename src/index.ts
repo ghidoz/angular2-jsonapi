@@ -8,6 +8,7 @@ export * from './models/json-api.model';
 export * from './models/document.model';
 export * from './models/links.model';
 export * from './models/link.model';
+export * from './models/error-response.model';
 
 export * from './providers';
 
