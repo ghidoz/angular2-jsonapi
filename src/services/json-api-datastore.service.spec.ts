@@ -11,6 +11,7 @@ import {
 import {MockBackend, MockConnection} from '@angular/http/testing';
 import {Datastore, BASE_URL} from '../../test/datastore.service';
 import {ErrorResponse} from '../models/error-response.model';
+import * as moment from 'moment';
 
 
 let datastore: Datastore;
@@ -50,7 +51,7 @@ describe('JsonApiDatastore', () => {
         it('should build basic url', () => {
             backend.connections.subscribe((c: MockConnection) => {
 
-                expect(c.request.url).toEqual(BASE_URL + "authors");
+                expect(c.request.url).toEqual(BASE_URL + 'authors');
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author).subscribe();
@@ -58,10 +59,10 @@ describe('JsonApiDatastore', () => {
 
         it('should set JSON API headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + "authors");
+                expect(c.request.url).toEqual(BASE_URL + 'authors');
                 expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.get("Content-Type")).toEqual("application/vnd.api+json");
-                expect(c.request.headers.get("Accept")).toEqual("application/vnd.api+json");
+                expect(c.request.headers.get('Content-Type')).toEqual('application/vnd.api+json');
+                expect(c.request.headers.get('Accept')).toEqual('application/vnd.api+json');
             });
             datastore.query(Author).subscribe();
         });
@@ -69,7 +70,7 @@ describe('JsonApiDatastore', () => {
         it('should build url with params', () => {
             backend.connections.subscribe((c: MockConnection) => {
                 expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + "authors?page[size]=10&page[number]=1&include=comments");
+                expect(c.request.url).toEqual(BASE_URL + 'authors?page[size]=10&page[number]=1&include=comments');
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author, {
@@ -80,24 +81,24 @@ describe('JsonApiDatastore', () => {
 
         it('should have custom headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + "authors");
+                expect(c.request.url).toEqual(BASE_URL + 'authors');
                 expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.has("Authorization")).toBeTruthy();
-                expect(c.request.headers.get("Authorization")).toBe("Bearer");
+                expect(c.request.headers.has('Authorization')).toBeTruthy();
+                expect(c.request.headers.get('Authorization')).toBe('Bearer');
             });
-            datastore.query(Author, null, new Headers({"Authorization": "Bearer"}))
+            datastore.query(Author, null, new Headers({'Authorization': 'Bearer'}))
                 .subscribe();
         });
 
         it('should override base headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + "authors");
+                expect(c.request.url).toEqual(BASE_URL + 'authors');
                 expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.has("Authorization")).toBeTruthy();
-                expect(c.request.headers.get("Authorization")).toBe("Basic");
+                expect(c.request.headers.has('Authorization')).toBeTruthy();
+                expect(c.request.headers.get('Authorization')).toBe('Basic');
             });
-            datastore.headers = new Headers({"Authorization": "Bearer"});
-            datastore.query(Author, null, new Headers({"Authorization": "Basic"}))
+            datastore.headers = new Headers({'Authorization': 'Bearer'});
+            datastore.query(Author, null, new Headers({'Authorization': 'Basic'}))
                 .subscribe();
         });
 
@@ -149,11 +150,9 @@ describe('JsonApiDatastore', () => {
                 },
                 () => fail('onCompleted has been called'));
         });
-
     });
 
     describe('findRecord', () => {
-
         it('should get author', () => {
             backend.connections.subscribe((c: MockConnection) => {
                 c.mockRespond(new Response(
@@ -167,12 +166,8 @@ describe('JsonApiDatastore', () => {
             datastore.findRecord(Author, '1').subscribe((author) => {
                 expect(author).toBeDefined();
                 expect(author.id).toBe(AUTHOR_ID);
-                expect(author.date_of_birth).toEqual(AUTHOR_BIRTH);
+                expect(author.date_of_birth).toEqual(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').toDate());
             });
         });
-
-
     });
-
-
 });

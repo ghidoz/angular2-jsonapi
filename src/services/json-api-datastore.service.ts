@@ -51,7 +51,7 @@ export class JsonApiDatastore {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         let metadata: any = attributesMetadata[propertyName];
         if (metadata.hasDirtyAttributes) {
-          dirtyData[propertyName] = metadata.newValue;
+          dirtyData[propertyName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
         }
       }
     }
@@ -178,7 +178,7 @@ export class JsonApiDatastore {
     if (this._headers) {
       this._headers.forEach((values, name) => {
         requestHeaders.set(name, values);
-      })
+      });
     }
 
     if (customHeaders) {
@@ -190,7 +190,7 @@ export class JsonApiDatastore {
   }
 
   private toQueryString(params: any) {
-    let encodedStr: string = '';
+    let encodedStr = '';
     for (let key in params) {
       if (params.hasOwnProperty(key)) {
         if (encodedStr && encodedStr[encodedStr.length - 1] !== '&') {
