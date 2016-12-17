@@ -25,6 +25,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
     - [Relationships](#relationships)
     - [Custom Headers](#custom-headers)
     - [Error handling](#error-handling)
+    - [Dates](#dates)
 - [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
@@ -137,6 +138,9 @@ export class Post extends JsonApiModel {
 	@Attribute()
     content: string;
 
+    @Attribute()
+    created_at: Date;
+
     @HasMany()
     comments: Comment[];
 }
@@ -148,6 +152,9 @@ export class Comment extends JsonApiModel {
 
 	@Attribute()
     title: string;
+
+    @Attribute()
+    created_at: Date;
 
     @BelongsTo()
     post: Post;
@@ -422,12 +429,36 @@ this.datastore.query(Post).subscribe(
         }
     }
 );
-````
-It's also possible to handle errors for all requests by overriding `handleError(error: any): ErrorObservable` in the datastore. 
+```
+
+It's also possible to handle errors for all requests by overriding `handleError(error: any): ErrorObservable` in the datastore.
+
+### Dates
+
+The library will automatically transform date values into `Date` objects and it will serialize them when sending to the server. In order to do that, remember to set the type of the corresponding attribute as `Date`:
+
+```typescript
+@JsonApiModelConfig({
+    type: 'posts'
+})
+export class Post extends JsonApiModel {
+
+	// ...
+
+    @Attribute()
+    created_at: Date;
+
+}
+```
+
+Moreover, it should be noted that the following assumptions have been made:
+- The JsonApi spec suggests that ISO8601 format is used for dates, the code assumes the producer of the Api has followed this suggestion
+- The library also assumes that dates will be sent and received in UTC. This should be a safe assumption for Api providers to multinational clients, or cloud hosting where the timezone of the server cannot be guaranteed.
+
 
 ## TODO
 - [x] Deleting records
-- [ ] Conversion to and from `Date` property
+- [x] Conversion to and from `Date` property
 - [x] Handling validation errors
 - [ ] Updating or removing a relationship
 - [ ] [Explicit inverses](https://guides.emberjs.com/v2.8.0/models/relationships/#toc_explicit-inverses)
