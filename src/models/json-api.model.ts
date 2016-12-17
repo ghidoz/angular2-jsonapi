@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import 'reflect-metadata';
 import { Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';

@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 export function HasMany(config: any = {}) {
   return function (target: any, propertyName: string | symbol) {
     let annotations = Reflect.getMetadata('HasMany', target) || [];

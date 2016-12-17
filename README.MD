@@ -441,7 +441,7 @@ It's also possible to handle errors for all requests by overriding `handleError(
 To generate all `*.js`, `*.js.map` and `*.d.ts` files:
 
 ```bash
-$ npm run tsc
+$ npm run ngc
 ```
 
 To lint all `*.ts` files:

@@ -38,5 +38,8 @@
   "awesomeTypescriptLoaderOptions": {
     "sourceMap": false,
     "inlineSourceMap": true
+  },
+  "angularCompilerOptions": {
+    "genDir": "src/compiled"
   }
 }

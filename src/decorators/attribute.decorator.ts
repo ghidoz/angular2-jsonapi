@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 export function Attribute(config: any = {}) {
   return function (target: any, propertyName: string) {
 

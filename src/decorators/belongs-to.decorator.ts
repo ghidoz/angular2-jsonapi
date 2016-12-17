@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 export function BelongsTo(config: any = {}) {
   return function (target: any, propertyName: string | symbol) {
     let annotations = Reflect.getMetadata('BelongsTo', target) || [];

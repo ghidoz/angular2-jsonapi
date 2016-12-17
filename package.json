@@ -3,12 +3,12 @@
   "version": "3.3.0",
   "description": "A lightweight Angular 2 adapter for JSON API",
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "rimraf dist src/compiled && ngc",
     "lint": "tslint src/**/*.ts",
     "pretest": "npm run build",
     "test": "karma start",
-    "prepublish": "tsc",
-    "tsc": "tsc"
+    "prepublish": "ngc",
+    "ngc": "ngc"
   },
   "repository": {
     "type": "git",
@@ -43,10 +43,12 @@
   "devDependencies": {
     "@angular/common": "2.2.3",
     "@angular/compiler": "2.2.3",
+    "@angular/compiler-cli": "2.2.3",
     "@angular/core": "2.2.3",
     "@angular/http": "2.2.3",
     "@angular/platform-browser": "2.2.3",
     "@angular/platform-browser-dynamic": "2.2.3",
+    "@angular/platform-server": "2.2.3",
     "@types/jasmine": "^2.2.34",
     "@types/lodash": "^4.14.37",
     "@types/reflect-metadata": "0.0.4",
