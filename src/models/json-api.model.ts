@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { LinksModel } from './links.model';
 import { LinkModel } from './link.model';
+import { DocumentModel } from '../models/document.model';
 
 export class JsonApiModel {
 
@@ -30,7 +31,7 @@ export class JsonApiModel {
     }
   }
 
-  save(params?: any, headers?: Headers): Observable<this> {
+  save(params?: any, headers?: Headers): Observable<DocumentModel<this>> {
     let attributesMetadata: any = Reflect.getMetadata('Attribute', this);
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }
