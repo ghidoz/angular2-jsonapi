@@ -7,7 +7,8 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import { JsonApiModel } from '../models/json-api.model';
-import {ErrorResponse} from '../models/error-response.model';
+import { DocumentModel } from '../models/document.model';
+import { ErrorResponse } from '../models/error-response.model';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -123,7 +124,7 @@ export class JsonApiDatastore {
     return relationships;
   }
 
-  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): T[] {
+  private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): DocumentModel {
     let body: any = res.json();
     let models: T[] = [];
     body.data.forEach((data: any) => {
@@ -135,7 +136,7 @@ export class JsonApiDatastore {
       }
       models.push(model);
     });
-    return models;
+    return new DocumentModel(body.errors, models, body.links, body.meta);
   }
 
   private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): T {
