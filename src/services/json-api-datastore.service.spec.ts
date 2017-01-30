@@ -50,7 +50,6 @@ describe('JsonApiDatastore', () => {
 
         it('should build basic url', () => {
             backend.connections.subscribe((c: MockConnection) => {
-
                 expect(c.request.url).toEqual(BASE_URL + 'authors');
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
@@ -168,6 +167,19 @@ describe('JsonApiDatastore', () => {
                 expect(author.id).toBe(AUTHOR_ID);
                 expect(author.date_of_birth).toEqual(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').toDate());
             });
+        });
+    });
+
+    describe('config', () => {
+        it('should change basic url', () => {
+            const customBaseUrl = 'http://custom-test-url.com/';
+
+            datastore.setBaseUrl(customBaseUrl);
+
+            backend.connections.subscribe((c: MockConnection) => {
+                expect(c.request.url).toEqual(customBaseUrl + 'authors');
+            });
+            datastore.query(Author).subscribe();
         });
     });
 });
