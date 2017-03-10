@@ -9,7 +9,7 @@
     "test": "karma start",
     "prepublish": "ngc",
     "ngc": "ngc",
-    "servetest": "npm run pretest & karma start karma.dev.conf.js",
+    "servetest": "npm run pretest & karma start karma.dev.conf.js"
   },
   "repository": {
     "type": "git",
