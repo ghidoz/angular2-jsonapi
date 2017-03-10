@@ -3,10 +3,6 @@ node_modules/*
 npm-debug.log
 
 # TypeScript
-*.js
-*.map
-*.d.ts
-*.metadata.json
 src/compiled
 
 # JetBrains
