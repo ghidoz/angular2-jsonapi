@@ -10,7 +10,6 @@
     "prepublish": "ngc",
     "ngc": "ngc",
     "servetest": "npm run pretest & karma start karma.dev.conf.js",
-    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
