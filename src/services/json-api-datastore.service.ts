@@ -22,11 +22,20 @@ export class JsonApiDatastore {
     constructor(private http: Http) {
     }
 
+    /** @deprecated - use findAll method to take all models **/
     query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<T[]> {
         let options: RequestOptions = this.getOptions(headers);
         let url: string = this.buildUrl(modelType, params);
         return this.http.get(url, options)
             .map((res: any) => this.extractQueryData(res, modelType))
+            .catch((res: any) => this.handleError(res));
+    }
+
+    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData> {
+        let options: RequestOptions = this.getOptions(headers);
+        let url: string = this.buildUrl(modelType, params);
+        return this.http.get(url, options)
+            .map((res: any) => this.extractQueryData(res, modelType, true))
             .catch((res: any) => this.handleError(res));
     }
 
@@ -125,7 +134,7 @@ export class JsonApiDatastore {
         return relationships;
     }
 
-    private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>): JsonApiQueryData {
+    private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData {
         let body: any = res.json();
         let models: T[] = [];
         body.data.forEach((data: any) => {
@@ -137,7 +146,12 @@ export class JsonApiDatastore {
             }
             models.push(model);
         });
-        return new JsonApiQueryData(models, this.parseMeta(body, modelType));
+
+        if (withMeta && withMeta === true) {
+            return new JsonApiQueryData(models, this.parseMeta(body, modelType));
+        } else {
+            return models;
+        }
     }
 
     private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): T {
