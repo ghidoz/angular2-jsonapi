@@ -1,10 +1,8 @@
-import {JsonApiModel} from './json-api.model';
-
 export class JsonApiQueryData<T> {
-    constructor(protected jsonApiModels: Array<any>, protected metaData?: any) {
+    constructor(protected jsonApiModels: Array<T>, protected metaData?: any) {
     }
 
-    public getModels<T extends JsonApiModel>(): T[] {
+    public getModels(): T[] {
         return this.jsonApiModels;
     }
 
