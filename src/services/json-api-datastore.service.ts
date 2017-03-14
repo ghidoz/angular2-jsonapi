@@ -31,7 +31,7 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData> {
+    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData<T>> {
         let options: RequestOptions = this.getOptions(headers);
         let url: string = this.buildUrl(modelType, params);
         return this.http.get(url, options)
@@ -134,7 +134,7 @@ export class JsonApiDatastore {
         return relationships;
     }
 
-    private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData {
+    private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData<T> {
         let body: any = res.json();
         let models: T[] = [];
         body.data.forEach((data: any) => {

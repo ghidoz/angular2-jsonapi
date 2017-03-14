@@ -16,7 +16,7 @@ export declare class JsonApiDatastore {
     constructor(http: Http);
     /** @deprecated - use findAll method to take all models **/
     query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<T[]>;
-    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData>;
+    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData<T>>;
     findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers): Observable<T>;
     createRecord<T extends JsonApiModel>(modelType: ModelType<T>, data?: any): T;
     saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T>;
