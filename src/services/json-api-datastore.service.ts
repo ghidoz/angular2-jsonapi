@@ -117,9 +117,30 @@ export class JsonApiDatastore {
               id: data[key].id
             }
           };
+        } else if (data[key] instanceof Array && data[key].length) {
+          let isJsonApiModel: boolean = _.every(data[key], (item: any) => item instanceof JsonApiModel);
+          let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', data[key][0].constructor).type : '';
+          let isSingleType: boolean = isJsonApiModel ? _.every(data[key], (item: JsonApiModel) => Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType): false;
+          if (isSingleType) {
+            relationships = this.getHasManyRelationships(data[key], key, relationshipType);
+          }
         }
       }
     }
+    return relationships;
+  }
+
+  private getHasManyRelationships(data: any, key: any, relationshipType: string): any {
+    let relationships: any = {};
+    relationships[key] = {
+      data: []
+    };
+
+    data.forEach((item: JsonApiModel) => {
+      let singleRelationship: any = { type: relationshipType, id: item.id };
+      relationships[key].data.push(singleRelationship);
+    });
+
     return relationships;
   }
 
