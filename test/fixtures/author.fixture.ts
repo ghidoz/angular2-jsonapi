@@ -1,3 +1,4 @@
+import {getSampleBook} from "./book.fixture";
 export const AUTHOR_ID = '1';
 export const AUTHOR_NAME = 'J. R. R. Tolkien';
 export const AUTHOR_BIRTH = '1892-01-03';
@@ -42,41 +43,7 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
   let responseArray: any[] = [];
   let chapterId = 0;
   for (let i = 1; i <= totalBooks; i++) {
-    let book: any = {
-      'id': '' + i,
-      'type': 'books',
-      'attributes': {
-        'date_published': BOOK_PUBLISHED,
-        'title': BOOK_TITLE,
-        'created_at': '2016-09-26T21:12:41Z',
-        'updated_at': '2016-09-26T21:12:41Z'
-      },
-      'relationships': {
-        'chapters': {
-          'links': {
-            'self': '/v1/books/1/relationships/chapters',
-            'related': '/v1/books/1/chapters'
-          }
-        },
-        'firstChapter': {
-          'links': {
-            'self': '/v1/books/1/relationships/firstChapter',
-            'related': '/v1/books/1/firstChapter'
-          }
-        },
-        'author': {
-          'links': {
-            'self': '/v1/books/1/relationships/author',
-            'related': '/v1/books/1/author'
-          },
-          'data': {
-            'id': AUTHOR_ID,
-            'type': 'authors'
-          }
-        }
-      },
-      'links': {'self': '/v1/books/1'}
-    };
+    let book: any = getSampleBook(i, AUTHOR_ID);
     if (relationship && relationship.indexOf('books.chapters') !== -1) {
       book.relationships.chapters.data = [];
       for (let ic = 1; ic <= totalChapters; ic++) {

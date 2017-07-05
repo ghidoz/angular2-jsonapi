@@ -3,9 +3,11 @@ import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.d
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { HasMany } from '../../src/decorators/has-many.decorator';
+import {PageMetaData} from "./page-meta-data";
 
 @JsonApiModelConfig({
-    type: 'authors'
+    type: 'authors',
+    meta: PageMetaData
 })
 export class Author extends JsonApiModel {
 

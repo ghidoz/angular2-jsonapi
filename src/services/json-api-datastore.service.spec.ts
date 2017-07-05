@@ -1,17 +1,21 @@
 import {TestBed} from '@angular/core/testing';
-import { Author } from '../../test/models/author.model';
+import {Author} from '../../test/models/author.model';
+import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, getAuthorData} from '../../test/fixtures/author.fixture';
 import {
-    AUTHOR_ID, AUTHOR_NAME, AUTHOR_BIRTH,
-    getAuthorData
-} from '../../test/fixtures/author.fixture';
-import {
-    Http, BaseRequestOptions, ConnectionBackend, Response, ResponseOptions,
-    RequestMethod, Headers
+    BaseRequestOptions,
+    ConnectionBackend,
+    Headers,
+    Http,
+    RequestMethod,
+    Response,
+    ResponseOptions
 } from '@angular/http';
 import {MockBackend, MockConnection} from '@angular/http/testing';
-import {Datastore, BASE_URL} from '../../test/datastore.service';
+import {BASE_URL, Datastore} from '../../test/datastore.service';
 import {ErrorResponse} from '../models/error-response.model';
 import * as moment from 'moment';
+import {getSampleBook} from '../../test/fixtures/book.fixture';
+import {Book} from '../../test/models/book.model';
 
 
 let datastore: Datastore;
@@ -30,9 +34,11 @@ describe('JsonApiDatastore', () => {
         TestBed.configureTestingModule({
             providers: [
                 {
-                    provide: Http, useFactory: (connectionBackend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
-                    return new Http(connectionBackend, defaultOptions);
-                }, deps: [MockBackend, BaseRequestOptions]
+                    provide: Http,
+                    useFactory: (connectionBackend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
+                        return new Http(connectionBackend, defaultOptions);
+                    },
+                    deps: [MockBackend, BaseRequestOptions]
                 },
                 MockBackend,
                 BaseRequestOptions,
@@ -74,7 +80,7 @@ describe('JsonApiDatastore', () => {
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author, {
-                page: { size: 10, number: 1},
+                page: {size: 10, number: 1},
                 include: 'comments'
             }).subscribe();
         });
@@ -118,6 +124,51 @@ describe('JsonApiDatastore', () => {
                 expect(authors[0].id).toEqual(AUTHOR_ID);
                 expect(authors[0].name).toEqual(AUTHOR_NAME);
                 expect(authors[1]).toBeUndefined();
+            });
+        });
+
+        it('should get authors with custom metadata', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+                c.mockRespond(new Response(
+                    new ResponseOptions({
+                        body: JSON.stringify({
+                            data: [getAuthorData()],
+                            meta: {
+                                page: {
+                                    number: 1,
+                                    size: 1,
+                                    total: 1,
+                                    last: 1
+                                }
+                            }
+                        })
+                    })
+                ));
+            });
+            datastore.findAll(Author).subscribe((document) => {
+                console.log(document);
+
+                expect(document).toBeDefined();
+                expect(document.getModels().length).toEqual(1);
+                expect(document.getMeta().meta.page.number).toEqual(1);
+            });
+        });
+
+        it('should get data with default metadata', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+                c.mockRespond(new Response(
+                    new ResponseOptions({
+                        body: JSON.stringify({
+                            data: [getSampleBook(1, '1')],
+                            links: ['http://www.example.org']
+                        })
+                    })
+                ));
+            });
+            datastore.findAll(Book).subscribe((document) => {
+                expect(document).toBeDefined();
+                expect(document.getModels().length).toEqual(1);
+                expect(document.getMeta().links[0]).toEqual('http://www.example.org');
             });
         });
 
