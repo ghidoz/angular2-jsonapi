@@ -1,21 +1,26 @@
 'use strict';
 
 module.exports = {
+    entry: {
+        main: './src/index.ts'
+    },
     resolve: {
-        root: __dirname,
-        extensions: ['', '.ts', '.js', '.json']
+        extensions: [ '.ts', '.js', '.json']
+    },
+    output: {
+        path: './dist',
+        filename: '[name].bundle.js'
     },
     devtool: 'inline-source-map',
     module: {
         loaders: [
             {
                 test: /\.ts$/,
-                loader: 'ts',
+                loader: 'ts-loader',
                 exclude: [/node_modules/]
-            }
-        ],
-        postLoaders: [
+            },
             {
+                enforce: 'post',
                 test: /\.(js|ts)$/,
                 loader: 'sourcemap-istanbul-instrumenter-loader',
                 exclude: [
@@ -29,6 +34,5 @@ module.exports = {
             }
         ]
     },
-    stats: { colors: true, reasons: true },
-    debug: false
+    stats: { colors: true, reasons: true }
 };
