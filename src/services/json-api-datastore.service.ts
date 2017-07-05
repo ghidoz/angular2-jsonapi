@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import {Injectable} from '@angular/core';
-import {Http, Headers, RequestOptions, Response} from '@angular/http';
+import {Headers, Http, RequestOptions, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/map';
@@ -9,7 +9,6 @@ import 'rxjs/add/observable/throw';
 import {JsonApiModel} from '../models/json-api.model';
 import {ErrorResponse} from '../models/error-response.model';
 import {JsonApiQueryData} from '../models/json-api-query-data';
-import {JsonApiMetaModel} from '../models/json-api-meta.model';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -51,12 +50,7 @@ export class JsonApiDatastore {
         return new modelType(this, {attributes: data});
     }
 
-    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
-        let modelType = <ModelType<T>>model.constructor;
-        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        let options: RequestOptions = this.getOptions(headers);
-        let relationships: any = !model.id ? this.getRelationships(model) : undefined;
-        let url: string = this.buildUrl(modelType, params, model.id);
+    private getDirtyAttributes(attributesMetadata: any): { string: any} {
         let dirtyData: any = {};
         for (let propertyName in attributesMetadata) {
             if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -66,12 +60,22 @@ export class JsonApiDatastore {
                 }
             }
         }
+        return dirtyData;
+    }
+
+    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
+        let modelType = <ModelType<T>>model.constructor;
+        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+        let options: RequestOptions = this.getOptions(headers);
+        let relationships: any = this.getRelationships(model);
+        let url: string = this.buildUrl(modelType, params, model.id);
+
         let httpCall: Observable<Response>;
         let body: any = {
             data: {
                 type: typeName,
                 id: model.id,
-                attributes: dirtyData,
+                attributes: this.getDirtyAttributes(attributesMetadata),
                 relationships: relationships
             }
         };
@@ -121,17 +125,37 @@ export class JsonApiDatastore {
             if (data.hasOwnProperty(key)) {
                 if (data[key] instanceof JsonApiModel) {
                     relationships = relationships || {};
-                    let relationshipType: string = Reflect.getMetadata('JsonApiModelConfig', data[key].constructor).type;
                     relationships[key] = {
-                        data: {
-                            type: relationshipType,
-                            id: data[key].id
-                        }
+                        data: this.buildSingleRelationshipData(data[key])
+                    };
+                } else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
+                    relationships = relationships || {};
+                    relationships[key] = {
+                        data: data[key].map((model: JsonApiModel) => this.buildSingleRelationshipData(model))
                     };
                 }
             }
         }
         return relationships;
+    }
+
+    private isValidToManyRelation(objects: Array<any>): boolean {
+        let isJsonApiModel: boolean = _.every(objects, (item: any) => item instanceof JsonApiModel);
+        let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type : '';
+        return isJsonApiModel ? _.every(objects, (item: JsonApiModel) =>
+            Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType) : false;
+    }
+
+    private buildSingleRelationshipData(model: JsonApiModel): any {
+        let relationshipType: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
+        let relationShipData: { type: string, id?: string, attributes?: any } = {type: relationshipType};
+        if (model.id) {
+            relationShipData.id = model.id;
+        } else {
+            let attributesMetadata: any = Reflect.getMetadata('Attribute', model);
+            relationShipData.attributes = this.getDirtyAttributes(attributesMetadata);
+        }
+        return relationShipData;
     }
 
     private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData<T> {
