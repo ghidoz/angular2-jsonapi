@@ -33,8 +33,10 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "dependencies": {
+    "@types/qs": "^6.5.0",
     "lodash": "^4.16.4",
-    "moment": "^2.15.2"
+    "moment": "^2.15.2",
+    "qs": "^6.5.0"
   },
   "peerDependencies": {
     "@angular/http": "2.4.9",

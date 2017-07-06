@@ -9,6 +9,7 @@ import 'rxjs/add/observable/throw';
 import {JsonApiModel} from '../models/json-api.model';
 import {ErrorResponse} from '../models/error-response.model';
 import {JsonApiQueryData} from '../models/json-api-query-data';
+import * as qs from 'qs';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -242,32 +243,7 @@ export class JsonApiDatastore {
     }
 
     private toQueryString(params: any) {
-        let encodedStr = '';
-        for (let key in params) {
-            if (params.hasOwnProperty(key)) {
-                if (encodedStr && encodedStr[encodedStr.length - 1] !== '&') {
-                    encodedStr = encodedStr + '&';
-                }
-                let value: any = params[key];
-                if (value instanceof Array) {
-                    for (let i = 0; i < value.length; i++) {
-                        encodedStr = encodedStr + key + '=' + encodeURIComponent(value[i]) + '&';
-                    }
-                } else if (typeof value === 'object') {
-                    for (let innerKey in value) {
-                        if (value.hasOwnProperty(innerKey)) {
-                            encodedStr = encodedStr + key + '[' + innerKey + ']=' + encodeURIComponent(value[innerKey]) + '&';
-                        }
-                    }
-                } else {
-                    encodedStr = encodedStr + key + '=' + encodeURIComponent(value);
-                }
-            }
-        }
-        if (encodedStr[encodedStr.length - 1] === '&') {
-            encodedStr = encodedStr.substr(0, encodedStr.length - 1);
-        }
-        return encodedStr;
+        return qs.stringify(params);
     }
 
     public addToStore(models: JsonApiModel | JsonApiModel[]): void {

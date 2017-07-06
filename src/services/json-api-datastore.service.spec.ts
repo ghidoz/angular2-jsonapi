@@ -73,15 +73,24 @@ describe('JsonApiDatastore', () => {
             datastore.query(Author).subscribe();
         });
 
-        it('should build url with params', () => {
+        it('should build url with nested params', () => {
             backend.connections.subscribe((c: MockConnection) => {
                 expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors?page[size]=10&page[number]=1&include=comments');
+                expect(c.request.url).toEqual(BASE_URL + 'authors?' +
+                encodeURIComponent('page[size]') + '=10&' +
+                encodeURIComponent('page[number]') + '=1&' +
+                encodeURIComponent('include') + '=comments&' +
+                encodeURIComponent('filter[title][keyword]') + '=Tolkien');
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author, {
                 page: {size: 10, number: 1},
-                include: 'comments'
+                include: 'comments',
+                filter: {
+                    title: {
+                        keyword: 'Tolkien'
+                    }
+                }
             }).subscribe();
         });
 
