@@ -81,13 +81,6 @@ import { JsonApiModule } from 'angular2-jsonapi';
 export class AppModule { }
 ```
 
-**Note**: Because in our custom `Datastore` service we will make use of dependency injection into a class that inherits from a class of this module (see [this doc for an example](https://angular.io/docs/ts/latest/cookbook/dependency-injection.html#!#di-inheritance)) the used `@angular/http` module in our base project need to be of the same version as the version used by this module. Otherwise you will get an error like this:
-```
-Argument of type 'Http' is not assignable to parameter of type 'Http'.
-  Property '_backend' is protected but type 'Http' is not a class derived from 'Http'.
-```
-See [this issue](https://github.com/ghidoz/angular2-jsonapi/issues/4) for details.
-
 ## Usage
 
 ### Configuration
