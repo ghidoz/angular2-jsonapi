@@ -28,4 +28,5 @@ export class Author extends JsonApiModel {
 
     @HasMany()
     books: Book[];
+
 }
