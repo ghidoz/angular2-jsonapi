@@ -83,27 +83,26 @@ export class JsonApiModel {
     }
   }
 
-  private parseHasOne(data: any, included: any, level : number) : void {
-      var hasOne = Reflect.getMetadata('HasOne', this);
-      if (hasOne) {
-          for (var _i = 0, hasOne_1 = hasOne; _i < hasOne_1.length; _i++) {
-              var metadata = hasOne_1[_i];
-              var relationship = data.relationships ? data.relationships[metadata.relationship] : null;
-              if (relationship && relationship.data && (relationship.data.length == undefined)) {
-                  var typeName = relationship.data.type;
-                  var modelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
-                  if (modelType) {
-                      var relationshipModel = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level);
-                      if (relationshipModel != undefined) {
-                          this[metadata.propertyName] = relationshipModel;
-                      }
-                  }
-                  else {
-                      throw { message: 'parseHasOne - Model type for relationship ' + typeName + ' not found.' };
-                  }
+  private parseHasOne(data: any, included: any, level: number): void {
+    let hasOne: any = Reflect.getMetadata('HasOne', this);
+    if (hasOne) {
+      for (let _i = 0, hasOne_1 = hasOne; _i < hasOne_1.length; _i++) {
+        let metadata = hasOne_1[_i];
+        let relationship = data.relationships ? data.relationships[metadata.relationship] : null;
+        if (relationship && relationship.data && (relationship.data.length === undefined)) {
+          let typeName = relationship.data.type;
+          let modelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+          if (modelType) {
+            let relationshipModel = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level);
+              if (relationshipModel !== undefined) {
+                this[metadata.propertyName] = relationshipModel;
               }
+            }else {
+              throw { message: 'parseHasOne - Model type for relationship ' + typeName + ' not found.' };
           }
+        }
       }
+    }
   }
 
   private parseBelongsTo(data: any, included: any, level: number): void {
@@ -146,12 +145,11 @@ export class JsonApiModel {
   }
 
   private getHasOneRelationship<T extends this>(modelType: ModelType<T>, item: any, included: any, typeName: string, level: number): T {
-      var _this = this;
-      var relationship: T;
+      let relationship: T;
 
-          var relationshipData = _.find(included, { id: item.id, type: typeName });
+          let relationshipData = _.find(included, { id: item.id, type: typeName });
           if (relationshipData) {
-              var newObject = _this.createOrPeek(modelType, relationshipData);
+              let newObject = this.createOrPeek(modelType, relationshipData);
               if (level <= 1) {
                   newObject.syncRelationships(relationshipData, included, level + 1);
               }
