@@ -1,3 +1,4 @@
+import { Company } from './models/company.model';
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { JsonApiDatastore, JsonApiDatastoreConfig } from '../src';
@@ -13,7 +14,8 @@ export const BASE_URL = 'http://localhost:8080/v1/'
   models: {
     authors: Author,
     books: Book,
-    chapters: Chapter
+    chapters: Chapter,
+    company_publishing :Company
   }
 })
 export class Datastore extends JsonApiDatastore {

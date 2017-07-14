@@ -84,10 +84,10 @@ export class JsonApiModel {
   }
 
   private parseHasOne(data: any, included: any, level : number) : void {
-      var hasMany = Reflect.getMetadata('HasOne', this);
-      if (hasMany) {
-          for (var _i = 0, hasMany_1 = hasMany; _i < hasMany_1.length; _i++) {
-              var metadata = hasMany_1[_i];
+      var hasOne = Reflect.getMetadata('HasOne', this);
+      if (hasOne) {
+          for (var _i = 0, hasOne_1 = hasOne; _i < hasOne_1.length; _i++) {
+              var metadata = hasOne_1[_i];
               var relationship = data.relationships ? data.relationships[metadata.relationship] : null;
               if (relationship && relationship.data && (relationship.data.length == undefined)) {
                   var typeName = relationship.data.type;
