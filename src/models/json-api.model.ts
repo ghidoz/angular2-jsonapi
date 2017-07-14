@@ -18,6 +18,7 @@ export class JsonApiModel {
   syncRelationships(data: any, included: any, level: number): void {
     if (data) {
       this.parseHasMany(data, included, level);
+      this.parseHasOne(data, included, length);
       this.parseBelongsTo(data, included, level);
     }
   }
@@ -82,6 +83,29 @@ export class JsonApiModel {
     }
   }
 
+  private parseHasOne(data: any, included: any, level : number) : void {
+      var hasMany = Reflect.getMetadata('HasOne', this);
+      if (hasMany) {
+          for (var _i = 0, hasMany_1 = hasMany; _i < hasMany_1.length; _i++) {
+              var metadata = hasMany_1[_i];
+              var relationship = data.relationships ? data.relationships[metadata.relationship] : null;
+              if (relationship && relationship.data && (relationship.data.length == undefined)) {
+                  var typeName = relationship.data.type;
+                  var modelType = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+                  if (modelType) {
+                      var relationshipModel = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level);
+                      if (relationshipModel != undefined) {
+                          this[metadata.propertyName] = relationshipModel;
+                      }
+                  }
+                  else {
+                      throw { message: 'parseHasOne - Model type for relationship ' + typeName + ' not found.' };
+                  }
+              }
+          }
+      }
+  }
+
   private parseBelongsTo(data: any, included: any, level: number): void {
     let belongsTo: any = Reflect.getMetadata('BelongsTo', this);
     if (belongsTo) {
@@ -121,6 +145,21 @@ export class JsonApiModel {
     return relationshipList;
   }
 
+  private getHasOneRelationship<T extends this>(modelType: ModelType<T>, item: any, included: any, typeName: string, level: number): T {
+      var _this = this;
+      var relationship: T;
+
+          var relationshipData = _.find(included, { id: item.id, type: typeName });
+          if (relationshipData) {
+              var newObject = _this.createOrPeek(modelType, relationshipData);
+              if (level <= 1) {
+                  newObject.syncRelationships(relationshipData, included, level + 1);
+              }
+              relationship = newObject;
+          }
+
+      return relationship;
+  }
 
   private getBelongsToRelationship<T extends this>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
     let id: string = data.id;

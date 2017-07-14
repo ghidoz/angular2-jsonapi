@@ -9,6 +9,8 @@ export const AUTHOR_UPDATED = '2016-09-26T21:12:45Z';
 export const BOOK_TITLE = 'The Fellowship of the Ring';
 export const BOOK_PUBLISHED = '1954-07-29';
 
+export const COMPANY = 'ED. AHUHRETE';
+
 export const CHAPTER_TITLE = 'The Return Journey';
 
 export function getAuthorData(relationship?: string, total?: number): any {
