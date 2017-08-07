@@ -3,7 +3,7 @@ node_modules/*
 npm-debug.log
 
 # TypeScript
-#src/compiled
+# src/compiled
 # /dist
 
 # JetBrains
