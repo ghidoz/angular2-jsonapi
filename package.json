@@ -37,8 +37,7 @@
     "@types/qs": "^6.5.0",
     "lodash": "^4.16.4",
     "moment": "^2.15.2",
-    "qs": "^6.5.0",
-    "zone.js": "^0.8.16"
+    "qs": "^6.5.0"
   },
   "peerDependencies": {
     "@angular/http": "^4.0.0",
@@ -46,6 +45,7 @@
     "rxjs": "^5.2.0"
   },
   "devDependencies": {
+    "@angular/animations": "^4.3.3",
     "@angular/common": "^4.3.3",
     "@angular/compiler": "^4.3.3",
     "@angular/compiler-cli": "^4.3.3",
@@ -78,7 +78,8 @@
     "ts-loader": "^2.0.1",
     "tslint": "^5.0.0",
     "typescript": "^2.4.2",
-    "webpack": "2.3.3"
+    "webpack": "2.3.3",
+    "zone.js": "^0.8.16"
   },
   "engines": {
     "node": ">=0.8.0"
