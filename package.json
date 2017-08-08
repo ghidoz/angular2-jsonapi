@@ -33,7 +33,6 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "dependencies": {
-    "@angular/http": "^4.3.3",
     "@types/qs": "^6.5.0",
     "lodash": "^4.16.4",
     "moment": "^2.15.2",
@@ -47,11 +46,12 @@
   "devDependencies": {
     "@angular/animations": "^4.3.3",
     "@angular/common": "^4.3.3",
-    "@angular/compiler": "^4.3.3",
     "@angular/compiler-cli": "^4.3.3",
+    "@angular/compiler": "^4.3.3",
     "@angular/core": "^4.3.3",
-    "@angular/platform-browser": "^4.3.3",
+    "@angular/http": "^4.3.3",
     "@angular/platform-browser-dynamic": "^4.3.3",
+    "@angular/platform-browser": "^4.3.3",
     "@angular/platform-server": "^4.3.3",
     "@types/jasmine": "2.5.43",
     "@types/lodash": "^4.14.71",
