@@ -106,7 +106,7 @@ export class JsonApiModel {
     }
   }
 
-  private getHasManyRelationship<T extends this>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T[] {
+  private getHasManyRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T[] {
     let relationshipList: T[] = [];
     data.forEach((item: any) => {
       let relationshipData: any = _.find(included, {id: item.id, type: typeName});
@@ -122,7 +122,7 @@ export class JsonApiModel {
   }
 
 
-  private getBelongsToRelationship<T extends this>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
+  private getBelongsToRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
     let id: string = data.id;
     let relationshipData: any = _.find(included, {id: id, type: typeName});
     if (relationshipData) {
@@ -135,7 +135,7 @@ export class JsonApiModel {
     return this._datastore.peekRecord(modelType, id);
   }
 
-  private createOrPeek<T extends this>(modelType: ModelType<T>, data: any): T {
+  private createOrPeek<T extends JsonApiModel>(modelType: ModelType<T>, data: any): T {
     let peek = this._datastore.peekRecord(modelType, data.id);
     if (peek) {
       return peek;

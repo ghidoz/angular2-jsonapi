@@ -458,6 +458,8 @@ Moreover, it should be noted that the following assumptions have been made:
 - [ ] Loading an object's relationships
 - [ ] Unit testing
 - [ ] Setting a specific baseUrl for each model
+- [ ] Remove lodash dependency
+- [ ] Remove qs dependency
 
 
 ## Development
