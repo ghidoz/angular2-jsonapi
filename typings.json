@@ -1,6 +1,0 @@
-{
-  "globalDependencies": {},
-  "globalDevDependencies": {
-    "zone.js": "registry:dt/zone.js#0.0.0+20160510002910"
-  }
-}
