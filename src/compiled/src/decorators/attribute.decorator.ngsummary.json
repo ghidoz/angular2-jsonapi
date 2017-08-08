@@ -1,1 +1,0 @@
-{"summaries":[{"symbol":{"__symbol":0,"members":[]},"metadata":{"__symbolic":"function","parameters":["config"],"value":{"__symbolic":"error","message":"Function call not supported","line":3,"character":9},"defaults":[{}]}}],"symbols":[{"__symbol":0,"name":"Attribute","filePath":"/Users/safo/projects/angular2-jsonapi/src/decorators/attribute.decorator.d.ts"}]}
