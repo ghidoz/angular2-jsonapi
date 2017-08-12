@@ -210,6 +210,24 @@ describe('JsonApiDatastore', () => {
                 },
                 () => fail('onCompleted has been called'));
         });
+
+        it('should generate correct query string for array params with findAll', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+              expect(decodedQueryString).toEqual(expectedQueryString);
+            });
+            datastore.findAll(Book, { arrayParam: [4, 5, 6] }).subscribe();
+        });
+
+        it('should generate correct query string for array params with query', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+              expect(decodedQueryString).toEqual(expectedQueryString);
+            });
+            datastore.query(Book, { arrayParam: [4, 5, 6] }).subscribe();
+        });
     });
 
     describe('findRecord', () => {
@@ -228,6 +246,15 @@ describe('JsonApiDatastore', () => {
                 expect(author.id).toBe(AUTHOR_ID);
                 expect(author.date_of_birth).toEqual(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').toDate());
             });
+        });
+
+        it('should generate correct query string for array params with findRecord', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+              expect(decodedQueryString).toEqual(expectedQueryString);
+            });
+            datastore.findRecord(Book, '1', { arrayParam: [4, 5, 6] }).subscribe();
         });
 
     });
