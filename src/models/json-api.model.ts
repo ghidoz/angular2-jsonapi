@@ -1,5 +1,6 @@
-import * as _ from 'lodash-es';
 import { Headers } from '@angular/http';
+import extend from 'lodash-es/extend';
+import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 
@@ -11,7 +12,7 @@ export class JsonApiModel {
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
       this.id = data.id;
-      _.extend(this, data.attributes);
+      extend(this, data.attributes);
     }
   }
 
@@ -109,7 +110,7 @@ export class JsonApiModel {
   private getHasManyRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T[] {
     let relationshipList: T[] = [];
     data.forEach((item: any) => {
-      let relationshipData: any = _.find(included, {id: item.id, type: typeName});
+      let relationshipData: any = find(included, {id: item.id, type: typeName});
       if (relationshipData) {
         let newObject: T = this.createOrPeek(modelType, relationshipData);
         if (level <= 1) {
@@ -124,7 +125,7 @@ export class JsonApiModel {
 
   private getBelongsToRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
     let id: string = data.id;
-    let relationshipData: any = _.find(included, {id: id, type: typeName});
+    let relationshipData: any = find(included, {id: id, type: typeName});
     if (relationshipData) {
       let newObject: T = this.createOrPeek(modelType, relationshipData);
       if (level <= 1) {
