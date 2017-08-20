@@ -141,9 +141,9 @@ export class JsonApiDatastore {
     }
 
     private isValidToManyRelation(objects: Array<any>): boolean {
-        let isJsonApiModel: boolean = _.every(objects, (item: any) => item instanceof JsonApiModel);
+        let isJsonApiModel = objects.every(item => item instanceof JsonApiModel);
         let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type : '';
-        return isJsonApiModel ? _.every(objects, (item: JsonApiModel) =>
+        return isJsonApiModel ? objects.every((item: JsonApiModel) =>
             Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType) : false;
     }
 
