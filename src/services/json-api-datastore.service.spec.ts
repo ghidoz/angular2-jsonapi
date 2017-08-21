@@ -1,4 +1,5 @@
 import {TestBed} from '@angular/core/testing';
+import * as dateParse from 'date-fns/parse';
 import {Author} from '../../test/models/author.model';
 import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
 import {
@@ -13,7 +14,6 @@ import {
 import {MockBackend, MockConnection} from '@angular/http/testing';
 import {BASE_URL, Datastore} from '../../test/datastore.service';
 import {ErrorResponse} from '../models/error-response.model';
-import * as moment from 'moment';
 import {getSampleBook} from '../../test/fixtures/book.fixture';
 import {Book} from '../../test/models/book.model';
 
@@ -244,7 +244,7 @@ describe('JsonApiDatastore', () => {
             datastore.findRecord(Author, '1').subscribe((author) => {
                 expect(author).toBeDefined();
                 expect(author.id).toBe(AUTHOR_ID);
-                expect(author.date_of_birth).toEqual(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').toDate());
+                expect(author.date_of_birth).toEqual(dateParse(AUTHOR_BIRTH));
             });
         });
 
