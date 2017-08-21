@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http, RequestOptions, Response} from '@angular/http';
 import find from 'lodash-es/find';
-import objectValues from 'lodash-es/values';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/map';
@@ -107,7 +106,8 @@ export class JsonApiDatastore {
 
     peekAll<T extends JsonApiModel>(modelType: ModelType<T>): T[] {
         let type = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        return objectValues(<JsonApiModel>this._store[type]);
+        let typeStore = this._store[type];
+        return typeStore ? Object.keys(typeStore).map(key => <T>typeStore[key]) : [];
     }
 
     set headers(headers: Headers) {
