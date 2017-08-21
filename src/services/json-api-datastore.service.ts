@@ -20,7 +20,7 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 export class JsonApiDatastore {
 
     private _headers: Headers;
-    private _store: any = {};
+    private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
 
     constructor(private http: Http) {
     }
@@ -104,7 +104,7 @@ export class JsonApiDatastore {
 
     peekRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string): T {
         let type: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        return this._store[type] ? this._store[type][id] : null;
+        return this._store[type] ? <T>this._store[type][id] : null;
     }
 
     peekAll<T extends JsonApiModel>(modelType: ModelType<T>): T[] {
