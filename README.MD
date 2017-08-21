@@ -445,8 +445,8 @@ export class Post extends JsonApiModel {
 ```
 
 Moreover, it should be noted that the following assumptions have been made:
-- The JsonApi spec suggests that ISO8601 format is used for dates, the code assumes the producer of the Api has followed this suggestion
-- The library also assumes that dates will be sent and received in UTC. This should be a safe assumption for Api providers to multinational clients, or cloud hosting where the timezone of the server cannot be guaranteed.
+- Dates are expected to be received in one of the ISO 8601 formats, as per the [JSON API spec recommendation](http://jsonapi.org/recommendations/#date-and-time-fields);
+- Dates are always sent in full ISO 8601 format, with local timezone and without milliseconds (example: `2001-02-03T14:05:06+07:00`).
 
 
 ## TODO

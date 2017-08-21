@@ -11,7 +11,7 @@ export function Attribute(config: any = {}) {
         }
       } else {
         if (dataType === Date) {
-          return dateFormat(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+          return dateFormat(value, 'YYYY-MM-DDTHH:mm:ssZ');
         }
       }
 
