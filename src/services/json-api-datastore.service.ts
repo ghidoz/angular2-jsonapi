@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http, RequestOptions, Response} from '@angular/http';
-import extend from 'lodash-es/extend';
 import find from 'lodash-es/find';
 import objectValues from 'lodash-es/values';
 import {Observable} from 'rxjs/Observable';
@@ -185,7 +184,7 @@ export class JsonApiDatastore {
         let body: any = res.json();
         if (model) {
             model.id = body.data.id;
-            extend(model, body.data.attributes);
+            Object.assign(model, body.data.attributes);
         }
         model = model || new modelType(this, body.data);
         this.addToStore(model);

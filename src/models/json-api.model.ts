@@ -1,5 +1,4 @@
 import { Headers } from '@angular/http';
-import extend from 'lodash-es/extend';
 import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
@@ -12,7 +11,7 @@ export class JsonApiModel {
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
       this.id = data.id;
-      extend(this, data.attributes);
+      Object.assign(this, data.attributes);
     }
   }
 
