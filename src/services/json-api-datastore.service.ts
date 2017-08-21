@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Headers, Http, RequestOptions, Response} from '@angular/http';
 import extend from 'lodash-es/extend';
 import find from 'lodash-es/find';
-import keyBy from 'lodash-es/keyBy';
 import objectValues from 'lodash-es/values';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
@@ -249,19 +248,16 @@ export class JsonApiDatastore {
         return qs.stringify(params, { arrayFormat: 'brackets' });
     }
 
-    public addToStore(models: JsonApiModel | JsonApiModel[]): void {
-        let model: JsonApiModel = models instanceof Array ? models[0] : models;
-        let type: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
-        if (!this._store[type]) {
-            this._store[type] = {};
+    public addToStore(modelOrModels: JsonApiModel | JsonApiModel[]): void {
+        let models = Array.isArray(modelOrModels) ? modelOrModels : [modelOrModels];
+        let type: string = Reflect.getMetadata('JsonApiModelConfig', models[0].constructor).type;
+        let typeStore = this._store[type];
+        if (!typeStore) {
+            typeStore = this._store[type] = {};
         }
-        let hash: any = this.fromArrayToHash(models);
-        extend(this._store[type], hash);
-    }
-
-    private fromArrayToHash(models: JsonApiModel | JsonApiModel[]): any {
-        let modelsArray: JsonApiModel[] = models instanceof Array ? models : [models];
-        return keyBy(modelsArray, 'id');
+        for (let model of models) {
+            typeStore[model.id] = model;
+        }
     }
 
     private resetMetadataAttributes<T extends JsonApiModel>(res: any, attributesMetadata: any, modelType: ModelType<T>) {
