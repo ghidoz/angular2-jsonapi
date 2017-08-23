@@ -1,6 +1,8 @@
-import * as _ from 'lodash';
 import {Injectable} from '@angular/core';
 import {Headers, Http, RequestOptions, Response} from '@angular/http';
+import extend from 'lodash-es/extend';
+import find from 'lodash-es/find';
+import objectValues from 'lodash-es/values';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/map';
@@ -17,7 +19,7 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 export class JsonApiDatastore {
 
     private _headers: Headers;
-    private _store: any = {};
+    private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
 
     constructor(private http: Http) {
     }
@@ -101,12 +103,12 @@ export class JsonApiDatastore {
 
     peekRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string): T {
         let type: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        return this._store[type] ? this._store[type][id] : null;
+        return this._store[type] ? <T>this._store[type][id] : null;
     }
 
     peekAll<T extends JsonApiModel>(modelType: ModelType<T>): T[] {
         let type = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        return _.values(<JsonApiModel>this._store[type]);
+        return objectValues(<JsonApiModel>this._store[type]);
     }
 
     set headers(headers: Headers) {
@@ -141,9 +143,9 @@ export class JsonApiDatastore {
     }
 
     private isValidToManyRelation(objects: Array<any>): boolean {
-        let isJsonApiModel: boolean = _.every(objects, (item: any) => item instanceof JsonApiModel);
+        let isJsonApiModel = objects.every(item => item instanceof JsonApiModel);
         let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type : '';
-        return isJsonApiModel ? _.every(objects, (item: JsonApiModel) =>
+        return isJsonApiModel ? objects.every((item: JsonApiModel) =>
             Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType) : false;
     }
 
@@ -183,7 +185,7 @@ export class JsonApiDatastore {
         let body: any = res.json();
         if (model) {
             model.id = body.data.id;
-            _.extend(model, body.data.attributes);
+            extend(model, body.data.attributes);
         }
         model = model || new modelType(this, body.data);
         this.addToStore(model);
@@ -246,19 +248,16 @@ export class JsonApiDatastore {
         return qs.stringify(params, { arrayFormat: 'brackets' });
     }
 
-    public addToStore(models: JsonApiModel | JsonApiModel[]): void {
-        let model: JsonApiModel = models instanceof Array ? models[0] : models;
-        let type: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
-        if (!this._store[type]) {
-            this._store[type] = {};
+    public addToStore(modelOrModels: JsonApiModel | JsonApiModel[]): void {
+        let models = Array.isArray(modelOrModels) ? modelOrModels : [modelOrModels];
+        let type: string = Reflect.getMetadata('JsonApiModelConfig', models[0].constructor).type;
+        let typeStore = this._store[type];
+        if (!typeStore) {
+            typeStore = this._store[type] = {};
         }
-        let hash: any = this.fromArrayToHash(models);
-        _.extend(this._store[type], hash);
-    }
-
-    private fromArrayToHash(models: JsonApiModel | JsonApiModel[]): any {
-        let modelsArray: JsonApiModel[] = models instanceof Array ? models : [models];
-        return _.keyBy(modelsArray, 'id');
+        for (let model of models) {
+            typeStore[model.id] = model;
+        }
     }
 
     private resetMetadataAttributes<T extends JsonApiModel>(res: any, attributesMetadata: any, modelType: ModelType<T>) {
@@ -281,7 +280,7 @@ export class JsonApiDatastore {
             if (relationships.hasOwnProperty(relationship) && model.hasOwnProperty(relationship)) {
                 let relationshipModel: JsonApiModel = model[relationship];
                 let hasMany: any[] = Reflect.getMetadata('HasMany', relationshipModel);
-                let propertyHasMany: any = _.find(hasMany, (property) => {
+                let propertyHasMany: any = find(hasMany, (property) => {
                     return modelsTypes[property.relationship] === model.constructor;
                 });
                 if (propertyHasMany) {
