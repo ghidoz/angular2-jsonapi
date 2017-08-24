@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import * as dateParse from 'date-fns/parse';
 import { Author } from '../../test/models/author.model';
 import {
     AUTHOR_ID, AUTHOR_NAME, AUTHOR_BIRTH, AUTHOR_DEATH,
@@ -9,7 +10,6 @@ import { Http, BaseRequestOptions, ConnectionBackend } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 import { Datastore } from '../../test/datastore.service';
 import { Chapter } from '../../test/models/chapter.model';
-import * as moment from 'moment';
 
 let datastore: Datastore;
 
@@ -48,7 +48,7 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
-      expect(author.date_of_birth.getTime()).toBe(moment('1987-05-25').toDate().getTime());
+      expect(author.date_of_birth.getTime()).toBe(dateParse('1987-05-25').getTime());
     });
 
     it('should be instantiated without attributes', () => {
@@ -69,10 +69,10 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBe(AUTHOR_ID);
       expect(author.name).toBe(AUTHOR_NAME);
-      expect(author.date_of_birth.valueOf()).toBe(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
-      expect(author.date_of_death.valueOf()).toBe(moment(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
-      expect(author.created_at.valueOf()).toBe(moment(AUTHOR_CREATED).valueOf());
-      expect(author.updated_at.valueOf()).toBe(moment(AUTHOR_UPDATED).valueOf());
+      expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
+      expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
+      expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
+      expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
       expect(author.books).toBeUndefined();
     });
 
@@ -86,17 +86,17 @@ describe('JsonApiModel', () => {
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth.valueOf()).toBe(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
-        expect(author.date_of_death.valueOf()).toBe(moment(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
-        expect(author.created_at.valueOf()).toBe(moment(AUTHOR_CREATED).valueOf());
-        expect(author.updated_at.valueOf()).toBe(moment(AUTHOR_UPDATED).valueOf());
+        expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
+        expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
+        expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
+        expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(moment(BOOK_PUBLISHED, 'YYYY-MM-DD').valueOf());
+          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
         });
       });
 
@@ -125,17 +125,17 @@ describe('JsonApiModel', () => {
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth.valueOf()).toBe(moment(AUTHOR_BIRTH, 'YYYY-MM-DD').valueOf());
-        expect(author.date_of_death.valueOf()).toBe(moment(AUTHOR_DEATH, 'YYYY-MM-DD').valueOf());
-        expect(author.created_at.valueOf()).toBe(moment(AUTHOR_CREATED).valueOf());
-        expect(author.updated_at.valueOf()).toBe(moment(AUTHOR_UPDATED).valueOf());
+        expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
+        expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
+        expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
+        expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(moment(BOOK_PUBLISHED, 'YYYY-MM-DD').valueOf());
+          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
           expect(book.chapters).toBeDefined();
           expect(book.chapters.length).toBe(CHAPTERS_NUMBER);
           book.chapters.forEach((chapter: Chapter, cindex: number) => {

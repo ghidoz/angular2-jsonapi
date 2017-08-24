@@ -1,4 +1,5 @@
-import * as moment from 'moment';
+import * as dateFormat from 'date-fns/format';
+import * as dateParse from 'date-fns/parse';
 
 export function Attribute(config: any = {}) {
   return function (target: any, propertyName: string) {
@@ -6,11 +7,11 @@ export function Attribute(config: any = {}) {
     let converter = function(dataType: any, value: any, forSerialisation = false): any {
       if (!forSerialisation) {
         if (dataType === Date) {
-          return moment(value).toDate();
+          return dateParse(value);
         }
       } else {
         if (dataType === Date) {
-          return moment(value).format(moment.defaultFormatUtc);
+          return dateFormat(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
         }
       }
 
