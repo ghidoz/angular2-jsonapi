@@ -60,7 +60,8 @@ export class JsonApiDatastore {
             if (attributesMetadata.hasOwnProperty(propertyName)) {
                 let metadata: any = attributesMetadata[propertyName];
                 if (metadata.hasDirtyAttributes) {
-                    dirtyData[propertyName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
+                    let attributeName = metadata.serializedName != null ? metadata.serializedName : propertyName;
+                    dirtyData[attributeName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
                 }
             }
         }
@@ -184,7 +185,7 @@ export class JsonApiDatastore {
         let body: any = res.json();
         let models: T[] = [];
         body.data.forEach((data: any) => {
-            let model: T = new modelType(this, data);
+            let model: T = this.deserializeModel(modelType, data);
             this.addToStore(model);
             if (body.included) {
                 model.syncRelationships(data, body.included, 0);
@@ -200,6 +201,11 @@ export class JsonApiDatastore {
         }
     }
 
+    private deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
+        data.attributes = this.transformSerializedNamesToPropertyNames(modelType, data.attributes);
+        return new modelType(this, data);
+    }
+
     private extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
         let body: any = res.json();
         if (!body) {
@@ -209,7 +215,7 @@ export class JsonApiDatastore {
             model.id = body.data.id;
             Object.assign(model, body.data.attributes);
         }
-        model = model || new modelType(this, body.data);
+        model = model || this.deserializeModel(modelType, body.data);
         this.addToStore(model);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
@@ -323,4 +329,22 @@ export class JsonApiDatastore {
         const configFromDecorator: DatastoreConfig = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor);
         return Object.assign(configFromDecorator, this.config);
     }
+
+    private transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
+        let serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
+        let properties: any = {};
+        Object.keys(serializedNameToPropertyName).forEach(serializedName => {
+            if (attributes[serializedName]) {
+                properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
+            }
+        });
+        return properties;
+    }
+
+    private getModelPropertyNames(model: JsonApiModel) {
+        return Reflect.getMetadata('AttributeMapping', model);
+    }
+
+
+
 }
