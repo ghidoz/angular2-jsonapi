@@ -9,10 +9,7 @@
     "declaration": true,
     "outDir": "./dist",
     "lib": [
-      "es5",
-      "es2015.iterable",
-      "es2015.collection",
-      "es2015.promise",
+      "es2015",
       "dom"
     ],
     "typeRoots": [
