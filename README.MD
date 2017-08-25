@@ -23,6 +23,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
         - [Persisting Records](#persisting-records)
         - [Deleting Records](#deleting-records)
     - [Relationships](#relationships)
+    - [Metadata](#metadata)
     - [Custom Headers](#custom-headers)
     - [Error handling](#error-handling)
     - [Dates](#dates)
@@ -116,6 +117,7 @@ Then set up your models:
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
 - Decorate the class properties with `@Attribute`
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
+- (optional) Define your [Metadata](#metadata)
 
 ```typescript
 import { JsonApiModelConfig, JsonApiModel, Attribute, HasMany, BelongsTo } from 'angular2-jsonapi';
@@ -171,10 +173,10 @@ export class User extends JsonApiModel {
 
 #### Querying for Multiple Records
 
-Now, you can use your `Datastore` in order to query your API with the `query()` method:
+Now, you can use your `Datastore` in order to query your API with the `findAll()` method:
 - The first argument is the type of object you want to query.
 - The second argument is the list of params: write them in JSON format and they will be serialized.
-
+- The returned value is a document which gives access to the metdata and the models.
 ```typescript
 // ...
 constructor(private datastore: Datastore) { }
@@ -266,7 +268,7 @@ this.datastore.findRecord(Post, '1').subscribe(
 );
 ```
 
-The `save()` method will return an `Observer` that you can subscribe:
+The `save()` method will return an `Observer` that you need to subscribe:
 
 ```typescript
 post.save().subscribe(
@@ -311,11 +313,14 @@ this.datastore.deleteRecord(Post, '1').subscribe(() => {
 In order to query an object including its relationships, you can pass in its options the attribute name you want to load with the relationships:
 
 ```typescript
-this.datastore.query(Post, {
+this.datastore.findAll(Post, {
     page: { size: 10, number: 1},
     include: 'comments'
 }).subscribe(
-    (posts: Post[]) => console.log(posts)
+    (document) => {
+        console.log(document.getMeta()); // metadata
+        console.log(document.getModels()); // models
+    }
 );
 ```
 
@@ -373,6 +378,33 @@ this.datastore.findRecord(Post, '1', {
     }
 );
 ```
+
+### Metadata
+Metadata such as links or data for pagination purposes can also be included in the result.
+
+For each model a specific MetadataModel can be defined. To do this, the class name needs to be added in the ModelConfig.
+
+If no MetadataModel is explicitly defined, the default one will be used, which just contains an array of links.
+```
+@JsonApiModelConfig({
+    type: 'deals',
+    meta: JsonApiMetaModel
+})
+export class Deal extends JsonApiModel 
+```
+
+The model itself is a normal class which contains the specific metadata properties.
+
+```
+export class JsonApiMetaModel {
+    public links: Array<any>;
+
+    constructor() {
+        this.links = [];
+    }
+}
+```
+
 
 ### Custom Headers
 
@@ -447,19 +479,6 @@ export class Post extends JsonApiModel {
 Moreover, it should be noted that the following assumptions have been made:
 - The JsonApi spec suggests that ISO8601 format is used for dates, the code assumes the producer of the Api has followed this suggestion
 - The library also assumes that dates will be sent and received in UTC. This should be a safe assumption for Api providers to multinational clients, or cloud hosting where the timezone of the server cannot be guaranteed.
-
-
-## TODO
-- [x] Deleting records
-- [x] Conversion to and from `Date` property
-- [x] Handling validation errors
-- [ ] Updating or removing a relationship
-- [ ] [Explicit inverses](https://guides.emberjs.com/v2.8.0/models/relationships/#toc_explicit-inverses)
-- [ ] Loading an object's relationships
-- [ ] Unit testing
-- [ ] Setting a specific baseUrl for each model
-- [ ] Remove lodash dependency
-- [ ] Remove qs dependency
 
 
 ## Development
