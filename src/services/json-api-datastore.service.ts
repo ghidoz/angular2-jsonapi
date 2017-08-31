@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Headers, Http, RequestOptions, Response} from '@angular/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import find from 'lodash-es/find';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
@@ -16,33 +17,33 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 @Injectable()
 export class JsonApiDatastore {
 
-    private _headers: Headers;
+    private _headers: HttpHeaders;
     private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
 
-    constructor(private http: Http) {
+    constructor(private httpClient: HttpClient) {
     }
 
     /** @deprecated - use findAll method to take all models **/
-    query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<T[]> {
-        let options: RequestOptions = this.getOptions(headers);
+    query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: HttpHeaders): Observable<T[]> {
+        const customHeadhers: HttpHeaders = this.buildHeaders(headers);
         let url: string = this.buildUrl(modelType, params);
-        return this.http.get(url, options)
+        return this.httpClient.get(url, {headers: customHeadhers})
             .map((res: any) => this.extractQueryData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
-    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData<T>> {
-        let options: RequestOptions = this.getOptions(headers);
+    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: HttpHeaders): Observable<JsonApiQueryData<T>> {
+        const customHeadhers: HttpHeaders = this.buildHeaders(headers);
         let url: string = this.buildUrl(modelType, params);
-        return this.http.get(url, options)
+        return this.httpClient.get(url, {headers: customHeadhers})
             .map((res: any) => this.extractQueryData(res, modelType, true))
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers): Observable<T> {
-        let options: RequestOptions = this.getOptions(headers);
+    findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: HttpHeaders): Observable<T> {
+        const customHeadhers: HttpHeaders = this.buildHeaders(headers);
         let url: string = this.buildUrl(modelType, params, id);
-        return this.http.get(url, options)
+        return this.httpClient.get(url, {headers: customHeadhers})
             .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
@@ -64,14 +65,14 @@ export class JsonApiDatastore {
         return dirtyData;
     }
 
-    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
+    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: HttpHeaders): Observable<T> {
         let modelType = <ModelType<T>>model.constructor;
         let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        let options: RequestOptions = this.getOptions(headers);
+        const customHeadhers: HttpHeaders = this.buildHeaders(headers);
         let relationships: any = this.getRelationships(model);
         let url: string = this.buildUrl(modelType, params, model.id);
 
-        let httpCall: Observable<Response>;
+        let httpCall: Observable<any>;
         let body: any = {
             data: {
                 type: typeName,
@@ -81,9 +82,9 @@ export class JsonApiDatastore {
             }
         };
         if (model.id) {
-            httpCall = this.http.patch(url, body, options);
+            httpCall = this.httpClient.patch(url, body, {headers: customHeadhers});
         } else {
-            httpCall = this.http.post(url, body, options);
+            httpCall = this.httpClient.post(url, body, {headers: customHeadhers});
         }
         return httpCall
             .map((res: any) => this.extractRecordData(res, modelType, model))
@@ -92,10 +93,10 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    deleteRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, headers?: Headers): Observable<Response> {
-        let options: RequestOptions = this.getOptions(headers);
+    deleteRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, headers?: HttpHeaders): Observable<Response> {
+        const customHeadhers: HttpHeaders = this.buildHeaders(headers);
         let url: string = this.buildUrl(modelType, null, id);
-        return this.http.delete(url, options)
+        return this.httpClient.delete(url, {headers: customHeadhers})
             .catch((res: any) => this.handleError(res));
     }
 
@@ -110,7 +111,7 @@ export class JsonApiDatastore {
         return typeStore ? Object.keys(typeStore).map(key => <T>typeStore[key]) : [];
     }
 
-    set headers(headers: Headers) {
+    set headers(headers: HttpHeaders) {
         this._headers = headers;
     }
 
@@ -161,18 +162,15 @@ export class JsonApiDatastore {
     }
 
     private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData<T> {
-        let body: any = res.json();
+        let body: any = res;
         let models: T[] = [];
-        body.data.forEach((data: any) => {
-            let model: T = new modelType(this, data);
+        let model: T = new modelType(this, body.data);
+        this.addToStore(model);
+        if (body.included) {
+            model.syncRelationships(body.data, body.included, 0);
             this.addToStore(model);
-            if (body.included) {
-                model.syncRelationships(data, body.included, 0);
-                this.addToStore(model);
-            }
-            models.push(model);
-        });
-
+        }
+        models.push(model);
         if (withMeta && withMeta === true) {
             return new JsonApiQueryData(models, this.parseMeta(body, modelType));
         } else {
@@ -181,7 +179,7 @@ export class JsonApiDatastore {
     }
 
     private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): T {
-        let body: any = res.json();
+        let body: any = res;
         if (model) {
             model.id = body.data.id;
             Object.assign(model, body.data.attributes);
@@ -199,7 +197,7 @@ export class JsonApiDatastore {
         let errMsg: string = (error.message) ? error.message :
             error.status ? `${error.status} - ${error.statusText}` : 'Server error';
         try {
-            let body: any = error.json();
+            let body: any = error;
             if (body.errors && body.errors instanceof Array) {
                 let errors: ErrorResponse = new ErrorResponse(body.errors);
                 console.error(errMsg, errors);
@@ -225,22 +223,17 @@ export class JsonApiDatastore {
         return jsonApiMeta;
     }
 
-    private getOptions(customHeaders?: Headers): RequestOptions {
-        let requestHeaders = new Headers();
-        requestHeaders.set('Accept', 'application/vnd.api+json');
-        requestHeaders.set('Content-Type', 'application/vnd.api+json');
-        if (this._headers) {
-            this._headers.forEach((values, name) => {
-                requestHeaders.set(name, values);
-            });
+    private buildHeaders(customHeaders: HttpHeaders): HttpHeaders {
+        let headers: any = {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+        };
+        if (customHeaders && customHeaders.keys().length) {
+            Object.assign({}, headers, customHeaders.keys().map(header_name => {
+                headers[ '' + header_name ] = customHeaders.get(header_name);
+            }));
         }
-
-        if (customHeaders) {
-            customHeaders.forEach((values, name) => {
-                requestHeaders.set(name, values);
-            });
-        }
-        return new RequestOptions({headers: requestHeaders});
+        return new HttpHeaders(headers);
     }
 
     private toQueryString(params: any) {

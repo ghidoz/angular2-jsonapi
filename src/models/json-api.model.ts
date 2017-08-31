@@ -1,4 +1,4 @@
-import { Headers } from '@angular/http';
+import { HttpHeaders } from '@angular/common/http';
 import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
@@ -22,7 +22,7 @@ export class JsonApiModel {
     }
   }
 
-  save(params?: any, headers?: Headers): Observable<this> {
+  save(params?: any, headers?: HttpHeaders): Observable<this> {
     let attributesMetadata: any = Reflect.getMetadata('Attribute', this);
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }

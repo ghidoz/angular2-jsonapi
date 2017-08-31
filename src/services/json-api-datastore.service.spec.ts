@@ -1,5 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import * as dateParse from 'date-fns/parse';
+import * as qs from 'qs';
 import {Author} from '../../test/models/author.model';
 import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
 import {
@@ -11,15 +12,15 @@ import {
     Response,
     ResponseOptions
 } from '@angular/http';
-import {MockBackend, MockConnection} from '@angular/http/testing';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BASE_URL, Datastore} from '../../test/datastore.service';
 import {ErrorResponse} from '../models/error-response.model';
 import {getSampleBook} from '../../test/fixtures/book.fixture';
 import {Book} from '../../test/models/book.model';
-
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 let datastore: Datastore;
-let backend: MockBackend;
+let httpMock: HttpTestingController;
 
 // workaround, see https://github.com/angular/angular/pull/8961
 class MockError extends Response implements Error {
@@ -32,57 +33,40 @@ describe('JsonApiDatastore', () => {
     beforeEach(() => {
 
         TestBed.configureTestingModule({
+            imports: [
+                HttpClientTestingModule
+            ],
             providers: [
-                {
-                    provide: Http,
-                    useFactory: (connectionBackend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
-                        return new Http(connectionBackend, defaultOptions);
-                    },
-                    deps: [MockBackend, BaseRequestOptions]
-                },
-                MockBackend,
-                BaseRequestOptions,
                 Datastore
             ]
         });
-
-        datastore = TestBed.get(Datastore);
-        backend = TestBed.get(MockBackend);
-
+        httpMock    = TestBed.get(HttpTestingController);
+        datastore   = TestBed.get(Datastore);
     });
 
 
     describe('query', () => {
-
         it('should build basic url', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
-                expect(c.request.method).toEqual(RequestMethod.Get);
-            });
-            datastore.query(Author).subscribe();
+            datastore.query(Author).subscribe(response => expect(response[0] instanceof Author).toBeTruthy());
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should set JSON API headers', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
-                expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.get('Content-Type')).toEqual('application/vnd.api+json');
-                expect(c.request.headers.get('Accept')).toEqual('application/vnd.api+json');
-            });
-            datastore.query(Author).subscribe();
+            datastore.query(Author).subscribe(response => expect(response[0] instanceof Author).toBeTruthy());
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            expect(req.request.headers.get('Content-type')).toEqual('application/vnd.api+json');
+            expect(req.request.headers.get('Accept')).toEqual('application/vnd.api+json');
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should build url with nested params', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors?' +
-                encodeURIComponent('page[size]') + '=10&' +
-                encodeURIComponent('page[number]') + '=1&' +
-                encodeURIComponent('include') + '=comments&' +
-                encodeURIComponent('filter[title][keyword]') + '=Tolkien');
-                expect(c.request.method).toEqual(RequestMethod.Get);
-            });
             datastore.query(Author, {
                 page: {size: 10, number: 1},
                 include: 'comments',
@@ -92,41 +76,52 @@ describe('JsonApiDatastore', () => {
                     }
                 }
             }).subscribe();
+
+            const req = httpMock.expectOne(BASE_URL + 'authors?' +
+                encodeURIComponent('page[size]') + '=10&' +
+                encodeURIComponent('page[number]') + '=1&' +
+                encodeURIComponent('include') + '=comments&' +
+                encodeURIComponent('filter[title][keyword]') + '=Tolkien'
+            );
+
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).not.toEqual(BASE_URL + 'authors');
+            expect(req.request.url).toEqual(BASE_URL + 'authors?' +
+                encodeURIComponent('page[size]') + '=10&' +
+                encodeURIComponent('page[number]') + '=1&' +
+                encodeURIComponent('include') + '=comments&' +
+                encodeURIComponent('filter[title][keyword]') + '=Tolkien'
+            );
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should have custom headers', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
-                expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.has('Authorization')).toBeTruthy();
-                expect(c.request.headers.get('Authorization')).toBe('Bearer');
-            });
-            datastore.query(Author, null, new Headers({'Authorization': 'Bearer'}))
+            datastore.query(Author, null, new HttpHeaders({'Authorization': 'Bearer'}))
                 .subscribe();
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            expect(req.request.headers.get('authorization')).toBeTruthy();
+            expect(req.request.headers.get('authorization')).toEqual('Bearer');
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should override base headers', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
-                expect(c.request.method).toEqual(RequestMethod.Get);
-                expect(c.request.headers.has('Authorization')).toBeTruthy();
-                expect(c.request.headers.get('Authorization')).toBe('Basic');
-            });
-            datastore.headers = new Headers({'Authorization': 'Bearer'});
-            datastore.query(Author, null, new Headers({'Authorization': 'Basic'}))
+            datastore.headers = new HttpHeaders({'Authorization': 'Bearer'});
+            datastore.query(Author, null, new HttpHeaders({'Authorization': 'Basic'}))
                 .subscribe();
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            expect(req.request.headers.get('authorization')).toBeTruthy();
+            expect(req.request.headers.get('authorization')).toEqual('Basic');
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should get authors', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                c.mockRespond(new Response(
-                    new ResponseOptions({
-                        body: JSON.stringify({
-                            data: [getAuthorData()]
-                        })
-                    })
-                ));
-            });
             datastore.query(Author).subscribe((authors) => {
                 expect(authors).toBeDefined();
                 expect(authors.length).toEqual(1);
@@ -134,160 +129,142 @@ describe('JsonApiDatastore', () => {
                 expect(authors[0].name).toEqual(AUTHOR_NAME);
                 expect(authors[1]).toBeUndefined();
             });
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            req.flush({data: getAuthorData()});
+            httpMock.verify();
         });
 
         it('should get authors with custom metadata', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                c.mockRespond(new Response(
-                    new ResponseOptions({
-                        body: JSON.stringify({
-                            data: [getAuthorData()],
-                            meta: {
-                                page: {
-                                    number: 1,
-                                    size: 1,
-                                    total: 1,
-                                    last: 1
-                                }
-                            }
-                        })
-                    })
-                ));
-            });
             datastore.findAll(Author).subscribe((document) => {
-                console.log(document);
-
                 expect(document).toBeDefined();
                 expect(document.getModels().length).toEqual(1);
                 expect(document.getMeta().meta.page.number).toEqual(1);
             });
+
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            req.flush({
+                data: getAuthorData(),
+                meta: {
+                    page: {
+                        number: 1,
+                        size: 1,
+                        total: 1,
+                        last: 1
+                    }
+                }
+            });
+            httpMock.verify();
         });
 
         it('should get data with default metadata', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                c.mockRespond(new Response(
-                    new ResponseOptions({
-                        body: JSON.stringify({
-                            data: [getSampleBook(1, '1')],
-                            links: ['http://www.example.org']
-                        })
-                    })
-                ));
-            });
             datastore.findAll(Book).subscribe((document) => {
                 expect(document).toBeDefined();
                 expect(document.getModels().length).toEqual(1);
                 expect(document.getMeta().links[0]).toEqual('http://www.example.org');
             });
+
+            const req = httpMock.expectOne(BASE_URL + 'books');
+            req.flush({
+                data: getSampleBook(1, '1'),
+                links: ['http://www.example.org']
+            });
+            httpMock.verify();
         });
 
         it('should fire error', () => {
-            let resp = {
-                errors: [
-                    {
-                        code: '100',
-                        title: 'Example error',
-                        detail: 'detailed error Message'
-                    }
-                ]
-            };
-
-            backend.connections.subscribe((c: MockConnection) => {
-                c.mockError(new MockError(
-                    new ResponseOptions({
-                        body: JSON.stringify(resp),
-                        status: 500
-                    })
-                ));
-            });
-            datastore.query(Author).subscribe((authors) => fail('onNext has been called'),
-                (response) => {
-                    expect(response).toEqual(jasmine.any(ErrorResponse));
-                    expect(response.errors.length).toEqual(1);
-                    expect(response.errors[0].code).toEqual(resp.errors[0].code);
-                    expect(response.errors[0].title).toEqual(resp.errors[0].title);
-                    expect(response.errors[0].detail).toEqual(resp.errors[0].detail);
-                },
+            datastore.query(Author).subscribe((authors) =>
+                fail('onNext has been called'),
+                (response) => expect(response).toMatch(/500 Server Error/),
                 () => fail('onCompleted has been called'));
+
+            const req = httpMock.expectOne(BASE_URL + 'authors');
+
+            req.flush({ foo: 'bar' }, { status: 500, statusText: 'Server Error' });
+            httpMock.verify();
         });
 
         it('should generate correct query string for array params with findAll', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
-            });
             datastore.findAll(Book, { arrayParam: [4, 5, 6] }).subscribe();
+            const req = httpMock.expectOne(
+                BASE_URL +
+                'books?' +
+                qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' })
+            );
+            req.flush({});
+            expect(req.request.url.split('?')[1]).toEqual(qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' }));
+            httpMock.verify();
         });
 
         it('should generate correct query string for array params with query', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
-            });
             datastore.query(Book, { arrayParam: [4, 5, 6] }).subscribe();
+            const req = httpMock.expectOne(
+                BASE_URL +
+                'books?' +
+                qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' })
+            );
+            req.flush({});
+            expect(req.request.url.split('?')[1]).toEqual(qs.stringify(
+                { arrayParam: [4, 5, 6] },
+                { arrayFormat: 'brackets' })
+            );
+            httpMock.verify();
         });
     });
 
     describe('findRecord', () => {
         it('should get author', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                c.mockRespond(new Response(
-                    new ResponseOptions({
-                        body: JSON.stringify({
-                            data: getAuthorData()
-                        })
-                    })
-                ));
-            });
             datastore.findRecord(Author, '1').subscribe((author) => {
                 expect(author).toBeDefined();
                 expect(author.id).toBe(AUTHOR_ID);
                 expect(author.date_of_birth).toEqual(dateParse(AUTHOR_BIRTH));
             });
+
+            const req = httpMock.expectOne(BASE_URL + 'authors/1');
+            req.flush({ data: getAuthorData() });
+            httpMock.verify();
         });
 
         it('should generate correct query string for array params with findRecord', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
-            });
             datastore.findRecord(Book, '1', { arrayParam: [4, 5, 6] }).subscribe();
+            const req = httpMock.expectOne(
+                BASE_URL +
+                'books/1?' +
+                qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' })
+            );
+            req.flush({});
+            expect(req.request.url.split('?')[1]).toEqual(qs.stringify(
+                { arrayParam: [4, 5, 6] },
+                { arrayFormat: 'brackets' })
+            );
+            httpMock.verify();
         });
-
     });
 
     describe('saveRecord', () => {
         it('should create new author', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
-                expect(c.request.method).toEqual(RequestMethod.Post);
-                let obj = c.request.json().data;
-                expect(obj.attributes.name).toEqual(AUTHOR_NAME);
-                expect(obj.id).toBeUndefined();
-                expect(obj.type).toBe('authors');
-                expect(obj.relationships).toBeUndefined();
-
-            });
             let author = datastore.createRecord(Author, {
                 name: AUTHOR_NAME
             });
             author.save().subscribe();
+
+            const req = httpMock.expectOne( BASE_URL + 'authors' );
+            req.flush({data: author});
+            expect(req.request.url).not.toEqual(BASE_URL);
+            expect(req.request.url).toEqual(BASE_URL + 'authors');
+            expect(req.request.method).toEqual('POST');
+            let obj = req.request.body.data;
+            expect(obj.attributes.name).toEqual(AUTHOR_NAME);
+            expect(obj.id).toBeUndefined();
+            expect(obj.type).toBe('authors');
+            expect(obj.relationships).toBeUndefined();
+            httpMock.verify();
         });
 
         it('should create new author with existing ToMany-relationship', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                let obj = c.request.json().data;
-                expect(obj.attributes.name).toEqual(AUTHOR_NAME);
-                expect(obj.id).toBeUndefined();
-                expect(obj.type).toBe('authors');
-                expect(obj.relationships).toBeDefined();
-                expect(obj.relationships.books.data.length).toBe(1);
-                expect(obj.relationships.books.data[0].id).toBe('10');
-            });
             let author = datastore.createRecord(Author, {
                 name: AUTHOR_NAME
             });
@@ -296,18 +273,19 @@ describe('JsonApiDatastore', () => {
                 title: BOOK_TITLE
             })];
             author.save().subscribe();
+
+            const req = httpMock.expectOne( BASE_URL + 'authors' );
+            let obj = req.request.body.data;
+            expect(obj.attributes.name).toEqual(AUTHOR_NAME);
+            expect(obj.id).toBeUndefined();
+            expect(obj.type).toBe('authors');
+            expect(obj.relationships).not.toBeUndefined();
+            expect(obj.relationships.books.data.length).toBe(1);
+            expect(obj.relationships.books.data[0].id).toBe('10');
+            httpMock.verify();
         });
 
         it('should create new author with new ToMany-relationship', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                let obj = c.request.json().data;
-                expect(obj.attributes.name).toEqual(AUTHOR_NAME);
-                expect(obj.id).toBeUndefined();
-                expect(obj.type).toBe('authors');
-                expect(obj.relationships).toBeDefined();
-                expect(obj.relationships.books.data.length).toBe(1);
-                expect(obj.relationships.books.data[0].attributes.title).toBe(BOOK_TITLE);
-            });
             let author = datastore.createRecord(Author, {
                 name: AUTHOR_NAME
             });
@@ -315,45 +293,59 @@ describe('JsonApiDatastore', () => {
                 title: BOOK_TITLE
             })];
             author.save().subscribe();
+
+            const req = httpMock.expectOne( BASE_URL + 'authors' );
+            let obj = req.request.body.data;
+            expect(obj.attributes.name).toEqual(AUTHOR_NAME);
+            expect(obj.id).toBeUndefined();
+            expect(obj.type).toBe('authors');
+            expect(obj.relationships).toBeDefined();
+            expect(obj.relationships.books.data.length).toBe(1);
+            expect(obj.relationships.books.data[0].attributes.title).toBe(BOOK_TITLE);
+            httpMock.verify();
         });
 
         it('should create new author with existing BelongsTo-relationship', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                let obj = c.request.json().data;
-                expect(obj.attributes.title).toEqual(BOOK_TITLE);
-                expect(obj.id).toBeUndefined();
-                expect(obj.type).toBe('books');
-                expect(obj.relationships).toBeDefined();
-                expect(obj.relationships.author.data.id).toBe(AUTHOR_ID);
-            });
             let book = datastore.createRecord(Book, {
                 title: BOOK_TITLE
             });
             book.author = new Author(datastore, {
                 id: AUTHOR_ID
             });
-           book.save().subscribe();
+            book.save().subscribe();
+
+            const req = httpMock.expectOne( BASE_URL + 'books' );
+            let obj = req.request.body.data;
+            // expect(obj.attributes.name).toEqual(AUTHOR_NAME);
+            expect(obj.id).toBeUndefined();
+            expect(obj.type).toBe('books');
+            expect(obj.relationships).toBeDefined();
+            expect(Object.keys(obj.relationships).length).toBe(1);
+            // expect(obj.relationships.author.data[0].attributes.title).toBe(BOOK_TITLE);
+            httpMock.verify();
         });
     });
 
     describe('updateRecord', () => {
         it('should update author', () => {
-            backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors/1');
-                expect(c.request.method).toEqual(RequestMethod.Patch);
-                let obj = c.request.json().data;
-                expect(obj.attributes.name).toEqual(AUTHOR_NAME);
-                expect(obj.id).toBe(AUTHOR_ID);
-                expect(obj.type).toBe('authors');
-                expect(obj.relationships).toBeUndefined();
-
-            });
             let author = new Author(datastore, {
                 name: AUTHOR_NAME,
                 id: AUTHOR_ID
             });
             author.save().subscribe();
+            const req = httpMock.expectOne( BASE_URL + 'authors/1' );
+
+            expect(req.request.url).not.toEqual(BASE_URL);
+            expect(req.request.url).toEqual(BASE_URL + 'authors/1');
+            expect(req.request.method).toEqual('PATCH');
+
+            let obj = req.request.body.data;
+            expect(obj.attributes.name).toEqual(AUTHOR_NAME);
+            expect(obj.id).toBe(AUTHOR_ID);
+            expect(obj.type).toBe('authors');
+            expect(obj.relationships).toBeUndefined();
+
+            httpMock.verify();
         });
     });
 });
