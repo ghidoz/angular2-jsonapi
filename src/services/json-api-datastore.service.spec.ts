@@ -51,7 +51,7 @@ describe('JsonApiDatastore', () => {
             const req = httpMock.expectOne(BASE_URL + 'authors');
             expect(req.request.method).toEqual('GET');
             expect(req.request.url).toEqual(BASE_URL + 'authors');
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -62,7 +62,7 @@ describe('JsonApiDatastore', () => {
             expect(req.request.url).toEqual(BASE_URL + 'authors');
             expect(req.request.headers.get('Content-type')).toEqual('application/vnd.api+json');
             expect(req.request.headers.get('Accept')).toEqual('application/vnd.api+json');
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -92,7 +92,7 @@ describe('JsonApiDatastore', () => {
                 encodeURIComponent('include') + '=comments&' +
                 encodeURIComponent('filter[title][keyword]') + '=Tolkien'
             );
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -104,7 +104,7 @@ describe('JsonApiDatastore', () => {
             expect(req.request.url).toEqual(BASE_URL + 'authors');
             expect(req.request.headers.get('authorization')).toBeTruthy();
             expect(req.request.headers.get('authorization')).toEqual('Bearer');
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -117,7 +117,7 @@ describe('JsonApiDatastore', () => {
             expect(req.request.url).toEqual(BASE_URL + 'authors');
             expect(req.request.headers.get('authorization')).toBeTruthy();
             expect(req.request.headers.get('authorization')).toEqual('Basic');
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -132,7 +132,7 @@ describe('JsonApiDatastore', () => {
             const req = httpMock.expectOne(BASE_URL + 'authors');
             expect(req.request.method).toEqual('GET');
             expect(req.request.url).toEqual(BASE_URL + 'authors');
-            req.flush({data: getAuthorData()});
+            req.flush({data: [getAuthorData()]});
             httpMock.verify();
         });
 
@@ -147,7 +147,7 @@ describe('JsonApiDatastore', () => {
             expect(req.request.method).toEqual('GET');
             expect(req.request.url).toEqual(BASE_URL + 'authors');
             req.flush({
-                data: getAuthorData(),
+                data: [getAuthorData()],
                 meta: {
                     page: {
                         number: 1,
@@ -169,7 +169,7 @@ describe('JsonApiDatastore', () => {
 
             const req = httpMock.expectOne(BASE_URL + 'books');
             req.flush({
-                data: getSampleBook(1, '1'),
+                data: [getSampleBook(1, '1')],
                 links: ['http://www.example.org']
             });
             httpMock.verify();
@@ -183,7 +183,7 @@ describe('JsonApiDatastore', () => {
 
             const req = httpMock.expectOne(BASE_URL + 'authors');
 
-            req.flush({ foo: 'bar' }, { status: 500, statusText: 'Server Error' });
+            req.flush({ foo: 'bar', data: [] }, { status: 500, statusText: 'Server Error' });
             httpMock.verify();
         });
 
@@ -194,8 +194,11 @@ describe('JsonApiDatastore', () => {
                 'books?' +
                 qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' })
             );
-            req.flush({});
-            expect(req.request.url.split('?')[1]).toEqual(qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' }));
+            req.flush({data: []});
+            expect(req.request.url.split('?')[1]).toEqual(qs.stringify(
+                { arrayParam: [4, 5, 6] },
+                { arrayFormat: 'brackets' }
+            ));
             httpMock.verify();
         });
 
@@ -206,7 +209,7 @@ describe('JsonApiDatastore', () => {
                 'books?' +
                 qs.stringify({ arrayParam: [4, 5, 6] }, { arrayFormat: 'brackets' })
             );
-            req.flush({});
+            req.flush({data: []});
             expect(req.request.url.split('?')[1]).toEqual(qs.stringify(
                 { arrayParam: [4, 5, 6] },
                 { arrayFormat: 'brackets' })

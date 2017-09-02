@@ -164,13 +164,16 @@ export class JsonApiDatastore {
     private extractQueryData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, withMeta = false): T[] | JsonApiQueryData<T> {
         let body: any = res;
         let models: T[] = [];
-        let model: T = new modelType(this, body.data);
-        this.addToStore(model);
+        let model: T;
+        body.data.map((_data: any) => {
+            model = new modelType(this, _data);
+            this.addToStore(model);
+        });
+        models.push(model);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
             this.addToStore(model);
         }
-        models.push(model);
         if (withMeta && withMeta === true) {
             return new JsonApiQueryData(models, this.parseMeta(body, modelType));
         } else {
