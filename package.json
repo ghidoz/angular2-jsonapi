@@ -1,7 +1,7 @@
 {
-  "name": "angular2-jsonapi",
-  "version": "3.6.0",
-  "description": "A lightweight Angular 2 adapter for JSON API",
+  "name": "angular2-jsonapi-adapter",
+  "version": "3.7.0",
+  "description": "A lightweight Angular 2 adapter for JSON API using HttpClient",
   "scripts": {
     "build": "rimraf dist src/compiled && tslint src/**/*.ts && ngc",
     "lint": "tslint src/**/*.ts",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ghidoz/angular2-jsonapi"
+    "url": "https://github.com/agustinvinao/angular2-jsonapi"
   },
   "author": {
     "name": "Daniele Ghidoli",
@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ghidoz/angular2-jsonapi/issues"
+    "url": "https://github.com/agustinvinao/angular2-jsonapi/issues"
   },
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
