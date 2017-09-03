@@ -168,12 +168,12 @@ export class JsonApiDatastore {
         body.data.map((_data: any) => {
             model = new modelType(this, _data);
             this.addToStore(model);
+            if (body.included) {
+                model.syncRelationships(_data, body.included, 0);
+                this.addToStore(model);
+            }
+            models.push(model);
         });
-        models.push(model);
-        if (body.included) {
-            model.syncRelationships(body.data, body.included, 0);
-            this.addToStore(model);
-        }
         if (withMeta && withMeta === true) {
             return new JsonApiQueryData(models, this.parseMeta(body, modelType));
         } else {

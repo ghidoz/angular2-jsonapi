@@ -2,7 +2,12 @@ import {TestBed} from '@angular/core/testing';
 import * as dateParse from 'date-fns/parse';
 import * as qs from 'qs';
 import {Author} from '../../test/models/author.model';
-import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
+import {AUTHOR_BIRTH,
+        AUTHOR_ID,
+        AUTHOR_NAME,
+        BOOK_TITLE,
+        getAuthorData,
+        getAuthorIncluded} from '../../test/fixtures/author.fixture';
 import {
     BaseRequestOptions,
     ConnectionBackend,
@@ -171,6 +176,25 @@ describe('JsonApiDatastore', () => {
             req.flush({
                 data: [getSampleBook(1, '1')],
                 links: ['http://www.example.org']
+            });
+            httpMock.verify();
+        });
+
+        it('should get models relationships', () => {
+            datastore.findAll(Book).subscribe((document) => {
+                expect(document).toBeDefined();
+                expect(document.getModels().length).toEqual(1);
+                expect(document.getMeta().links[0]).toEqual('http://www.example.org');
+                expect(document['jsonApiModels'][0]['author']).toBeDefined();
+            });
+
+            const req = httpMock.expectOne(BASE_URL + 'books');
+            req.flush({
+                data: [getSampleBook(1, '1')],
+                links: ['http://www.example.org'],
+                included: [
+                    getAuthorIncluded()
+                ]
             });
             httpMock.verify();
         });

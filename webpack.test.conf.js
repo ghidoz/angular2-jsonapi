@@ -1,5 +1,5 @@
 'use strict';
-
+const path = require( 'path' );
 module.exports = {
     entry: {
         main: './src/index.ts'
@@ -20,18 +20,10 @@ module.exports = {
                 exclude: [/node_modules/]
             },
             {
-                enforce: 'post',
-                test: /\.(js|ts)$/,
-                loader: 'sourcemap-istanbul-instrumenter-loader',
-                exclude: [
-                    /node_modules/,
-                    /test/,
-                    /\.(e2e|spec)\.ts$/
-                ],
-                query: {
-                    'force-sourcemap': true
-                }
-            }
+                test: /\.js$/,
+                use: { loader: 'istanbul-instrumenter-loader' },
+                include: path.resolve('src/')
+              }
         ]
     },
     stats: { colors: true, reasons: true }
