@@ -27,7 +27,6 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
     - [Custom Headers](#custom-headers)
     - [Error handling](#error-handling)
     - [Dates](#dates)
-- [TODO](#todo)
 - [Development](#development)
 - [License](#licence)
 
@@ -182,7 +181,7 @@ Now, you can use your `Datastore` in order to query your API with the `findAll()
 constructor(private datastore: Datastore) { }
 
 getPosts(){
-    this.datastore.query(Post, {
+    this.datastore.findAll(Post, {
         page: { size: 10, number: 1}
     }).subscribe(
         (posts: Post[]) => console.log(posts)
@@ -424,7 +423,7 @@ this.datastore.headers = new Headers({'Authorization': 'Bearer ' + accessToken})
 Or you can pass the headers as last argument of any datastore call method:
 
 ```typescript
-this.datastore.query(Post, {
+this.datastore.findAll(Post, {
     include: 'comments'
 }, new Headers({'Authorization': 'Bearer ' + accessToken}));
 ```
@@ -445,7 +444,7 @@ import {ErrorResponse} from "angular2-jsonapi";
 
 ...
 
-this.datastore.query(Post).subscribe(
+this.datastore.findAll(Post).subscribe(
     (posts: Post[]) => console.log(posts),
     (errorResponse) => {
         if (errorResponse instanceof ErrorResponse) {
