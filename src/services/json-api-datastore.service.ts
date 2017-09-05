@@ -17,10 +17,10 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 
 @Injectable()
 export class JsonApiDatastore {
-    private config: DatastoreConfig;
-
     private _headers: Headers;
     private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
+
+    protected config: DatastoreConfig;
 
     constructor(private http: Http) {}
 
@@ -130,7 +130,7 @@ export class JsonApiDatastore {
         const apiVersion: string = modelConfig.apiVersion || this.datastoreConfig.apiVersion;
         const modelEndpointUrl: string = modelConfig.modelEndpointUrl || modelConfig.type;
 
-        const url: string = [baseUrl, apiVersion, modelEndpointUrl, id].join('/');
+        const url: string = [baseUrl, apiVersion, modelEndpointUrl, id].filter(x => x).join('/');
 
         return queryParams ? `${url}?${queryParams}` : url;
     }
