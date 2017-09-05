@@ -413,7 +413,15 @@ Datastore config can be specified through the `JsonApiDatastoreConfig` decorator
 
 ```typescript
 @JsonApiDatastoreConfig(config: DatastoreConfig)
-export class Datastore extends JsonApiDatastore {}
+export class Datastore extends JsonApiDatastore {
+    private customConfig: DatastoreConfig = {
+        baseUrl: 'http://something.com'
+    }
+
+    constructor() {
+        this.config = this.customConfig;
+    }
+}
 
 `config`:
 
