@@ -422,6 +422,7 @@ export class Datastore extends JsonApiDatastore {
         this.config = this.customConfig;
     }
 }
+```
 
 `config`:
 
@@ -429,7 +430,6 @@ export class Datastore extends JsonApiDatastore {
 * `baseUrl` - base API URL
 * `apiVersion` - optional, a string which will be appended to the baseUrl
 
-```
 
 ### Model config
 
