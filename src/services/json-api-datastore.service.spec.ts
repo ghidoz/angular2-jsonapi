@@ -1,6 +1,8 @@
 import {TestBed} from '@angular/core/testing';
 import * as dateParse from 'date-fns/parse';
 import * as qs from 'qs';
+import {Editorial} from '../../test/models/editorial.model';
+import {EDITORIAL_NAME} from '../../test/fixtures/editorial.fixture';
 import {Author} from '../../test/models/author.model';
 import {AUTHOR_BIRTH,
         AUTHOR_ID,
@@ -331,6 +333,26 @@ describe('JsonApiDatastore', () => {
             expect(obj.relationships.books.data[0].attributes.title).toBe(BOOK_TITLE);
             httpMock.verify();
         });
+
+        it('should create new editorial with new HasOne-relationship', () => {
+            let editorial = datastore.createRecord(Editorial, {
+                name: EDITORIAL_NAME
+            });
+            editorial.author = datastore.createRecord(Author, {
+                name: AUTHOR_NAME
+            });
+            editorial.save().subscribe();
+
+            const req = httpMock.expectOne( BASE_URL + 'editorials' );
+            let obj = req.request.body.data;
+            expect(obj.attributes.name).toEqual(EDITORIAL_NAME);
+            expect(obj.id).toBeUndefined();
+            expect(obj.type).toBe('editorials');
+            expect(obj.relationships).toBeDefined();
+            expect(obj.relationships.author).toBeDefined();
+            expect(obj.relationships.author.data.attributes.name).toBe(AUTHOR_NAME);
+            httpMock.verify();
+        })
 
         it('should create new author with existing BelongsTo-relationship', () => {
             let book = datastore.createRecord(Book, {

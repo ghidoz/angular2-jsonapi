@@ -281,6 +281,14 @@ export class JsonApiDatastore {
                 if (propertyHasMany) {
                     relationshipModel[propertyHasMany.propertyName].push(model);
                 }
+
+                let hasOne: any[] = Reflect.getMetadata('HasOne', relationshipModel);
+                let propertyHasOne: any = find(hasOne, (property) => {
+                    return modelsTypes[property.relationship] === model.constructor;
+                });
+                if (propertyHasOne) {
+                    relationshipModel[propertyHasOne.propertyName] = model;
+                }
             }
         }
         return model;

@@ -18,6 +18,7 @@ export class JsonApiModel {
   syncRelationships(data: any, included: any, level: number): void {
     if (data) {
       this.parseHasMany(data, included, level);
+      this.parseHasOne(data, included, level);
       this.parseBelongsTo(data, included, level);
     }
   }
@@ -82,6 +83,27 @@ export class JsonApiModel {
     }
   }
 
+  private parseHasOne(data: any, included: any, level: number): void {
+    let hasOne: any = Reflect.getMetadata('HasOne', this);
+    if (hasOne) {
+      for (let metadata of hasOne) {
+        let relationship: any = data.relationships ? data.relationships[metadata.relationship] : null;
+        if (relationship && relationship.data && relationship.data.length > 0) {
+          let typeName: string = relationship.data[0].type;
+          let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+          if (modelType) {
+            let relationshipModel: JsonApiModel[] = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level);
+            if (relationshipModel.length > 0) {
+              this[metadata.propertyName] = relationshipModel;
+            }
+          } else {
+            throw {message: 'parseHasOne - Model type for relationship ' + typeName + ' not found.'};
+          }
+        }
+      }
+    }
+  }
+
   private parseBelongsTo(data: any, included: any, level: number): void {
     let belongsTo: any = Reflect.getMetadata('BelongsTo', this);
     if (belongsTo) {
@@ -121,6 +143,18 @@ export class JsonApiModel {
     return relationshipList;
   }
 
+  private getHasOneRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
+    let id: string = data.id;
+    let relationshipData: any = find(included, {id: id, type: typeName});
+    if (relationshipData) {
+      let newObject: T = this.createOrPeek(modelType, relationshipData);
+      if (level <= 1) {
+        newObject.syncRelationships(relationshipData, included, level + 1);
+      }
+      return newObject;
+    }
+    return this._datastore.peekRecord(modelType, id);
+  }
 
   private getBelongsToRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
     let id: string = data.id;
