@@ -7,6 +7,8 @@ import {
 } from '../../test/fixtures/author.fixture';
 import { Book } from '../../test/models/book.model';
 import { Http, BaseRequestOptions, ConnectionBackend } from '@angular/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 import { MockBackend } from '@angular/http/testing';
 import { Datastore } from '../../test/datastore.service';
 import { Chapter } from '../../test/models/chapter.model';
@@ -20,7 +22,7 @@ describe('JsonApiModel', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: Http, useFactory: (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
+          provide: HttpClient, Http, useFactory: (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
             return new Http(backend, defaultOptions);
           }, deps: [MockBackend, BaseRequestOptions]
         },

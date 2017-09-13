@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { JsonApiDatastore, JsonApiDatastoreConfig } from '../src';
 import { Author } from './models/author.model';
 import { Book } from './models/book.model';
 import { Chapter } from './models/chapter.model';
+import { Editorial } from './models/editorial.model';
 
 export const BASE_URL = 'http://localhost:8080/v1/'
 
@@ -13,12 +14,13 @@ export const BASE_URL = 'http://localhost:8080/v1/'
   models: {
     authors: Author,
     books: Book,
-    chapters: Chapter
+    chapters: Chapter,
+    editorials: Editorial
   }
 })
 export class Datastore extends JsonApiDatastore {
 
-    constructor(http: Http) {
-        super(http);
+    constructor(httpClient: HttpClient) {
+        super(httpClient);
     }
 }

@@ -1,26 +1,20 @@
 import { Book } from './book.model';
-import { Editorial } from './editorial.model';
+import { Author } from './author.model';
 import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.decorator';
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { HasMany } from '../../src/decorators/has-many.decorator';
-import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
+import { HasOne } from '../../src/decorators/has-one.decorator';
 import {PageMetaData} from "./page-meta-data";
 
 @JsonApiModelConfig({
-    type: 'authors',
+    type: 'editorials',
     meta: PageMetaData
 })
-export class Author extends JsonApiModel {
+export class Editorial extends JsonApiModel {
 
     @Attribute()
     name: string;
-
-    @Attribute()
-    date_of_birth: Date;
-
-    @Attribute()
-    date_of_death: Date;
 
     @Attribute()
     created_at: Date;
@@ -31,6 +25,6 @@ export class Author extends JsonApiModel {
     @HasMany()
     books: Book[];
 
-    @BelongsTo()
-    editorial: Editorial;
+    @HasOne()
+    author: Author;
 }

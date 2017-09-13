@@ -13,7 +13,7 @@ module.exports = function (config) {
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-spec-reporter'),
-      require('karma-remap-istanbul'),
+      require('karma-coverage-istanbul-reporter'),
       require('karma-coverage')
     ],
 
@@ -38,12 +38,23 @@ module.exports = function (config) {
       }
     },
 
-    reporters: ['spec', 'karma-remap-istanbul'],
+    reporters: ['spec', 'coverage-istanbul'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    // browsers: ['Chrome'],
+
+    browsers: [
+      'ChromeDebugging'
+    ],
+    
+    customLaunchers: {
+      ChromeDebugging: {
+        base: 'Chrome',
+        flags: [ '--remote-debugging-port=9333' ]
+      }
+    },
   };
 
   config.set(_config);

@@ -39,6 +39,29 @@ export function getAuthorData(relationship?: string, total?: number): any {
   return response;
 };
 
+export function getAuthorIncluded() {
+  return {
+    'id': AUTHOR_ID,
+    'type': 'authors',
+    'links': { 'self': '/v1/authors/1' },
+    'attributes': {
+      'name': AUTHOR_NAME,
+      'date_of_birth': AUTHOR_BIRTH,
+      'date_of_death': AUTHOR_DEATH,
+      'created_at': AUTHOR_CREATED,
+      'updated_at': AUTHOR_UPDATED
+    },
+    'relationships': {
+      'books': {
+        'links': {
+          'self': '/v1/authors/1/relationships/books',
+          'related': '/v1/authors/1/books'
+        }
+      }
+    }
+  }
+}
+
 export function getIncludedBooks(totalBooks: number, relationship?: string, totalChapters?: number): any[] {
   let responseArray: any[] = [];
   let chapterId = 0;
