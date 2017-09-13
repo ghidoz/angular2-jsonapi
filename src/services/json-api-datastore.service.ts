@@ -115,7 +115,6 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-
     private getRelationships(data: any): any {
         let relationships: any;
         for (let key in data) {

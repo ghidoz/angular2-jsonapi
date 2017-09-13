@@ -5,8 +5,8 @@ import {Editorial} from '../../test/models/editorial.model';
 import {
     EDITORIAL_NAME,
     EDITORIAL_ID,
-    getEditorialIncluded,
-    getEditorialrData
+    getEditorialData,
+    getSampleEditorial
 } from '../../test/fixtures/editorial.fixture';
 import {Author} from '../../test/models/author.model';
 import {AUTHOR_BIRTH,
@@ -262,20 +262,15 @@ describe('JsonApiDatastore', () => {
             httpMock.verify();
         });
 
-        it('should get editorial with hasOne relation author', () => {
+        it('should get editorial', () => {
             datastore.findRecord(Editorial, '1').subscribe((editorial) => {
-                console.log('%c editorial: ', 'background-color: red; color: white;', editorial);
                 expect(editorial).toBeDefined();
-                expect(editorial.author).toBeDefined();
+                expect(editorial.id).toBe(EDITORIAL_ID);
+                expect(editorial.name).toEqual(EDITORIAL_NAME);
             });
 
             const req = httpMock.expectOne(BASE_URL + 'editorials/1');
-            req.flush({
-                data: getEditorialrData(),
-                included: [
-                    getEditorialIncluded()
-                ]
-            });
+            req.flush({ data: getEditorialData() });
             httpMock.verify();
         });
 
