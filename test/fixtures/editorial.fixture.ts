@@ -3,6 +3,8 @@ export const EDITORIAL_NAME = 'Editorial example';
 export const EDITORIAL_CREATED = '2016-09-26T21:12:40Z';
 export const EDITORIAL_UPDATED = '2016-09-26T21:12:45Z';
 
+import { AUTHOR_ID, AUTHOR_NAME } from './author.fixture';
+
 export function getEditorialrData(relationship?: string, total?: number): any {
   let response: any = {
     'id': EDITORIAL_ID,
@@ -13,7 +15,18 @@ export function getEditorialrData(relationship?: string, total?: number): any {
       'updated_at': EDITORIAL_UPDATED
     },
     'relationships': {
-      'books': {'links': {'self': '/v1/authors/1/relationships/books', 'related': '/v1/authors/1/books'}}
+      'books': {'links': {'self': '/v1/authors/1/relationships/books', 'related': '/v1/authors/1/books'}},
+      'author': {
+        'links': {
+          'self': '/v1/editorials/1/relationships/author',
+          'related': '/v1/editorials/1/author'
+        },
+        'data': {
+          'id': AUTHOR_ID,
+          'name': AUTHOR_NAME,
+          'type': 'authors'
+        }
+      }
     },
     'links': {'self': '/v1/authors/1'}
   };
@@ -40,10 +53,10 @@ export function getEditorialIncluded() {
       'updated_at': EDITORIAL_UPDATED
     },
     'relationships': {
-      'authors': {
+      'author': {
         'links': {
-          'self': '/v1/editorials/1/relationships/authors',
-          'related': '/v1/editorials/1/authors'
+          'self': '/v1/editorials/1/relationships/author',
+          'related': '/v1/editorials/1/author'
         }
       }
     }

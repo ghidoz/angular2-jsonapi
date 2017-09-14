@@ -88,12 +88,13 @@ export class JsonApiModel {
     if (hasOne) {
       for (let metadata of hasOne) {
         let relationship: any = data.relationships ? data.relationships[metadata.relationship] : null;
-        if (relationship && relationship.data && relationship.data.length > 0) {
-          let typeName: string = relationship.data[0].type;
+        if (relationship && relationship.data) {
+          let typeName: string = relationship.data.type;
           let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
           if (modelType) {
-            let relationshipModel: JsonApiModel = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level);
-            if (relationshipModel.length > 0) {
+            let modelMetadata = Reflect.getMetadata('JsonApiModelConfig', modelType);
+            let relationshipModel: JsonApiModel = this.getHasOneRelationship(modelType, relationship.data, included, typeName, level, modelMetadata.type_one);
+            if (relationshipModel) {
               this[metadata.propertyName] = relationshipModel;
             }
           } else {
@@ -143,9 +144,9 @@ export class JsonApiModel {
     return relationshipList;
   }
 
-  private getHasOneRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
+  private getHasOneRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number, type_one: string): T {
     let id: string = data.id;
-    let relationshipData: any = find(included, {id: id, type: typeName});
+    let relationshipData: any = data;
     if (relationshipData) {
       let newObject: T = this.createOrPeek(modelType, relationshipData);
       if (level <= 1) {

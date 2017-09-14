@@ -9,6 +9,7 @@ import {PageMetaData} from "./page-meta-data";
 
 @JsonApiModelConfig({
     type: 'authors',
+    type_one: 'author',
     meta: PageMetaData
 })
 export class Author extends JsonApiModel {

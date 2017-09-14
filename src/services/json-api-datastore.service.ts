@@ -115,12 +115,6 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-    private buildUrl<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, id?: string): string {
-        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        let baseUrl: string = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
-        let idToken: string = id ? `/${id}` : null;
-        return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
-    }
 
     private getRelationships(data: any): any {
         let relationships: any;
@@ -147,6 +141,13 @@ export class JsonApiDatastore {
         let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type : '';
         return isJsonApiModel ? objects.every((item: JsonApiModel) =>
             Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType) : false;
+    }
+
+    private isValidToOneRelation(objects: Array<any>): boolean {
+        let isJsonApiModel = objects.every(item => item instanceof JsonApiModel);
+        let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type_one : '';
+        return isJsonApiModel ? objects.every((item: JsonApiModel) =>
+            Reflect.getMetadata('JsonApiModelConfig', item.constructor).type_one === relationshipType) : false;
     }
 
     private buildSingleRelationshipData(model: JsonApiModel): any {
@@ -194,24 +195,6 @@ export class JsonApiDatastore {
             this.addToStore(model);
         }
         return model;
-    }
-
-    protected handleError(error: any): ErrorObservable {
-        let errMsg: string = (error.message) ? error.message :
-            error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-        try {
-            let body: any = error;
-            if (body.errors && body.errors instanceof Array) {
-                let errors: ErrorResponse = new ErrorResponse(body.errors);
-                console.error(errMsg, errors);
-                return Observable.throw(errors);
-            }
-        } catch (e) {
-            // no valid JSON
-        }
-
-        console.error(errMsg);
-        return Observable.throw(errMsg);
     }
 
     protected parseMeta(body: any, modelType: ModelType<JsonApiModel>): any {
@@ -294,4 +277,28 @@ export class JsonApiDatastore {
         return model;
     };
 
+    private buildUrl<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, id?: string): string {
+        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+        let baseUrl: string = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
+        let idToken: string = id ? `/${id}` : null;
+        return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
+    }
+
+    protected handleError(error: any): ErrorObservable {
+        let errMsg: string = (error.message) ? error.message :
+            error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+        try {
+            let body: any = error;
+            if (body.errors && body.errors instanceof Array) {
+                let errors: ErrorResponse = new ErrorResponse(body.errors);
+                console.error(errMsg, errors);
+                return Observable.throw(errors);
+            }
+        } catch (e) {
+            // no valid JSON
+        }
+
+        console.error(errMsg);
+        return Observable.throw(errMsg);
+    }
 }

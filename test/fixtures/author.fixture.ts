@@ -23,7 +23,8 @@ export function getAuthorData(relationship?: string, total?: number): any {
       'updated_at': AUTHOR_UPDATED
     },
     'relationships': {
-      'books': {'links': {'self': '/v1/authors/1/relationships/books', 'related': '/v1/authors/1/books'}}
+      'books': {'links': {'self': '/v1/authors/1/relationships/books', 'related': '/v1/authors/1/books'}},
+      'author': {'links': {'self': '/v1/authors/1/relationships/editorial', 'related': '/v1/authors/1/editorial'}},
     },
     'links': {'self': '/v1/authors/1'}
   };
@@ -57,6 +58,12 @@ export function getAuthorIncluded() {
           'self': '/v1/authors/1/relationships/books',
           'related': '/v1/authors/1/books'
         }
+      },
+      'editorial': {
+        'links': {
+          'self': '/v1/authors/relationships/editorial',
+          'related': '/v1/authors/1/editorial'
+        }
       }
     }
   }
@@ -66,7 +73,7 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
   let responseArray: any[] = [];
   let chapterId = 0;
   for (let i = 1; i <= totalBooks; i++) {
-    let book: any = getSampleBook(i, AUTHOR_ID);
+    let book: any = getSampleBook(i, AUTHOR_ID, '1');
     if (relationship && relationship.indexOf('books.chapters') !== -1) {
       book.relationships.chapters.data = [];
       for (let ic = 1; ic <= totalChapters; ic++) {
