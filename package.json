@@ -1,6 +1,6 @@
 {
   "name": "angular2-jsonapi-adapter",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A lightweight Angular 2 adapter for JSON API using HttpClient",
   "scripts": {
     "build": "rimraf dist src/compiled && tslint src/**/*.ts && ngc",
