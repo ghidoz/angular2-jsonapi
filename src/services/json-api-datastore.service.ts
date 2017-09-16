@@ -261,6 +261,10 @@ export class JsonApiDatastore {
                     return modelsTypes[property.relationship] === model.constructor;
                 });
                 if (propertyHasMany) {
+                    // fix when the relation doesnt have records yet
+                    if (typeof relationshipModel[propertyHasMany.propertyName] === 'undefined') {
+                        relationshipModel[propertyHasMany.propertyName] = [];
+                    }
                     relationshipModel[propertyHasMany.propertyName].push(model);
                 }
 
