@@ -2,9 +2,9 @@ import { Headers } from '@angular/http';
 import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
+import { ModelConfig } from '../interfaces/model-config.interface';
 
 export class JsonApiModel {
-
   id: string;
   [key: string]: any;
 
@@ -59,6 +59,10 @@ export class JsonApiModel {
       }
     }
     Reflect.defineMetadata('Attribute', attributesMetadata, this);
+  }
+
+  get modelConfig(): ModelConfig {
+    return Reflect.getMetadata('JsonApiModelConfig', this.constructor);
   }
 
   private parseHasMany(data: any, included: any, level: number): void {
@@ -144,5 +148,4 @@ export class JsonApiModel {
     this._datastore.addToStore(newObject);
     return newObject;
   }
-
 }

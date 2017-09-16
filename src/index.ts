@@ -9,6 +9,9 @@ export * from './models/json-api.model';
 export * from './models/error-response.model';
 export * from './models/json-api-query-data';
 
+export * from './interfaces/datastore-config.interface';
+export * from './interfaces/model-config.interface';
+
 export * from './providers';
 
 export * from './module';

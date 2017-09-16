@@ -10,38 +10,40 @@ import {JsonApiModel} from '../models/json-api.model';
 import {ErrorResponse} from '../models/error-response.model';
 import {JsonApiQueryData} from '../models/json-api-query-data';
 import * as qs from 'qs';
+import {DatastoreConfig} from '../interfaces/datastore-config.interface';
+import {ModelConfig} from '../interfaces/model-config.interface';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
 @Injectable()
 export class JsonApiDatastore {
-
     private _headers: Headers;
     private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
 
-    constructor(private http: Http) {
-    }
+    protected config: DatastoreConfig;
+
+    constructor(private http: Http) {}
 
     /** @deprecated - use findAll method to take all models **/
-    query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<T[]> {
+    query<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers, customUrl?: string): Observable<T[]> {
         let options: RequestOptions = this.getOptions(headers);
-        let url: string = this.buildUrl(modelType, params);
+        let url: string = this.buildUrl(modelType, params, null, customUrl);
         return this.http.get(url, options)
             .map((res: any) => this.extractQueryData(res, modelType))
             .catch((res: any) => this.handleError(res));
     }
 
-    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers): Observable<JsonApiQueryData<T>> {
+    findAll<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, headers?: Headers, customUrl?: string): Observable<JsonApiQueryData<T>> {
         let options: RequestOptions = this.getOptions(headers);
-        let url: string = this.buildUrl(modelType, params);
+        let url: string = this.buildUrl(modelType, params, null, customUrl);
         return this.http.get(url, options)
             .map((res: any) => this.extractQueryData(res, modelType, true))
             .catch((res: any) => this.handleError(res));
     }
 
-    findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers): Observable<T> {
+    findRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, params?: any, headers?: Headers, customUrl?: string): Observable<T> {
         let options: RequestOptions = this.getOptions(headers);
-        let url: string = this.buildUrl(modelType, params, id);
+        let url: string = this.buildUrl(modelType, params, id, customUrl);
         return this.http.get(url, options)
             .map((res: any) => this.extractRecordData(res, modelType))
             .catch((res: any) => this.handleError(res));
@@ -64,12 +66,13 @@ export class JsonApiDatastore {
         return dirtyData;
     }
 
-    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
+    saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers, customUrl?: string): Observable<T> {
         let modelType = <ModelType<T>>model.constructor;
-        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+        const modelConfig: ModelConfig = model.modelConfig;
+        let typeName: string = modelConfig.type;
         let options: RequestOptions = this.getOptions(headers);
         let relationships: any = this.getRelationships(model);
-        let url: string = this.buildUrl(modelType, params, model.id);
+        let url: string = this.buildUrl(modelType, params, model.id, customUrl);
 
         let httpCall: Observable<Response>;
         let body: any = {
@@ -92,9 +95,9 @@ export class JsonApiDatastore {
             .catch((res: any) => this.handleError(res));
     }
 
-    deleteRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, headers?: Headers): Observable<Response> {
+    deleteRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string, headers?: Headers, customUrl?: string): Observable<Response> {
         let options: RequestOptions = this.getOptions(headers);
-        let url: string = this.buildUrl(modelType, null, id);
+        let url: string = this.buildUrl(modelType, null, id, customUrl);
         return this.http.delete(url, options)
             .catch((res: any) => this.handleError(res));
     }
@@ -114,11 +117,22 @@ export class JsonApiDatastore {
         this._headers = headers;
     }
 
-    private buildUrl<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, id?: string): string {
-        let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
-        let baseUrl: string = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).baseUrl;
-        let idToken: string = id ? `/${id}` : null;
-        return [baseUrl, typeName, idToken, (params ? '?' : ''), this.toQueryString(params)].join('');
+    private buildUrl<T extends JsonApiModel>(modelType: ModelType<T>, params?: any, id?: string, customUrl?: string): string {
+        const queryParams: string = this.toQueryString(params);
+
+        if (customUrl) {
+            return queryParams ? `${customUrl}?${queryParams}` : customUrl;
+        }
+
+        const modelConfig: ModelConfig = Reflect.getMetadata('JsonApiModelConfig', modelType);
+
+        const baseUrl: string = modelConfig.baseUrl || this.datastoreConfig.baseUrl;
+        const apiVersion: string = modelConfig.apiVersion || this.datastoreConfig.apiVersion;
+        const modelEndpointUrl: string = modelConfig.modelEndpointUrl || modelConfig.type;
+
+        const url: string = [baseUrl, apiVersion, modelEndpointUrl, id].filter(x => x).join('/');
+
+        return queryParams ? `${url}?${queryParams}` : url;
     }
 
     private getRelationships(data: any): any {
@@ -143,13 +157,12 @@ export class JsonApiDatastore {
 
     private isValidToManyRelation(objects: Array<any>): boolean {
         let isJsonApiModel = objects.every(item => item instanceof JsonApiModel);
-        let relationshipType: string = isJsonApiModel ? Reflect.getMetadata('JsonApiModelConfig', objects[0].constructor).type : '';
-        return isJsonApiModel ? objects.every((item: JsonApiModel) =>
-            Reflect.getMetadata('JsonApiModelConfig', item.constructor).type === relationshipType) : false;
+        let relationshipType: string = isJsonApiModel ? objects[0].modelConfig.type : '';
+        return isJsonApiModel ? objects.every((item: JsonApiModel) => item.modelConfig.type === relationshipType) : false;
     }
 
     private buildSingleRelationshipData(model: JsonApiModel): any {
-        let relationshipType: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
+        let relationshipType: string = model.modelConfig.type;
         let relationShipData: { type: string, id?: string, attributes?: any } = {type: relationshipType};
         if (model.id) {
             relationShipData.id = model.id;
@@ -249,7 +262,7 @@ export class JsonApiDatastore {
 
     public addToStore(modelOrModels: JsonApiModel | JsonApiModel[]): void {
         let models = Array.isArray(modelOrModels) ? modelOrModels : [modelOrModels];
-        let type: string = Reflect.getMetadata('JsonApiModelConfig', models[0].constructor).type;
+        let type: string = models[0].modelConfig.type;
         let typeStore = this._store[type];
         if (!typeStore) {
             typeStore = this._store[type] = {};
@@ -290,4 +303,8 @@ export class JsonApiDatastore {
         return model;
     };
 
+    private get datastoreConfig(): DatastoreConfig {
+        const configFromDecorator: DatastoreConfig = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor);
+        return Object.assign(configFromDecorator, this.config);
+    }
 }

@@ -87,21 +87,23 @@ export class AppModule { }
 
 Firstly, create your `Datastore` service:
 - Extend the `JsonApiDatastore` class
-- Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models
+- Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models (Optional: you can set `apiVersion`, `baseUrl` will be suffixed with it)
 - Pass the `Http` depencency to the parent constructor.
 
 ```typescript
-import { JsonApiDatastoreConfig, JsonApiDatastore } from 'angular2-jsonapi';
+import { JsonApiDatastoreConfig, JsonApiDatastore, DatastoreConfig } from 'angular2-jsonapi';
 
-@Injectable()
-@JsonApiDatastoreConfig({
+const config: DatastoreConfig = {
   baseUrl: 'http://localhost:8000/v1/',
   models: {
     posts: Post,
     comments: Comment,
     users: User
   }
-})
+}
+
+@Injectable()
+@JsonApiDatastoreConfig(config)
 export class Datastore extends JsonApiDatastore {
 
     constructor(http: Http) {
@@ -403,6 +405,45 @@ export class JsonApiMetaModel {
     }
 }
 ```
+
+### Datastore config
+
+Datastore config can be specified through the `JsonApiDatastoreConfig` decorator and/or by setting a `config` variable of the `Datastore` class. If an option is specified in both objects, a value from `config` variable will be taken into account.
+
+```typescript
+@JsonApiDatastoreConfig(config: DatastoreConfig)
+export class Datastore extends JsonApiDatastore {
+    private customConfig: DatastoreConfig = {
+        baseUrl: 'http://something.com'
+    }
+
+    constructor() {
+        this.config = this.customConfig;
+    }
+}
+```
+
+`config`:
+
+* `models` - all the models which will be stored in the datastore
+* `baseUrl` - base API URL
+* `apiVersion` - optional, a string which will be appended to the baseUrl
+
+
+### Model config
+
+```typescript
+@JsonApiModelConfig(options: ModelOptions)
+export class Post extends JsonApiModel { }
+```
+
+`options`:
+
+* `type`
+* `baseUrl` - if not specified, the global `baseUrl` will be used
+* `apiVersion` - if not specified, the global `apiVersion` will be used
+* `modelEndpointUrl` - if not specified, `type` will be used instead
+* `meta` - optional, metadata model
 
 
 ### Custom Headers

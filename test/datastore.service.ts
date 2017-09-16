@@ -5,11 +5,12 @@ import { Author } from './models/author.model';
 import { Book } from './models/book.model';
 import { Chapter } from './models/chapter.model';
 
-export const BASE_URL = 'http://localhost:8080/v1/'
+export const BASE_URL = 'http://localhost:8080';
+export const API_VERSION = 'v1';
 
-@Injectable()
 @JsonApiDatastoreConfig({
   baseUrl: BASE_URL,
+  apiVersion: API_VERSION,
   models: {
     authors: Author,
     books: Book,
@@ -17,8 +18,7 @@ export const BASE_URL = 'http://localhost:8080/v1/'
   }
 })
 export class Datastore extends JsonApiDatastore {
-
     constructor(http: Http) {
-        super(http);
+      super(http);
     }
 }

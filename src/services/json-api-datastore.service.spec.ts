@@ -1,6 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import * as dateParse from 'date-fns/parse';
 import {Author} from '../../test/models/author.model';
+import {CustomAuthor, AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL} from '../../test/models/custom-author.model';
 import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
 import {
     BaseRequestOptions,
@@ -12,13 +13,16 @@ import {
     ResponseOptions
 } from '@angular/http';
 import {MockBackend, MockConnection} from '@angular/http/testing';
-import {BASE_URL, Datastore} from '../../test/datastore.service';
+import {BASE_URL, API_VERSION, Datastore} from '../../test/datastore.service';
+import {BASE_URL_FROM_CONFIG, API_VERSION_FROM_CONFIG, DatastoreWithConfig} from '../../test/datastore-with-config.service';
 import {ErrorResponse} from '../models/error-response.model';
 import {getSampleBook} from '../../test/fixtures/book.fixture';
 import {Book} from '../../test/models/book.model';
+import { ModelConfig } from '../index';
 
 
 let datastore: Datastore;
+let datastoreWithConfig: Datastore;
 let backend: MockBackend;
 
 // workaround, see https://github.com/angular/angular/pull/8961
@@ -28,9 +32,7 @@ class MockError extends Response implements Error {
 }
 
 describe('JsonApiDatastore', () => {
-
     beforeEach(() => {
-
         TestBed.configureTestingModule({
             providers: [
                 {
@@ -42,30 +44,54 @@ describe('JsonApiDatastore', () => {
                 },
                 MockBackend,
                 BaseRequestOptions,
-                Datastore
+                Datastore,
+                DatastoreWithConfig
             ]
         });
 
         datastore = TestBed.get(Datastore);
+        datastoreWithConfig = TestBed.get(DatastoreWithConfig);
         backend = TestBed.get(MockBackend);
-
     });
 
 
     describe('query', () => {
+        it('should build basic url from the data from datastore decorator', () => {
+            const authorModelConfig: ModelConfig = Reflect.getMetadata('JsonApiModelConfig', Author);
 
-        it('should build basic url', () => {
             backend.connections.subscribe((c: MockConnection) => {
-
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/${authorModelConfig.type}`);
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
+
             datastore.query(Author).subscribe();
+        });
+
+        it('should build basic url and apiVersion from the config variable if exists', () => {
+            const authorModelConfig: ModelConfig = Reflect.getMetadata('JsonApiModelConfig', Author);
+
+            backend.connections.subscribe((c: MockConnection) => {
+                expect(c.request.url).toEqual(`${BASE_URL_FROM_CONFIG}/${API_VERSION_FROM_CONFIG}/${authorModelConfig.type}`);
+                expect(c.request.method).toEqual(RequestMethod.Get);
+            });
+
+            datastoreWithConfig.query(Author).subscribe();
+        });
+
+        it('should use apiVersion and modelEnpointUrl from the model instead of datastore if model has apiVersion and/or modelEndpointUrl specified', () => {
+            const authorModelConfig: ModelConfig = Reflect.getMetadata('JsonApiModelConfig', CustomAuthor);
+
+            backend.connections.subscribe((c: MockConnection) => {
+                expect(c.request.url).toEqual(`${BASE_URL_FROM_CONFIG}/${AUTHOR_API_VERSION}/${AUTHOR_MODEL_ENDPOINT_URL}`);
+                expect(c.request.method).toEqual(RequestMethod.Get);
+            });
+
+            datastoreWithConfig.query(CustomAuthor).subscribe();
         });
 
         it('should set JSON API headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors`);
                 expect(c.request.method).toEqual(RequestMethod.Get);
                 expect(c.request.headers.get('Content-Type')).toEqual('application/vnd.api+json');
                 expect(c.request.headers.get('Accept')).toEqual('application/vnd.api+json');
@@ -75,8 +101,8 @@ describe('JsonApiDatastore', () => {
 
         it('should build url with nested params', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors?' +
+                expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/` + 'authors?' +
                 encodeURIComponent('page[size]') + '=10&' +
                 encodeURIComponent('page[number]') + '=1&' +
                 encodeURIComponent('include') + '=comments&' +
@@ -96,7 +122,7 @@ describe('JsonApiDatastore', () => {
 
         it('should have custom headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors`);
                 expect(c.request.method).toEqual(RequestMethod.Get);
                 expect(c.request.headers.has('Authorization')).toBeTruthy();
                 expect(c.request.headers.get('Authorization')).toBe('Bearer');
@@ -107,7 +133,7 @@ describe('JsonApiDatastore', () => {
 
         it('should override base headers', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors`);
                 expect(c.request.method).toEqual(RequestMethod.Get);
                 expect(c.request.headers.has('Authorization')).toBeTruthy();
                 expect(c.request.headers.get('Authorization')).toBe('Basic');
@@ -262,8 +288,8 @@ describe('JsonApiDatastore', () => {
     describe('saveRecord', () => {
         it('should create new author', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors');
+                expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors`);
                 expect(c.request.method).toEqual(RequestMethod.Post);
                 let obj = c.request.json().data;
                 expect(obj.attributes.name).toEqual(AUTHOR_NAME);
@@ -339,8 +365,8 @@ describe('JsonApiDatastore', () => {
     describe('updateRecord', () => {
         it('should update author', () => {
             backend.connections.subscribe((c: MockConnection) => {
-                expect(c.request.url).not.toEqual(BASE_URL);
-                expect(c.request.url).toEqual(BASE_URL + 'authors/1');
+                expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}/authors`);
+                expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors/1`);
                 expect(c.request.method).toEqual(RequestMethod.Patch);
                 let obj = c.request.json().data;
                 expect(obj.attributes.name).toEqual(AUTHOR_NAME);
