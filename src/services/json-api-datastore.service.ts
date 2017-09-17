@@ -90,8 +90,8 @@ export class JsonApiDatastore {
         }
         return httpCall
             .map((res: any) => this.extractRecordData(res, modelType, model))
-            .map((res: any) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
-            .map((res: any) => this.updateRelationships(res, relationships))
+            .map((res: any) => res ? this.resetMetadataAttributes(res, attributesMetadata, modelType) : res)
+            .map((res: any) => res ? this.updateRelationships(res, relationships)  : res)
             .catch((res: any) => this.handleError(res));
     }
 
@@ -195,6 +195,9 @@ export class JsonApiDatastore {
 
     private extractRecordData<T extends JsonApiModel>(res: any, modelType: ModelType<T>, model?: T): T {
         let body: any = res.json();
+        if (!body) {
+            return null;
+        }
         if (model) {
             model.id = body.data.id;
             Object.assign(model, body.data.attributes);
