@@ -299,7 +299,9 @@ export class JsonApiDatastore {
                     return modelsTypes[property.relationship] === model.constructor;
                 });
                 if (propertyHasMany) {
+                  if (relationshipModel[propertyHasMany.propertyName] !== undefined) {
                     relationshipModel[propertyHasMany.propertyName].push(model);
+                  }
                 }
             }
         }
