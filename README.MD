@@ -128,10 +128,10 @@ import { JsonApiModelConfig, JsonApiModel, Attribute, HasMany, BelongsTo } from 
 })
 export class Post extends JsonApiModel {
 
-	@Attribute()
+    @Attribute()
     title: string;
 
-	@Attribute()
+    @Attribute()
     content: string;
 
     @Attribute('created-at')
@@ -146,7 +146,7 @@ export class Post extends JsonApiModel {
 })
 export class Comment extends JsonApiModel {
 
-	@Attribute()
+    @Attribute()
     title: string;
 
     @Attribute()
@@ -155,7 +155,7 @@ export class Comment extends JsonApiModel {
     @BelongsTo()
     post: Post;
 
-	@BelongsTo()
+    @BelongsTo()
     user: User;
 }
 
@@ -164,7 +164,7 @@ export class Comment extends JsonApiModel {
 })
 export class User extends JsonApiModel {
 
-	@Attribute()
+    @Attribute()
     name: string;
     // ...
 }
@@ -236,8 +236,8 @@ Making changes to records is as simple as setting the attribute you want to chan
 ```typescript
 this.datastore.findRecord(Post, '1').subscribe(
     (post: Post) => {
-		post.title = 'New title';
-	}
+        post.title = 'New title';
+    }
 );
 ```
 
@@ -263,9 +263,9 @@ Records that already exist on the backend are updated using the HTTP `PATCH` ver
 ```typescript
 this.datastore.findRecord(Post, '1').subscribe(
     (post: Post) => {
-		post.title = 'New title';
-		post.save().subscribe();  // => PATCH to '/posts/1'
-	}
+        post.title = 'New title';
+        post.save().subscribe();  // => PATCH to '/posts/1'
+    }
 );
 ```
 
@@ -288,12 +288,12 @@ this.datastore.findRecord(Post, '1').subscribe(
     (post: Post) => {
         console.log(post.title);                // => 'Old title'
         console.log(post.hasDirtyAttributes);   // => false
-		post.title = 'New title';
+        post.title = 'New title';
         console.log(post.hasDirtyAttributes);   // => true
-		post.rollbackAttributes();
+        post.rollbackAttributes();
         console.log(post.hasDirtyAttributes);   // => false
         console.log(post.title);                // => 'Old title'
-	}
+    }
 );
 ```
 
@@ -356,7 +356,7 @@ If you want to include a relationship when creating a record to have it parsed i
 
 ```typescript
 comment.save({
-	include: 'user'
+    include: 'user'
 }).subscribe(
     (comment: Comment) => console.log(comment)
 );
@@ -508,7 +508,7 @@ The library will automatically transform date values into `Date` objects and it 
 })
 export class Post extends JsonApiModel {
 
-	// ...
+    // ...
 
     @Attribute()
     created_at: Date;
