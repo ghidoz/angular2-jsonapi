@@ -68,11 +68,6 @@ describe('JsonApiModel', () => {
       author = new Author(datastore, getAuthorData());
       expect(author).toBeDefined();
       expect(author.id).toBe(AUTHOR_ID);
-      expect(author.name).toBe(AUTHOR_NAME);
-      expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
-      expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
-      expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
-      expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
       expect(author.books).toBeUndefined();
     });
 
@@ -85,11 +80,6 @@ describe('JsonApiModel', () => {
         author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
-        expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
-        expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
-        expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
-        expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {
@@ -124,11 +114,6 @@ describe('JsonApiModel', () => {
         author.syncRelationships(DATA, INCLUDED, 0);
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
-        expect(author.name).toBe(AUTHOR_NAME);
-        expect(author.date_of_birth.valueOf()).toBe(dateParse(AUTHOR_BIRTH).valueOf());
-        expect(author.date_of_death.valueOf()).toBe(dateParse(AUTHOR_DEATH).valueOf());
-        expect(author.created_at.valueOf()).toBe(dateParse(AUTHOR_CREATED).valueOf());
-        expect(author.updated_at.valueOf()).toBe(dateParse(AUTHOR_UPDATED).valueOf());
         expect(author.books).toBeDefined();
         expect(author.books.length).toBe(BOOK_NUMBER);
         author.books.forEach((book: Book, index: number) => {

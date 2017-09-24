@@ -116,7 +116,7 @@ export class Datastore extends JsonApiDatastore {
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the class properties with `@Attribute`
+- Decorate the class properties with `@Attribute`: The serialized property name can optionally be specified by setting it as value of the annotation.
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 - (optional) Define your [Metadata](#metadata)
 
@@ -134,8 +134,8 @@ export class Post extends JsonApiModel {
 	@Attribute()
     content: string;
 
-    @Attribute()
-    created_at: Date;
+    @Attribute('created-at')
+    createdAt: Date;
 
     @HasMany()
     comments: Comment[];
