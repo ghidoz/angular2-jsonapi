@@ -1,24 +1,16 @@
 import {TestBed} from '@angular/core/testing';
 import * as dateParse from 'date-fns/parse';
 import {Author} from '../../test/models/author.model';
-import {CustomAuthor, AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL} from '../../test/models/custom-author.model';
+import {AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor} from '../../test/models/custom-author.model';
 import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
-import {
-    BaseRequestOptions,
-    ConnectionBackend,
-    Headers,
-    Http,
-    RequestMethod,
-    Response,
-    ResponseOptions
-} from '@angular/http';
+import {BaseRequestOptions, ConnectionBackend, Headers, Http, RequestMethod, Response, ResponseOptions} from '@angular/http';
 import {MockBackend, MockConnection} from '@angular/http/testing';
-import {BASE_URL, API_VERSION, Datastore} from '../../test/datastore.service';
-import {BASE_URL_FROM_CONFIG, API_VERSION_FROM_CONFIG, DatastoreWithConfig} from '../../test/datastore-with-config.service';
+import {API_VERSION, BASE_URL, Datastore} from '../../test/datastore.service';
+import {API_VERSION_FROM_CONFIG, BASE_URL_FROM_CONFIG, DatastoreWithConfig} from '../../test/datastore-with-config.service';
 import {ErrorResponse} from '../models/error-response.model';
 import {getSampleBook} from '../../test/fixtures/book.fixture';
 import {Book} from '../../test/models/book.model';
-import { ModelConfig } from '../index';
+import {ModelConfig} from '../index';
 
 
 let datastore: Datastore;
@@ -103,10 +95,10 @@ describe('JsonApiDatastore', () => {
             backend.connections.subscribe((c: MockConnection) => {
                 expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
                 expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/` + 'authors?' +
-                encodeURIComponent('page[size]') + '=10&' +
-                encodeURIComponent('page[number]') + '=1&' +
-                encodeURIComponent('include') + '=comments&' +
-                encodeURIComponent('filter[title][keyword]') + '=Tolkien');
+                    encodeURIComponent('page[size]') + '=10&' +
+                    encodeURIComponent('page[number]') + '=1&' +
+                    encodeURIComponent('include') + '=comments&' +
+                    encodeURIComponent('filter[title][keyword]') + '=Tolkien');
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author, {
@@ -181,8 +173,6 @@ describe('JsonApiDatastore', () => {
                 ));
             });
             datastore.findAll(Author).subscribe((document) => {
-                console.log(document);
-
                 expect(document).toBeDefined();
                 expect(document.getModels().length).toEqual(1);
                 expect(document.getMeta().meta.page.number).toEqual(1);
@@ -239,20 +229,20 @@ describe('JsonApiDatastore', () => {
 
         it('should generate correct query string for array params with findAll', () => {
             backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
+                const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+                const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+                expect(decodedQueryString).toEqual(expectedQueryString);
             });
-            datastore.findAll(Book, { arrayParam: [4, 5, 6] }).subscribe();
+            datastore.findAll(Book, {arrayParam: [4, 5, 6]}).subscribe();
         });
 
         it('should generate correct query string for array params with query', () => {
             backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
+                const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+                const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+                expect(decodedQueryString).toEqual(expectedQueryString);
             });
-            datastore.query(Book, { arrayParam: [4, 5, 6] }).subscribe();
+            datastore.query(Book, {arrayParam: [4, 5, 6]}).subscribe();
         });
     });
 
@@ -276,11 +266,11 @@ describe('JsonApiDatastore', () => {
 
         it('should generate correct query string for array params with findRecord', () => {
             backend.connections.subscribe((c: MockConnection) => {
-              const decodedQueryString = decodeURI(c.request.url).split('?')[1];
-              const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
-              expect(decodedQueryString).toEqual(expectedQueryString);
+                const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+                const expectedQueryString = 'arrayParam[]=4&arrayParam[]=5&arrayParam[]=6';
+                expect(decodedQueryString).toEqual(expectedQueryString);
             });
-            datastore.findRecord(Book, '1', { arrayParam: [4, 5, 6] }).subscribe();
+            datastore.findRecord(Book, '1', {arrayParam: [4, 5, 6]}).subscribe();
         });
 
     });
@@ -297,11 +287,44 @@ describe('JsonApiDatastore', () => {
                 expect(obj.type).toBe('authors');
                 expect(obj.relationships).toBeUndefined();
 
+                c.mockRespond(new Response(
+                    new ResponseOptions({
+                        status: 201,
+                        body: JSON.stringify({
+                            data: {
+                                'id': '1',
+                                'type': 'authors',
+                                'attributes': {
+                                    name: obj.attributes.name
+                                }
+                            }
+                        })
+                    })
+                ));
+
             });
             let author = datastore.createRecord(Author, {
                 name: AUTHOR_NAME
             });
-            author.save().subscribe();
+            author.save().subscribe(val => {
+                expect(val.id).toBeDefined();
+                expect(val.id).toEqual('1');
+            })
+        });
+
+        it('should create new author with 204 response', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+                expect(c.request.method).toEqual(RequestMethod.Post);
+                c.mockRespond(new Response(new ResponseOptions({status: 204})
+                ));
+
+            });
+            let author = datastore.createRecord(Author, {
+                name: AUTHOR_NAME
+            });
+            author.save().subscribe(val => {
+                expect(val).toBeDefined();
+            })
         });
 
         it('should create new author with existing ToMany-relationship', () => {
@@ -358,7 +381,7 @@ describe('JsonApiDatastore', () => {
             book.author = new Author(datastore, {
                 id: AUTHOR_ID
             });
-           book.save().subscribe();
+            book.save().subscribe();
         });
     });
 
