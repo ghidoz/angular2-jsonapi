@@ -97,7 +97,7 @@ export class JsonApiModel {
             let typeName: string = dataRelationship.type;
             let modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
             if (modelType) {
-              let relationshipModel: JsonApiModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
+              let relationshipModel = this.getBelongsToRelationship(modelType, dataRelationship, included, typeName, level);
               if (relationshipModel) {
                 this[metadata.propertyName] = relationshipModel;
               }
@@ -126,7 +126,7 @@ export class JsonApiModel {
   }
 
 
-  private getBelongsToRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T {
+  private getBelongsToRelationship<T extends JsonApiModel>(modelType: ModelType<T>, data: any, included: any, typeName: string, level: number): T | null {
     let id: string = data.id;
     let relationshipData: any = find(included, {id: id, type: typeName});
     if (relationshipData) {
