@@ -5,8 +5,10 @@ import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/merge';
 import {JsonApiModel} from '../models/json-api.model';
 import {ErrorResponse} from '../models/error-response.model';
 import {JsonApiQueryData} from '../models/json-api-query-data';
@@ -90,11 +92,23 @@ export class JsonApiDatastore {
         } else {
             httpCall = this.http.post(url, body, options);
         }
-        return httpCall
+        const modelObservable = httpCall
             .map(res => res.status === 201 ? this.extractRecordData(res, modelType, model) : model)
-            .map(res => this.resetMetadataAttributes(res, attributesMetadata, modelType))
-            .map(res => this.updateRelationships(res, relationships))
-            .catch((res) => this.handleError(res));
+            .catch((res) => {
+                if (res == null) {
+                    return Observable.of(model);
+                }
+                return this.handleError(res)
+            });
+
+        return Observable.merge(
+            modelObservable
+                .filter(res => res.errors),
+            modelObservable
+                .filter(res => !res.errors)
+                .map(res => this.resetMetadataAttributes(res, attributesMetadata, modelType))
+                .map(res => this.updateRelationships(res, relationships))
+        );
     }
 
 
