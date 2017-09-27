@@ -3,6 +3,7 @@ import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
+import * as _ from 'lodash';
 
 export class JsonApiModel {
   id: string;
@@ -142,6 +143,7 @@ export class JsonApiModel {
   private createOrPeek<T extends JsonApiModel>(modelType: ModelType<T>, data: any): T {
     let peek = this._datastore.peekRecord(modelType, data.id);
     if (peek) {
+      _.extend(peek, data.attributes);
       return peek;
     }
     let newObject: T = new modelType(this._datastore, data);

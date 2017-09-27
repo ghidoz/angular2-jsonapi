@@ -130,6 +130,28 @@ describe('JsonApiModel', () => {
           });
         });
       });
+
+      describe('update relationships', () => {
+        it ('should return updated relationship', () => {
+          const REL = 'books';
+          const BOOK_NUMBER = 1;
+          const CHAPTERS_NUMBER = 4;
+          const DATA = getAuthorData(REL, BOOK_NUMBER);
+          const INCLUDED = getIncludedBooks(BOOK_NUMBER);
+          const NEW_BOOK_TITLE = 'The Hobbit'
+          author = new Author(datastore, DATA);
+          author.syncRelationships(DATA, INCLUDED, 0);
+          INCLUDED.forEach(model => {
+            if (model.type === 'books') {
+              model.attributes.title = NEW_BOOK_TITLE;
+            }
+          })
+          author.syncRelationships(DATA, INCLUDED, 0);
+          author.books.forEach(book => {
+            expect(book.title).toBe(NEW_BOOK_TITLE);
+          });
+        });
+      });
     });
   });
 });
