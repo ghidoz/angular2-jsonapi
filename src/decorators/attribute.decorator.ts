@@ -1,19 +1,33 @@
 import * as dateFormat from 'date-fns/format';
 import * as dateParse from 'date-fns/parse';
+import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
+import { DateConverter } from '../converters/date/date.converter';
 
-export function Attribute(serializedName?: string) {
+export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
     return function (target: any, propertyName: string) {
         let converter = function (dataType: any, value: any, forSerialisation = false): any {
-            if (!forSerialisation) {
-                if (dataType === Date) {
-                    return dateParse(value);
-                }
+            let attrConverter;
+
+            if (options.converter) {
+                attrConverter = options.converter;
+            } else if (dataType === Date) {
+                attrConverter = new DateConverter();
             } else {
-                if (dataType === Date) {
-                    return dateFormat(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+                const datatype = new dataType();
+        
+                if (datatype.mask && datatype.unmask) {
+                  attrConverter = datatype
+                }
+              }
+            
+            if (attrConverter) {
+                if (!forSerialisation) {
+                    return attrConverter.mask(value);
+                } else {
+                    return attrConverter.unmask(value);
                 }
             }
-
+    
             return value;
         };
 
@@ -22,7 +36,7 @@ export function Attribute(serializedName?: string) {
             let targetType = Reflect.getMetadata('design:type', target, propertyName);
 
             let mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
-            let serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
+            let serializedPropertyName = options.serializedName !== undefined ? options.serializedName : propertyName;
             mappingMetadata[serializedPropertyName] = propertyName;
             Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
 
@@ -31,7 +45,7 @@ export function Attribute(serializedName?: string) {
                 hasDirtyAttributes: hasDirtyAttributes,
                 oldValue: oldValue,
                 newValue: newValue,
-                serializedName: serializedName,
+                serializedName: options.serializedName,
                 serialisationValue: converter(targetType, newValue, true)
             };
             Reflect.defineMetadata('Attribute', annotations, target);
