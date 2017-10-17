@@ -1,5 +1,4 @@
-import * as dateFormat from 'date-fns/format';
-import * as dateParse from 'date-fns/parse';
+import { format, parse } from 'date-fns';
 import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
 import { DateConverter } from '../converters/date/date.converter';
 
