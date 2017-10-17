@@ -14,12 +14,12 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
                 attrConverter = new DateConverter();
             } else {
                 const datatype = new dataType();
-        
+
                 if (datatype.mask && datatype.unmask) {
                   attrConverter = datatype
                 }
               }
-            
+
             if (attrConverter) {
                 if (!forSerialisation) {
                     return attrConverter.mask(value);
@@ -27,7 +27,7 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
                     return attrConverter.unmask(value);
                 }
             }
-    
+
             return value;
         };
 
