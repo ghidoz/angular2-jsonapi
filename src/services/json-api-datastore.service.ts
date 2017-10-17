@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Headers, Http, RequestOptions, Response} from '@angular/http';
+import {Headers, Http, RequestOptions, Response, ResponseOptions} from '@angular/http';
 import find from 'lodash-es/find';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
@@ -208,19 +208,34 @@ export class JsonApiDatastore {
 
     private extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
         let body: any = res.json();
+
         if (!body) {
             throw new Error('no body in response');
         }
+
         if (model) {
             model.id = body.data.id;
             Object.assign(model, body.data.attributes);
         }
+
         model = model || this.deserializeModel(modelType, body.data);
         this.addToStore(model);
         if (body.included) {
             model.syncRelationships(body.data, body.included, 0);
             this.addToStore(model);
+
+            body.included.forEach((includedModelData: any) => {
+                const models = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).models;
+
+                const options = new ResponseOptions({
+                    body: JSON.stringify({data: includedModelData})
+                });
+                const includedModelResponse: Response = new Response(options);
+
+                this.extractRecordData(includedModelResponse, models[includedModelData.type]);
+            });
         }
+
         return model;
     }
 
@@ -315,10 +330,9 @@ export class JsonApiDatastore {
                 let propertyHasMany: any = find(hasMany, (property) => {
                     return modelsTypes[property.relationship] === model.constructor;
                 });
-                if (propertyHasMany) {
-                  if (relationshipModel[propertyHasMany.propertyName] !== undefined) {
+
+                if (propertyHasMany && relationshipModel[propertyHasMany.propertyName] !== undefined) {
                     relationshipModel[propertyHasMany.propertyName].push(model);
-                  }
                 }
             }
         }
