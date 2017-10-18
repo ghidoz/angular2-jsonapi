@@ -385,26 +385,16 @@ Metadata such as links or data for pagination purposes can also be included in t
 
 For each model a specific MetadataModel can be defined. To do this, the class name needs to be added in the ModelConfig.
 
-If no MetadataModel is explicitly defined, the default one will be used, which just contains an array of links.
+If no MetadataModel is explicitly defined, the default one will be used, which contains an array of links and `meta` property.
 ```
 @JsonApiModelConfig({
     type: 'deals',
     meta: JsonApiMetaModel
 })
-export class Deal extends JsonApiModel 
+export class Deal extends JsonApiModel
 ```
 
-The model itself is a normal class which contains the specific metadata properties.
-
-```
-export class JsonApiMetaModel {
-    public links: Array<any>;
-
-    constructor() {
-        this.links = [];
-    }
-}
-```
+An instance of a class provided in `meta` property will get the whole response in a constructor.
 
 ### Datastore config
 
@@ -477,7 +467,7 @@ post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe
 
 ### Error handling
 
-Error handling is done in the `subscribe` method of the returned Observables. 
+Error handling is done in the `subscribe` method of the returned Observables.
 If your server returns valid [JSON API Error Objects](http://jsonapi.org/format/#error-objects) you can access them in your onError method:
 
 ```typescript
