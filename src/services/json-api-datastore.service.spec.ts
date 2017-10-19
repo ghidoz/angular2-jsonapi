@@ -135,7 +135,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.headers.get('Authorization')).toBe('Bearer');
       });
 
-      datastore.query(Author, null, new Headers({ Authorization: 'Bearer'})).subscribe();
+      datastore.query(Author, null, new Headers({ Authorization: 'Bearer' })).subscribe();
     });
 
     it('should override base headers', () => {
@@ -292,7 +292,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
         expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors`);
         expect(c.request.method).toEqual(RequestMethod.Post);
-        let obj = c.request.json().data;
+        const obj = c.request.json().data;
         expect(obj.attributes.name).toEqual(AUTHOR_NAME);
         expect(obj.attributes.dob).toEqual(format(parse(AUTHOR_BIRTH), 'YYYY-MM-DDTHH:mm:ss[Z]'));
         expect(obj.id).toBeUndefined();

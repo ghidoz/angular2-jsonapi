@@ -13,9 +13,6 @@ export class Author extends JsonApiModel {
   @Attribute()
   name: string;
 
-  @Attribute('dob')
-  date_of_birth: Date;
-
   @Attribute({
     serializedName: 'dob'
   })
