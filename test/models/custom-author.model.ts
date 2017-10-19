@@ -3,7 +3,7 @@ import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.d
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { HasMany } from '../../src/decorators/has-many.decorator';
-import {PageMetaData} from "./page-meta-data";
+import { PageMetaData } from './page-meta-data';
 
 export const AUTHOR_API_VERSION = 'v3';
 export const AUTHOR_MODEL_ENDPOINT_URL = 'custom-author';
