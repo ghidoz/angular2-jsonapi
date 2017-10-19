@@ -33,7 +33,6 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "dependencies": {
-    "@types/qs": "^6.5.0",
     "date-fns": "^1.29.0",
     "lodash-es": "^4.17.4",
     "qs": "^6.5.1"
@@ -56,9 +55,10 @@
     "@types/date-fns": "^2.6.0",
     "@types/jasmine": "2.5.43",
     "@types/lodash-es": "^4.14.6",
+    "@types/qs": "^6.5.0",
     "@types/reflect-metadata": "0.0.5",
     "@types/selenium-webdriver": "^3.0.7",
-    "codelyzer": "~3.1.2",
+    "codelyzer": "~3.2.1",
     "core-js": "^2.5.1",
     "coveralls": "^2.11.14",
     "jasmine-core": "^2.6.4",
@@ -78,6 +78,7 @@
     "sourcemap-istanbul-instrumenter-loader": "^0.2.0",
     "ts-loader": "^2.3.7",
     "tslint": "^5.7.0",
+    "tslint-config-airbnb": "^5.3.0",
     "typescript": "2.5.3",
     "webpack": "2.3.3",
     "zone.js": "^0.8.16"

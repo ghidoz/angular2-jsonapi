@@ -7,28 +7,28 @@ import { HasMany } from '../../src/decorators/has-many.decorator';
 import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
 
 @JsonApiModelConfig({
-    type: 'books'
+  type: 'books'
 })
 export class Book extends JsonApiModel {
 
-    @Attribute()
-    title: string;
+  @Attribute()
+  title: string;
 
-    @Attribute()
-    date_published: Date;
+  @Attribute()
+  date_published: Date;
 
-    @Attribute()
-    created_at: Date;
+  @Attribute()
+  created_at: Date;
 
-    @Attribute()
-    updated_at: Date;
+  @Attribute()
+  updated_at: Date;
 
-    @HasMany()
-    chapters: Chapter[];
+  @HasMany()
+  chapters: Chapter[];
 
-    @BelongsTo()
-    firstChapter: Chapter;
+  @BelongsTo()
+  firstChapter: Chapter;
 
-    @BelongsTo()
-    author: Author;
+  @BelongsTo()
+  author: Author;
 }
