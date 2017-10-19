@@ -1,10 +1,12 @@
 export function HasMany(config: any = {}) {
   return function (target: any, propertyName: string | symbol) {
-    let annotations = Reflect.getMetadata('HasMany', target) || [];
+    const annotations = Reflect.getMetadata('HasMany', target) || [];
+
     annotations.push({
-      propertyName: propertyName,
+      propertyName,
       relationship: config.key || propertyName
     });
+
     Reflect.defineMetadata('HasMany', annotations, target);
   };
 }

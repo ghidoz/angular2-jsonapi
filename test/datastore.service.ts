@@ -18,7 +18,7 @@ export const API_VERSION = 'v1';
   }
 })
 export class Datastore extends JsonApiDatastore {
-    constructor(http: Http) {
-      super(http);
-    }
+  constructor(http: Http) {
+    super(http);
+  }
 }

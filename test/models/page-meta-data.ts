@@ -1,19 +1,18 @@
-
 export class MetaData {
-    page: PageData
+  page: PageData;
 }
 
 export interface PageData {
-    total?: number;
-    number?: number;
-    size?: number;
-    last?: number;
+  total?: number;
+  number?: number;
+  size?: number;
+  last?: number;
 }
 
 export class PageMetaData {
-    public meta: PageData = {}
+  public meta: PageData = {};
 
-    constructor(response: any) {
-        this.meta = response.meta;
-    }
+  constructor(response: any) {
+    this.meta = response.meta;
+  }
 }
