@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import * as dateParse from 'date-fns/parse';
+import { parse } from 'date-fns';
 import { Author } from '../../test/models/author.model';
 import {
     AUTHOR_ID, AUTHOR_NAME, AUTHOR_BIRTH, AUTHOR_DEATH,
@@ -48,7 +48,7 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
-      expect(author.date_of_birth.getTime()).toBe(dateParse('1987-05-25').getTime());
+      expect(author.date_of_birth.getTime()).toBe(parse('1987-05-25').getTime());
     });
 
     it('should be instantiated without attributes', () => {
@@ -86,7 +86,7 @@ describe('JsonApiModel', () => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
+          expect(book.date_published.valueOf()).toBe(parse(BOOK_PUBLISHED).valueOf());
         });
       });
 
@@ -120,7 +120,7 @@ describe('JsonApiModel', () => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
+          expect(book.date_published.valueOf()).toBe(parse(BOOK_PUBLISHED).valueOf());
           expect(book.chapters).toBeDefined();
           expect(book.chapters.length).toBe(CHAPTERS_NUMBER);
           book.chapters.forEach((chapter: Chapter, cindex: number) => {

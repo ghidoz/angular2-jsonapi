@@ -1,16 +1,15 @@
-import * as dateFormat from 'date-fns/format';
-import * as dateParse from 'date-fns/parse';
+import { format, parse } from 'date-fns';
 
 export function Attribute(serializedName?: string) {
     return function (target: any, propertyName: string) {
         let converter = function (dataType: any, value: any, forSerialisation = false): any {
             if (!forSerialisation) {
                 if (dataType === Date) {
-                    return dateParse(value);
+                    return parse(value);
                 }
             } else {
                 if (dataType === Date) {
-                    return dateFormat(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+                    return format(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
                 }
             }
 
