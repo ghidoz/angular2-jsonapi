@@ -433,6 +433,7 @@ export class Datastore extends JsonApiDatastore {
 ##### Overrides
 
 * `getDirtyAttributes` - determines which model attributes are dirty
+* `toQueryString` - transforms query parameters to a query string
 
 
 ### Model config

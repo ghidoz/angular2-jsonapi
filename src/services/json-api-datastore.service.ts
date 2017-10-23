@@ -23,6 +23,7 @@ export class JsonApiDatastore {
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
   // tslint:disable-next-line:max-line-length
   private getDirtyAttributes: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.getDirtyAttributes ? this.datastoreConfig.overrides.getDirtyAttributes : this._getDirtyAttributes;
+  private toQueryString: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.toQueryString ? this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   
   protected config: DatastoreConfig;
 
@@ -348,7 +349,7 @@ export class JsonApiDatastore {
     return new RequestOptions({ headers: requestHeaders });
   }
 
-  private toQueryString(params: any) {
+  private _toQueryString(params: any): string {
     return qs.stringify(params, { arrayFormat: 'brackets' });
   }
 
