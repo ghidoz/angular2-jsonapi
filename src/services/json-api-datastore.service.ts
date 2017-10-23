@@ -80,10 +80,8 @@ export class JsonApiDatastore {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         const metadata: any = attributesMetadata[propertyName];
 
-        if (metadata.hasDirtyAttributes) {
-          const attributeName = metadata.serializedName != null ? metadata.serializedName : propertyName;
-          dirtyData[attributeName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
-        }
+        const attributeName = metadata.serializedName != null ? metadata.serializedName : propertyName;
+        dirtyData[attributeName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
       }
     }
     return dirtyData;
@@ -339,7 +337,7 @@ export class JsonApiDatastore {
   }
 
   private toQueryString(params: any) {
-    return qs.stringify(params, { arrayFormat: 'brackets' });
+    return qs.stringify(params, { arrayFormat: 'repeat' });
   }
 
   public addToStore(modelOrModels: JsonApiModel | JsonApiModel[]): void {
