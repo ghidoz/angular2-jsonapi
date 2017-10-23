@@ -187,13 +187,21 @@ export class JsonApiDatastore {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
           relationships = relationships || {};
-          relationships[key] = {
-            data: this.buildSingleRelationshipData(data[key])
-          };
+          
+          if (data[key].id) {
+            relationships[key] = {
+              data: this.buildSingleRelationshipData(data[key])
+            };
+          }
         } else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
           relationships = relationships || {};
+
+          const relationshipData = data[key]
+            .filter((model: JsonApiModel) => model.id)
+            .map((model: JsonApiModel) => this.buildSingleRelationshipData(model));
+
           relationships[key] = {
-            data: data[key].map((model: JsonApiModel) => this.buildSingleRelationshipData(model))
+            data: relationshipData
           };
         }
       }
