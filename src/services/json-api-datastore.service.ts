@@ -21,9 +21,10 @@ export class JsonApiDatastore {
   // tslint:disable:variable-name
   private _headers: Headers;
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-  // tslint:disable-next-line:max-line-length
+  // tslint:disable:max-line-length
   private getDirtyAttributes: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.getDirtyAttributes ? this.datastoreConfig.overrides.getDirtyAttributes : this._getDirtyAttributes;
   private toQueryString: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.toQueryString ? this.datastoreConfig.overrides.toQueryString : this._toQueryString;
+  // tslint:enable:max-line-length
   
   protected config: DatastoreConfig;
 
