@@ -391,7 +391,7 @@ If no MetadataModel is explicitly defined, the default one will be used, which j
     type: 'deals',
     meta: JsonApiMetaModel
 })
-export class Deal extends JsonApiModel 
+export class Deal extends JsonApiModel
 ```
 
 The model itself is a normal class which contains the specific metadata properties.
@@ -428,6 +428,11 @@ export class Datastore extends JsonApiDatastore {
 * `models` - all the models which will be stored in the datastore
 * `baseUrl` - base API URL
 * `apiVersion` - optional, a string which will be appended to the baseUrl
+* `overrides` - used for overriding internal methods to achive custom functionalities
+
+##### Overrides
+
+* `getDirtyAttributes` - determines which model attributes are dirty
 
 
 ### Model config
@@ -477,7 +482,7 @@ post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe
 
 ### Error handling
 
-Error handling is done in the `subscribe` method of the returned Observables. 
+Error handling is done in the `subscribe` method of the returned Observables.
 If your server returns valid [JSON API Error Objects](http://jsonapi.org/format/#error-objects) you can access them in your onError method:
 
 ```typescript

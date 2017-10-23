@@ -21,7 +21,9 @@ export class JsonApiDatastore {
   // tslint:disable:variable-name
   private _headers: Headers;
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-
+  // tslint:disable-next-line:max-line-length
+  private getDirtyAttributes: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.getDirtyAttributes ? this.datastoreConfig.overrides.getDirtyAttributes : this._getDirtyAttributes;
+  
   protected config: DatastoreConfig;
 
   constructor(private http: Http) {}
@@ -73,15 +75,17 @@ export class JsonApiDatastore {
     return new modelType(this, { attributes: data });
   }
 
-  private getDirtyAttributes(attributesMetadata: any): { string: any} {
+  private _getDirtyAttributes(attributesMetadata: any): { string: any} {
     const dirtyData: any = {};
 
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         const metadata: any = attributesMetadata[propertyName];
 
-        const attributeName = metadata.serializedName != null ? metadata.serializedName : propertyName;
-        dirtyData[attributeName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
+        if (metadata.hasDirtyAttributes) {
+          const attributeName = metadata.serializedName != null ? metadata.serializedName : propertyName;
+          dirtyData[attributeName] = metadata.serialisationValue ? metadata.serialisationValue : metadata.newValue;
+        }
       }
     }
     return dirtyData;
