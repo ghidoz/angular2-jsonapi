@@ -349,7 +349,7 @@ export class JsonApiDatastore {
   }
 
   private toQueryString(params: any) {
-    return qs.stringify(params, { arrayFormat: 'repeat' });
+    return qs.stringify(params, { arrayFormat: 'brackets' });
   }
 
   public addToStore(modelOrModels: JsonApiModel | JsonApiModel[]): void {
