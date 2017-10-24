@@ -13,6 +13,7 @@ import { JsonApiQueryData } from '../models/json-api-query-data';
 import * as qs from 'qs';
 import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
+import { AttributeMetadata } from '../constants/symbols';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -359,7 +360,7 @@ export class JsonApiDatastore {
   private resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
     // TODO check why is attributesMetadata from the arguments never used
     // tslint:disable-next-line:no-param-reassign
-    attributesMetadata = Reflect.getMetadata('Attribute', res);
+    attributesMetadata = res[AttributeMetadata];
 
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -371,7 +372,7 @@ export class JsonApiDatastore {
       }
     }
 
-    Reflect.defineMetadata('Attribute', attributesMetadata, res);
+    res[AttributeMetadata] = attributesMetadata;
     return res;
   }
 

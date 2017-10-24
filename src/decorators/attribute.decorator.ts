@@ -1,4 +1,5 @@
 import { format, parse } from 'date-fns';
+import { AttributeMetadata } from '../constants/symbols';
 
 export function Attribute(serializedName?: string) {
   return function (target: any, propertyName: string) {
@@ -16,9 +17,28 @@ export function Attribute(serializedName?: string) {
       return value;
     };
 
-    const saveAnnotations = function (hasDirtyAttributes: boolean, oldValue: any, newValue: any, isNew: boolean) {
-      const annotations = Reflect.getMetadata('Attribute', target) || {};
+    const saveAnnotations = function () {
+      const metadata = Reflect.getMetadata('Attribute', target) || {};
+
+      metadata[propertyName] = {
+        marked: true
+      };
+
+      Reflect.defineMetadata('Attribute', metadata, target);
+    };
+
+    const setMetadata = function (
+      hasDirtyAttributes: boolean,
+      instance: any,
+      oldValue: any,
+      newValue: any,
+      isNew: boolean
+    ) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
+
+      if (!instance[AttributeMetadata]) {
+        instance[AttributeMetadata] = {};
+      }
 
       const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
       const serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
@@ -27,15 +47,13 @@ export function Attribute(serializedName?: string) {
 
       const propertyHasDirtyAttributes = typeof oldValue === 'undefined' && !isNew ? false : hasDirtyAttributes;
 
-      annotations[propertyName] = {
+      instance[AttributeMetadata][propertyName] = {
         newValue,
         oldValue,
         serializedName,
         hasDirtyAttributes: propertyHasDirtyAttributes,
         serialisationValue: converter(targetType, newValue, true)
       };
-
-      Reflect.defineMetadata('Attribute', annotations, target);
     };
 
     const getter = function () {
@@ -47,13 +65,13 @@ export function Attribute(serializedName?: string) {
       const convertedValue = converter(targetType, newVal);
 
       if (convertedValue !== this['_' + propertyName]) {
-        saveAnnotations(true, this['_' + propertyName], newVal, !this.id);
+        setMetadata(true, this, this['_' + propertyName], newVal, !this.id);
         this['_' + propertyName] = convertedValue;
       }
     };
 
     if (delete target[propertyName]) {
-      saveAnnotations(false, undefined, target[propertyName], target.id);
+      saveAnnotations();
       Object.defineProperty(target, propertyName, {
         get: getter,
         set: setter,
