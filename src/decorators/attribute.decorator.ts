@@ -25,6 +25,11 @@ export function Attribute(serializedName?: string) {
       };
 
       Reflect.defineMetadata('Attribute', metadata, target);
+
+      const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
+      const serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
+      mappingMetadata[serializedPropertyName] = propertyName;
+      Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
     };
 
     const setMetadata = function (
@@ -39,11 +44,6 @@ export function Attribute(serializedName?: string) {
       if (!instance[AttributeMetadata]) {
         instance[AttributeMetadata] = {};
       }
-
-      const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
-      const serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
-      mappingMetadata[serializedPropertyName] = propertyName;
-      Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
 
       const propertyHasDirtyAttributes = typeof oldValue === 'undefined' && !isNew ? false : hasDirtyAttributes;
 
