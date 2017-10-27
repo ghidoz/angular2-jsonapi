@@ -92,23 +92,16 @@ export class JsonApiDatastore {
         } else {
             httpCall = this.http.post(url, body, options);
         }
-        const modelObservable = httpCall
+        return httpCall
             .map(res => res.status === 201 ? this.extractRecordData(res, modelType, model) : model)
             .catch((res) => {
                 if (res == null) {
                     return Observable.of(model);
                 }
-                return this.handleError(res)
-            });
-
-        return Observable.merge(
-            modelObservable
-                .filter(res => res.errors),
-            modelObservable
-                .filter(res => !res.errors)
-                .map(res => this.resetMetadataAttributes(res, attributesMetadata, modelType))
-                .map(res => this.updateRelationships(res, relationships))
-        );
+                return this.handleError(res);
+            })
+            .map(res => this.resetMetadataAttributes(res, attributesMetadata, modelType))
+            .map(res => this.updateRelationships(res, relationships));
     }
 
 
@@ -316,7 +309,7 @@ export class JsonApiDatastore {
         return res;
     }
 
-    private updateRelationships(model: JsonApiModel, relationships: any): JsonApiModel {
+    private updateRelationships<T extends JsonApiModel>(model: T, relationships: any): T {
         let modelsTypes: any = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).models;
         for (let relationship in relationships) {
             if (relationships.hasOwnProperty(relationship) && model.hasOwnProperty(relationship)) {
