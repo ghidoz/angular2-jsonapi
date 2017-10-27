@@ -130,8 +130,7 @@ export class JsonApiDatastore {
         return this.handleError(res);
       })
       .map((res) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
-      .map((res) => this.updateRelationships(res, relationships))
-      .catch((res) => this.handleError(res));
+      .map((res) => this.updateRelationships(res, relationships));
   }
 
 
