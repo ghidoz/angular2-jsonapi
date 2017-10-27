@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import * as dateParse from 'date-fns/parse';
+import { parse } from 'date-fns';
 import { Author } from '../../test/models/author.model';
 import {
     AUTHOR_ID, AUTHOR_NAME, AUTHOR_BIRTH, AUTHOR_DEATH,
@@ -44,15 +44,15 @@ describe('JsonApiModel', () => {
           date_of_birth: '1987-05-25'
         }
       };
-      let author: Author = new Author(datastore, DATA);
+      const author: Author = new Author(datastore, DATA);
       expect(author).toBeDefined();
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
-      expect(author.date_of_birth.getTime()).toBe(dateParse('1987-05-25').getTime());
+      expect(author.date_of_birth.getTime()).toBe(parse('1987-05-25').getTime());
     });
 
     it('should be instantiated without attributes', () => {
-      let author: Author = new Author(datastore);
+      const author: Author = new Author(datastore);
       expect(author).toBeDefined();
       expect(author.id).toBeUndefined();
       expect(author.date_of_birth).toBeUndefined();
@@ -86,7 +86,7 @@ describe('JsonApiModel', () => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
+          expect(book.date_published.valueOf()).toBe(parse(BOOK_PUBLISHED).valueOf());
         });
       });
 
@@ -120,13 +120,35 @@ describe('JsonApiModel', () => {
           expect(book instanceof Book).toBeTruthy();
           expect(+book.id).toBe(index + 1);
           expect(book.title).toBe(BOOK_TITLE);
-          expect(book.date_published.valueOf()).toBe(dateParse(BOOK_PUBLISHED).valueOf());
+          expect(book.date_published.valueOf()).toBe(parse(BOOK_PUBLISHED).valueOf());
           expect(book.chapters).toBeDefined();
           expect(book.chapters.length).toBe(CHAPTERS_NUMBER);
           book.chapters.forEach((chapter: Chapter, cindex: number) => {
             expect(chapter instanceof Chapter).toBeTruthy();
             expect(chapter.title).toBe(CHAPTER_TITLE);
             expect(chapter.book).toEqual(book);
+          });
+        });
+      });
+
+      describe('update relationships', () => {
+        it ('should return updated relationship', () => {
+          const REL = 'books';
+          const BOOK_NUMBER = 1;
+          const CHAPTERS_NUMBER = 4;
+          const DATA = getAuthorData(REL, BOOK_NUMBER);
+          const INCLUDED = getIncludedBooks(BOOK_NUMBER);
+          const NEW_BOOK_TITLE = 'The Hobbit';
+          author = new Author(datastore, DATA);
+          author.syncRelationships(DATA, INCLUDED, 0);
+          INCLUDED.forEach((model) => {
+            if (model.type === 'books') {
+              model.attributes.title = NEW_BOOK_TITLE;
+            }
+          });
+          author.syncRelationships(DATA, INCLUDED, 0);
+          author.books.forEach((book) => {
+            expect(book.title).toBe(NEW_BOOK_TITLE);
           });
         });
       });

@@ -3,29 +3,28 @@ import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.d
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { HasMany } from '../../src/decorators/has-many.decorator';
-import {PageMetaData} from "./page-meta-data";
+import { PageMetaData } from './page-meta-data';
 
 @JsonApiModelConfig({
-    type: 'authors',
-    meta: PageMetaData,
+  type: 'authors',
+  meta: PageMetaData,
 })
 export class Author extends JsonApiModel {
+  @Attribute()
+  name: string;
 
-    @Attribute()
-    name: string;
+  @Attribute('dob')
+  date_of_birth: Date;
 
-    @Attribute('dob')
-    date_of_birth: Date;
+  @Attribute()
+  date_of_death: Date;
 
-    @Attribute()
-    date_of_death: Date;
+  @Attribute()
+  created_at: Date;
 
-    @Attribute()
-    created_at: Date;
+  @Attribute()
+  updated_at: Date;
 
-    @Attribute()
-    updated_at: Date;
-
-    @HasMany()
-    books: Book[];
+  @HasMany()
+  books: Book[];
 }
