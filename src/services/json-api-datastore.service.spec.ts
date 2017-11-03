@@ -256,6 +256,24 @@ describe('JsonApiDatastore', () => {
       });
       datastore.query(Book, { arrayParam: [4, 5, 6] }).subscribe();
     });
+
+    it('should generate correct query string for nested params with findAll', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+        const expectedQueryString = 'filter[text]=test123';
+        expect(decodedQueryString).toEqual(expectedQueryString);
+      });
+      datastore.findAll(Book, { filter: { text: 'test123' } }).subscribe();
+    });
+
+    it('should generate correct query string for nested array params with findAll', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        const decodedQueryString = decodeURI(c.request.url).split('?')[1];
+        const expectedQueryString = 'filter[text][]=1&filter[text][]=2';
+        expect(decodedQueryString).toEqual(expectedQueryString);
+      });
+      datastore.findAll(Book, { filter: { text: [1, 2] } }).subscribe();
+    });
   });
 
   describe('findRecord', () => {
@@ -364,14 +382,35 @@ describe('JsonApiDatastore', () => {
         expect(obj.id).toBeUndefined();
         expect(obj.type).toBe('authors');
         expect(obj.relationships).toBeDefined();
+        expect(obj.relationships.books.data.length).toBe(0);
+      });
+
+      const author = datastore.createRecord(Author, {
+        name: AUTHOR_NAME
+      });
+
+      author.books = [datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      })];
+
+      author.save().subscribe();
+    });
+
+    it('should create new author with new ToMany-relationship 2', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        const obj = c.request.json().data;
+        expect(obj.id).toBeUndefined();
+        expect(obj.relationships).toBeDefined();
         expect(obj.relationships.books.data.length).toBe(1);
-        expect(obj.relationships.books.data[0].attributes.title).toBe(BOOK_TITLE);
       });
       const author = datastore.createRecord(Author, {
         name: AUTHOR_NAME
       });
       author.books = [datastore.createRecord(Book, {
+        id: 123,
         title: BOOK_TITLE
+      }), datastore.createRecord(Book, {
+        title: `New book - ${BOOK_TITLE}`
       })];
       author.save().subscribe();
     });

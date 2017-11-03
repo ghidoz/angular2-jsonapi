@@ -418,6 +418,12 @@ export class Datastore extends JsonApiDatastore {
 * `models` - all the models which will be stored in the datastore
 * `baseUrl` - base API URL
 * `apiVersion` - optional, a string which will be appended to the baseUrl
+* `overrides` - used for overriding internal methods to achive custom functionalities
+
+##### Overrides
+
+* `getDirtyAttributes` - determines which model attributes are dirty
+* `toQueryString` - transforms query parameters to a query string
 
 
 ### Model config

@@ -13,6 +13,7 @@ import { JsonApiQueryData } from '../models/json-api-query-data';
 import * as qs from 'qs';
 import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
+import { AttributeMetadata } from '../constants/symbols';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
@@ -21,7 +22,11 @@ export class JsonApiDatastore {
   // tslint:disable:variable-name
   private _headers: Headers;
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-
+  // tslint:disable:max-line-length
+  private getDirtyAttributes: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.getDirtyAttributes ? this.datastoreConfig.overrides.getDirtyAttributes : this._getDirtyAttributes;
+  private toQueryString: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.toQueryString ? this.datastoreConfig.overrides.toQueryString : this._toQueryString;
+  // tslint:enable:max-line-length
+  
   protected config: DatastoreConfig;
 
   constructor(private http: Http) {}
@@ -73,7 +78,7 @@ export class JsonApiDatastore {
     return new modelType(this, { attributes: data });
   }
 
-  private getDirtyAttributes(attributesMetadata: any): { string: any} {
+  private _getDirtyAttributes(attributesMetadata: any): { string: any} {
     const dirtyData: any = {};
 
     for (const propertyName in attributesMetadata) {
@@ -189,13 +194,21 @@ export class JsonApiDatastore {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
           relationships = relationships || {};
-          relationships[key] = {
-            data: this.buildSingleRelationshipData(data[key])
-          };
+          
+          if (data[key].id) {
+            relationships[key] = {
+              data: this.buildSingleRelationshipData(data[key])
+            };
+          }
         } else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
           relationships = relationships || {};
+
+          const relationshipData = data[key]
+            .filter((model: JsonApiModel) => model.id)
+            .map((model: JsonApiModel) => this.buildSingleRelationshipData(model));
+
           relationships[key] = {
-            data: data[key].map((model: JsonApiModel) => this.buildSingleRelationshipData(model))
+            data: relationshipData
           };
         }
       }
@@ -330,7 +343,7 @@ export class JsonApiDatastore {
     return new RequestOptions({ headers: requestHeaders });
   }
 
-  private toQueryString(params: any) {
+  private _toQueryString(params: any): string {
     return qs.stringify(params, { arrayFormat: 'brackets' });
   }
 
@@ -351,7 +364,7 @@ export class JsonApiDatastore {
   private resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
     // TODO check why is attributesMetadata from the arguments never used
     // tslint:disable-next-line:no-param-reassign
-    attributesMetadata = Reflect.getMetadata('Attribute', res);
+    attributesMetadata = res[AttributeMetadata];
 
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -363,7 +376,7 @@ export class JsonApiDatastore {
       }
     }
 
-    Reflect.defineMetadata('Attribute', attributesMetadata, res);
+    res[AttributeMetadata] = attributesMetadata;
     return res;
   }
 
