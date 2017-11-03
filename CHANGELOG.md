@@ -1,10 +1,8 @@
 # [4.0.0] (2017-11-03)
 
-### Bug fixes
+### BREAKING CHANGES
 
-- Fix serializing query parameters ([cc58b73](cc58b739b867ae0f403f9e3b85026dd5c4122749))
-- Remove attributes from relationship objects ([5f1a3fc](https://github.com/ghidoz/angular2-jsonapi/commit/5f1a3fcda0dcc95b2f3fbbf771893c7e2b868dd1))
-- Fix saving model metadata ([cbf26d7](https://github.com/ghidoz/angular2-jsonapi/commit/cbf26d7dad07bc7d9788c45a61e60de914c8ee10))
+- Update to Angular 4
 
 ### Features
 
@@ -12,6 +10,12 @@
 - Make JsonApiModelMeta more customizable ([b678bb7](https://github.com/ghidoz/angular2-jsonapi/commit/b678bb7d2125e15a275d2768927feeede3fb933b))
 - Add support for overriding internal methods ([f15be33](https://github.com/ghidoz/angular2-jsonapi/commit/f15be33890c8c444f05862faa6f63ec2422bb0c1))
 - Add support for custom endpoint URLs ([9b43f12](https://github.com/ghidoz/angular2-jsonapi/commit/9b43f12ee25bd4b23e8c1603f34efb7cb8d201c2))
+
+### Bug fixes
+
+- Fix serializing query parameters ([cc58b73](cc58b739b867ae0f403f9e3b85026dd5c4122749))
+- Remove attributes from relationship objects ([5f1a3fc](https://github.com/ghidoz/angular2-jsonapi/commit/5f1a3fcda0dcc95b2f3fbbf771893c7e2b868dd1))
+- Fix saving model metadata ([cbf26d7](https://github.com/ghidoz/angular2-jsonapi/commit/cbf26d7dad07bc7d9788c45a61e60de914c8ee10))
 
 # [3.4.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.3.0...v3.4.0) (2016-12-17)
 
