@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import * as _ from 'lodash';
+import { AttributeMetadata } from '../constants/symbols';
 
 export class JsonApiModel {
   id: string;
@@ -26,12 +27,12 @@ export class JsonApiModel {
   }
 
   save(params?: any, headers?: Headers): Observable<this> {
-    const attributesMetadata: any = Reflect.getMetadata('Attribute', this);
+    const attributesMetadata: any = this[AttributeMetadata];
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }
 
   get hasDirtyAttributes() {
-    const attributesMetadata: any = Reflect.getMetadata('Attribute', this);
+    const attributesMetadata: any = this[AttributeMetadata];
     let hasDirtyAttributes = false;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -47,7 +48,7 @@ export class JsonApiModel {
   }
 
   rollbackAttributes(): void {
-    const attributesMetadata: any = Reflect.getMetadata('Attribute', this);
+    const attributesMetadata: any = this[AttributeMetadata];
     let metadata: any;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -62,7 +63,8 @@ export class JsonApiModel {
         }
       }
     }
-    Reflect.defineMetadata('Attribute', attributesMetadata, this);
+
+    this[AttributeMetadata] = attributesMetadata;
   }
 
   get modelConfig(): ModelConfig {
