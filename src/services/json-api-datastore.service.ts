@@ -316,15 +316,7 @@ export class JsonApiDatastore {
 
   protected parseMeta(body: any, modelType: ModelType<JsonApiModel>): any {
     const metaModel: any = Reflect.getMetadata('JsonApiModelConfig', modelType).meta;
-    const jsonApiMeta = new metaModel();
-
-    for (const key in body) {
-      if (jsonApiMeta.hasOwnProperty(key)) {
-        jsonApiMeta[key] = body[key];
-      }
-    }
-
-    return jsonApiMeta;
+    return new metaModel(body);
   }
 
   private getOptions(customHeaders?: Headers): RequestOptions {
