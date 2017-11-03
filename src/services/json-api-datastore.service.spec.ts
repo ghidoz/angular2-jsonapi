@@ -108,10 +108,10 @@ describe('JsonApiDatastore', () => {
       backend.connections.subscribe((c: MockConnection) => {
         expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
         expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/` + 'authors?' +
-          encodeURIComponent('page[size]') + '=10&' +
-          encodeURIComponent('page[number]') + '=1&' +
-          encodeURIComponent('include') + '=comments&' +
-          encodeURIComponent('filter[title][keyword]') + '=Tolkien');
+            encodeURIComponent('page[size]') + '=10&' +
+            encodeURIComponent('page[number]') + '=1&' +
+            encodeURIComponent('include') + '=comments&' +
+            encodeURIComponent('filter[title][keyword]') + '=Tolkien');
         expect(c.request.method).toEqual(RequestMethod.Get);
       });
       datastore.query(Author, {
@@ -134,6 +134,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.headers.has('Authorization')).toBeTruthy();
         expect(c.request.headers.get('Authorization')).toBe('Bearer');
       });
+
       datastore.query(Author, null, new Headers({ Authorization: 'Bearer' })).subscribe();
     });
 
@@ -212,11 +213,13 @@ describe('JsonApiDatastore', () => {
 
     it('should fire error', () => {
       const resp = {
-        errors: [{
-          code: '100',
-          title: 'Example error',
-          detail: 'detailed error Message'
-        }]
+        errors: [
+          {
+            code: '100',
+            title: 'Example error',
+            detail: 'detailed error Message'
+          }
+        ]
       };
 
       backend.connections.subscribe((c: MockConnection) => {
@@ -227,15 +230,13 @@ describe('JsonApiDatastore', () => {
           })
         ));
       });
-      datastore.query(Author).subscribe((authors) => fail('onNext has been called'),
-        (response) => {
-          expect(response).toEqual(jasmine.any(ErrorResponse));
-          expect(response.errors.length).toEqual(1);
-          expect(response.errors[0].code).toEqual(resp.errors[0].code);
-          expect(response.errors[0].title).toEqual(resp.errors[0].title);
-          expect(response.errors[0].detail).toEqual(resp.errors[0].detail);
-        },
-        () => fail('onCompleted has been called'));
+      datastore.query(Author).subscribe((authors) => fail('onNext has been called'), (response) => {
+        expect(response).toEqual(jasmine.any(ErrorResponse));
+        expect(response.errors.length).toEqual(1);
+        expect(response.errors[0].code).toEqual(resp.errors[0].code);
+        expect(response.errors[0].title).toEqual(resp.errors[0].title);
+        expect(response.errors[0].detail).toEqual(resp.errors[0].detail);
+      }, () => fail('onCompleted has been called'));
     });
 
     it('should generate correct query string for array params with findAll', () => {
@@ -268,7 +269,6 @@ describe('JsonApiDatastore', () => {
           })
         ));
       });
-
       datastore.findRecord(Author, '1').subscribe((author) => {
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
@@ -314,12 +314,10 @@ describe('JsonApiDatastore', () => {
           })
         ));
       });
-
       const author = datastore.createRecord(Author, {
         name: AUTHOR_NAME,
         date_of_birth: AUTHOR_BIRTH
       });
-
       author.save().subscribe((val) => {
         expect(val.id).toBeDefined();
         expect(val.id).toEqual('1');
@@ -331,11 +329,9 @@ describe('JsonApiDatastore', () => {
         expect(c.request.method).toEqual(RequestMethod.Post);
         c.mockRespond(new Response(new ResponseOptions({ status: 204 })));
       });
-
       const author = datastore.createRecord(Author, {
         name: AUTHOR_NAME
       });
-
       author.save().subscribe((val) => {
         expect(val).toBeDefined();
       });
@@ -351,16 +347,13 @@ describe('JsonApiDatastore', () => {
         expect(obj.relationships.books.data.length).toBe(1);
         expect(obj.relationships.books.data[0].id).toBe('10');
       });
-
       const author = datastore.createRecord(Author, {
         name: AUTHOR_NAME
       });
-
       author.books = [new Book(datastore, {
         id: '10',
         title: BOOK_TITLE
       })];
-
       author.save().subscribe();
     });
 
@@ -374,15 +367,12 @@ describe('JsonApiDatastore', () => {
         expect(obj.relationships.books.data.length).toBe(1);
         expect(obj.relationships.books.data[0].attributes.title).toBe(BOOK_TITLE);
       });
-
       const author = datastore.createRecord(Author, {
         name: AUTHOR_NAME
       });
-
       author.books = [datastore.createRecord(Book, {
         title: BOOK_TITLE
       })];
-
       author.save().subscribe();
     });
 
@@ -395,15 +385,12 @@ describe('JsonApiDatastore', () => {
         expect(obj.relationships).toBeDefined();
         expect(obj.relationships.author.data.id).toBe(AUTHOR_ID);
       });
-
       const book = datastore.createRecord(Book, {
         title: BOOK_TITLE
       });
-
       book.author = new Author(datastore, {
         id: AUTHOR_ID
       });
-
       book.save().subscribe();
     });
   });
@@ -420,8 +407,8 @@ describe('JsonApiDatastore', () => {
         expect(obj.id).toBe(AUTHOR_ID);
         expect(obj.type).toBe('authors');
         expect(obj.relationships).toBeUndefined();
-      });
 
+      });
       const author = new Author(datastore, {
         id: AUTHOR_ID,
         attributes: {
@@ -429,7 +416,6 @@ describe('JsonApiDatastore', () => {
           name: AUTHOR_NAME
         }
       });
-
       author.name = 'Rowling';
       author.date_of_birth = parse('1965-07-31');
       author.save().subscribe();

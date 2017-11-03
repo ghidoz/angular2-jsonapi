@@ -1,15 +1,29 @@
 import { format, parse } from 'date-fns';
+import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
+import { DateConverter } from '../converters/date/date.converter';
 
-export function Attribute(serializedName?: string) {
+export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return function (target: any, propertyName: string) {
     const converter = function (dataType: any, value: any, forSerialisation = false): any {
-      if (!forSerialisation) {
-        if (dataType === Date) {
-          return parse(value);
-        }
+      let attrConverter;
+
+      if (options.converter) {
+        attrConverter = options.converter;
+      } else if (dataType === Date) {
+        attrConverter = new DateConverter();
       } else {
-        if (dataType === Date) {
-          return format(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+        const datatype = new dataType();
+
+        if (datatype.mask && datatype.unmask) {
+          attrConverter = datatype;
+        }
+      }
+
+      if (attrConverter) {
+        if (!forSerialisation) {
+          return attrConverter.mask(value);
+        } else {
+          return attrConverter.unmask(value);
         }
       }
 
@@ -21,7 +35,7 @@ export function Attribute(serializedName?: string) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
 
       const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
-      const serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
+      const serializedPropertyName = options.serializedName !== undefined ? options.serializedName : propertyName;
       mappingMetadata[serializedPropertyName] = propertyName;
       Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
 
@@ -30,7 +44,7 @@ export function Attribute(serializedName?: string) {
       annotations[propertyName] = {
         newValue,
         oldValue,
-        serializedName,
+        serializedName: options.serializedName,
         hasDirtyAttributes: propertyHasDirtyAttributes,
         serialisationValue: converter(targetType, newValue, true)
       };

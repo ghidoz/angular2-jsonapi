@@ -116,7 +116,7 @@ export class Datastore extends JsonApiDatastore {
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the class properties with `@Attribute`: The serialized property name can optionally be specified by setting it as value of the annotation.
+- Decorate the class properties with `@Attribute`
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 - (optional) Define your [Metadata](#metadata)
 
@@ -435,6 +435,16 @@ export class Post extends JsonApiModel { }
 * `modelEndpointUrl` - if not specified, `type` will be used instead
 * `meta` - optional, metadata model
 
+### Decorators
+
+#### Model decorators
+
+* `Attribute(options: AttributeDecoratorOptions)`
+
+    * `AttributeDecoratorOptions`:
+
+        * `converter`, optional, must implement `PropertyConverter` interface
+        * `serializedName`, optional
 
 ### Custom Headers
 
