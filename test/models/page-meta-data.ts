@@ -11,4 +11,8 @@ export interface PageData {
 
 export class PageMetaData {
   public meta: PageData = {};
+
+  constructor(response: any) {
+    this.meta = response.meta;
+  }
 }
