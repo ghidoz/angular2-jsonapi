@@ -392,8 +392,14 @@ export class JsonApiDatastore {
         });
 
         if (propertyHasMany) {
-          if (relationshipModel[propertyHasMany.propertyName] !== undefined) {
+          relationshipModel[propertyHasMany.propertyName] = relationshipModel[propertyHasMany.propertyName] || [];
+          
+          const indexOfModel = relationshipModel[propertyHasMany.propertyName].indexOf(model);
+
+          if (indexOfModel === -1) {
             relationshipModel[propertyHasMany.propertyName].push(model);
+          } else {
+            relationshipModel[propertyHasMany.propertyName][indexOfModel] = model;
           }
         }
       }
@@ -410,7 +416,7 @@ export class JsonApiDatastore {
   private transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
-
+    
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
       if (attributes[serializedName]) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
