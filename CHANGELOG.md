@@ -1,3 +1,9 @@
+# [4.0.1] (2017-11-06)
+
+### Bug fixes
+
+* Fix updating has many relationships after saving a model
+
 # [4.0.0] (2017-11-03)
 
 ### BREAKING CHANGES
