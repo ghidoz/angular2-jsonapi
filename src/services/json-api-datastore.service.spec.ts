@@ -146,7 +146,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.headers.get('Authorization')).toBe('Basic');
       });
       datastore.headers = new Headers({ Authorization: 'Bearer' });
-      datastore.query(Author, null, new Headers({ Authorization: 'Basic' })).subscribe();
+      datastore.findAll(Author, null, new Headers({ Authorization: 'Basic' })).subscribe();
     });
 
     it('should get authors', () => {

@@ -19,12 +19,13 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 
 @Injectable()
 export class JsonApiDatastore {
-  // tslint:disable:variable-name
+  // tslint:disable-next-line:variable-name
   private _headers: Headers;
+  // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-  // tslint:disable:max-line-length
-  private getDirtyAttributes: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.getDirtyAttributes ? this.datastoreConfig.overrides.getDirtyAttributes : this._getDirtyAttributes;
-  private toQueryString: Function = this.datastoreConfig.overrides && this.datastoreConfig.overrides.toQueryString ? this.datastoreConfig.overrides.toQueryString : this._toQueryString;
+  private toQueryString: Function = this.datastoreConfig.overrides 
+    && this.datastoreConfig.overrides.toQueryString ? 
+      this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   // tslint:enable:max-line-length
   
   protected config: DatastoreConfig;
@@ -78,7 +79,7 @@ export class JsonApiDatastore {
     return new modelType(this, { attributes: data });
   }
 
-  private _getDirtyAttributes(attributesMetadata: any): { string: any} {
+  private getDirtyAttributes(attributesMetadata: any): { string: any} {
     const dirtyData: any = {};
 
     for (const propertyName in attributesMetadata) {
@@ -260,9 +261,8 @@ export class JsonApiDatastore {
 
     if (withMeta && withMeta === true) {
       return new JsonApiQueryData(models, this.parseMeta(body, modelType));
-    } else {
-      return models;
     }
+    return models;
   }
 
   private deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
@@ -282,36 +282,32 @@ export class JsonApiDatastore {
       Object.assign(model, body.data.attributes);
     }
 
-    // tslint:disable-next-line:no-param-reassign
-    model = model || this.deserializeModel(modelType, body.data);
-
-    this.addToStore(model);
+    const deserializedModel = model || this.deserializeModel(modelType, body.data);
+    this.addToStore(deserializedModel);
     if (body.included) {
-      model.syncRelationships(body.data, body.included, 0);
-      this.addToStore(model);
+      deserializedModel.syncRelationships(body.data, body.included, 0);
+      this.addToStore(deserializedModel);
     }
 
-    return model;
+    return deserializedModel;
   }
 
   protected handleError(error: any): ErrorObservable {
-    // tslint:disable-next-line:max-line-length
-    const errMsg: string = (error.message) ? error.message : error.status ? `${error.status} - ${error.statusText}` : 'Server error';
 
     try {
       const body: any = error.json();
 
       if (body.errors && body.errors instanceof Array) {
         const errors: ErrorResponse = new ErrorResponse(body.errors);
-        console.error(errMsg, errors);
+        console.error(error, errors);
         return Observable.throw(errors);
       }
     } catch (e) {
         // no valid JSON
     }
 
-    console.error(errMsg);
-    return Observable.throw(errMsg);
+    console.error(error);
+    return Observable.throw(error);
   }
 
   protected parseMeta(body: any, modelType: ModelType<JsonApiModel>): any {
@@ -363,8 +359,6 @@ export class JsonApiDatastore {
 
   private resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
     // TODO check why is attributesMetadata from the arguments never used
-    // tslint:disable-next-line:no-param-reassign
-    attributesMetadata = res[AttributeMetadata];
 
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
