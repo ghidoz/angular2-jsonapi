@@ -1,41 +1,72 @@
-import { format, parse } from 'date-fns';
+import { AttributeMetadata } from '../constants/symbols';
+import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
+import { DateConverter } from '../converters/date/date.converter';
 
-export function Attribute(serializedName?: string) {
+export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return function (target: any, propertyName: string) {
     const converter = function (dataType: any, value: any, forSerialisation = false): any {
-      if (!forSerialisation) {
-        if (dataType === Date) {
-          return parse(value);
-        }
+      let attrConverter;
+
+      if (options.converter) {
+        attrConverter = options.converter;
+      } else if (dataType === Date) {
+        attrConverter = new DateConverter();
       } else {
-        if (dataType === Date) {
-          return format(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+        const datatype = new dataType();
+
+        if (datatype.mask && datatype.unmask) {
+          attrConverter = datatype;
+        }
+      }
+
+      if (attrConverter) {
+        if (!forSerialisation) {
+          return attrConverter.mask(value);
+        } else {
+          return attrConverter.unmask(value);
         }
       }
 
       return value;
     };
 
-    const saveAnnotations = function (hasDirtyAttributes: boolean, oldValue: any, newValue: any, isNew: boolean) {
-      const annotations = Reflect.getMetadata('Attribute', target) || {};
-      const targetType = Reflect.getMetadata('design:type', target, propertyName);
+    const saveAnnotations = function () {
+      const metadata = Reflect.getMetadata('Attribute', target) || {};
+
+      metadata[propertyName] = {
+        marked: true
+      };
+
+      Reflect.defineMetadata('Attribute', metadata, target);
 
       const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
-      const serializedPropertyName = serializedName !== undefined ? serializedName : propertyName;
+      const serializedPropertyName = options.serializedName !== undefined ? options.serializedName : propertyName;
       mappingMetadata[serializedPropertyName] = propertyName;
       Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
+    };
+
+    const setMetadata = function (
+      hasDirtyAttributes: boolean,
+      instance: any,
+      oldValue: any,
+      newValue: any,
+      isNew: boolean
+    ) {
+      const targetType = Reflect.getMetadata('design:type', target, propertyName);
+
+      if (!instance[AttributeMetadata]) {
+        instance[AttributeMetadata] = {};
+      }
 
       const propertyHasDirtyAttributes = typeof oldValue === 'undefined' && !isNew ? false : hasDirtyAttributes;
 
-      annotations[propertyName] = {
+      instance[AttributeMetadata][propertyName] = {
         newValue,
         oldValue,
-        serializedName,
+        serializedName: options.serializedName,
         hasDirtyAttributes: propertyHasDirtyAttributes,
         serialisationValue: converter(targetType, newValue, true)
       };
-
-      Reflect.defineMetadata('Attribute', annotations, target);
     };
 
     const getter = function () {
@@ -47,13 +78,13 @@ export function Attribute(serializedName?: string) {
       const convertedValue = converter(targetType, newVal);
 
       if (convertedValue !== this['_' + propertyName]) {
-        saveAnnotations(true, this['_' + propertyName], newVal, !this.id);
+        setMetadata(true, this, this['_' + propertyName], newVal, !this.id);
         this['_' + propertyName] = convertedValue;
       }
     };
 
     if (delete target[propertyName]) {
-      saveAnnotations(false, undefined, target[propertyName], target.id);
+      saveAnnotations();
       Object.defineProperty(target, propertyName, {
         get: getter,
         set: setter,

@@ -1,5 +1,8 @@
+import { Overrides } from './overrides.interface';
+
 export interface DatastoreConfig {
   apiVersion?: string;
   baseUrl?: string;
-  models?: Object;
+  models?: object;
+  overrides?: Overrides;
 }

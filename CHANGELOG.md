@@ -1,3 +1,28 @@
+# [4.0.1] (2017-11-06)
+
+### Bug fixes
+
+* Fix updating has many relationships after saving a model
+
+# [4.0.0] (2017-11-03)
+
+### BREAKING CHANGES
+
+- Update to Angular 4
+
+### Features
+
+- Update Attribute decorator with custom property converter ([88d8d30](https://github.com/ghidoz/angular2-jsonapi/commit/88d8d3070928ca57cd7d02c82784363d46eccdb7))
+- Make JsonApiModelMeta more customizable ([b678bb7](https://github.com/ghidoz/angular2-jsonapi/commit/b678bb7d2125e15a275d2768927feeede3fb933b))
+- Add support for overriding internal methods ([f15be33](https://github.com/ghidoz/angular2-jsonapi/commit/f15be33890c8c444f05862faa6f63ec2422bb0c1))
+- Add support for custom endpoint URLs ([9b43f12](https://github.com/ghidoz/angular2-jsonapi/commit/9b43f12ee25bd4b23e8c1603f34efb7cb8d201c2))
+
+### Bug fixes
+
+- Fix serializing query parameters ([cc58b73](cc58b739b867ae0f403f9e3b85026dd5c4122749))
+- Remove attributes from relationship objects ([5f1a3fc](https://github.com/ghidoz/angular2-jsonapi/commit/5f1a3fcda0dcc95b2f3fbbf771893c7e2b868dd1))
+- Fix saving model metadata ([cbf26d7](https://github.com/ghidoz/angular2-jsonapi/commit/cbf26d7dad07bc7d9788c45a61e60de914c8ee10))
+
 # [3.4.0](https://github.com/ghidoz/angular2-jsonapi/compare/v3.3.0...v3.4.0) (2016-12-17)
 
 ### Bug Fixes
@@ -97,7 +122,7 @@
 - Add BelongsTo relationship ([edfc2af](https://github.com/ghidoz/angular2-jsonapi/commit/edfc2af))
 
 ### BREAKING CHANGES
-- You cannot use the class name anymore when including the relationship. You should use the field name as a string. 
+- You cannot use the class name anymore when including the relationship. You should use the field name as a string.
 
 # [1.1.0](https://github.com/ghidoz/angular2-jsonapi/compare/v1.0.0...v1.1.0) (2016-08-25)
 

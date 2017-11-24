@@ -9,10 +9,12 @@ export * from './models/json-api.model';
 export * from './models/error-response.model';
 export * from './models/json-api-query-data';
 
+export * from './interfaces/overrides.interface';
 export * from './interfaces/datastore-config.interface';
 export * from './interfaces/model-config.interface';
+export * from './interfaces/attribute-decorator-options.interface';
+export * from './interfaces/property-converter.interface';
 
 export * from './providers';
 
 export * from './module';
-

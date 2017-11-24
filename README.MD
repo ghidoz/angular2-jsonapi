@@ -116,7 +116,7 @@ export class Datastore extends JsonApiDatastore {
 Then set up your models:
 - Extend the `JsonApiModel` class
 - Decorate it with `@JsonApiModelConfig`, passing the `type`
-- Decorate the class properties with `@Attribute`: The serialized property name can optionally be specified by setting it as value of the annotation.
+- Decorate the class properties with `@Attribute`
 - Decorate the relationships attributes with `@HasMany` and `@BelongsTo`
 - (optional) Define your [Metadata](#metadata)
 
@@ -385,26 +385,16 @@ Metadata such as links or data for pagination purposes can also be included in t
 
 For each model a specific MetadataModel can be defined. To do this, the class name needs to be added in the ModelConfig.
 
-If no MetadataModel is explicitly defined, the default one will be used, which just contains an array of links.
+If no MetadataModel is explicitly defined, the default one will be used, which contains an array of links and `meta` property.
 ```
 @JsonApiModelConfig({
     type: 'deals',
     meta: JsonApiMetaModel
 })
-export class Deal extends JsonApiModel 
+export class Deal extends JsonApiModel
 ```
 
-The model itself is a normal class which contains the specific metadata properties.
-
-```
-export class JsonApiMetaModel {
-    public links: Array<any>;
-
-    constructor() {
-        this.links = [];
-    }
-}
-```
+An instance of a class provided in `meta` property will get the whole response in a constructor.
 
 ### Datastore config
 
@@ -428,6 +418,12 @@ export class Datastore extends JsonApiDatastore {
 * `models` - all the models which will be stored in the datastore
 * `baseUrl` - base API URL
 * `apiVersion` - optional, a string which will be appended to the baseUrl
+* `overrides` - used for overriding internal methods to achive custom functionalities
+
+##### Overrides
+
+* `getDirtyAttributes` - determines which model attributes are dirty
+* `toQueryString` - transforms query parameters to a query string
 
 
 ### Model config
@@ -445,6 +441,16 @@ export class Post extends JsonApiModel { }
 * `modelEndpointUrl` - if not specified, `type` will be used instead
 * `meta` - optional, metadata model
 
+### Decorators
+
+#### Model decorators
+
+* `Attribute(options: AttributeDecoratorOptions)`
+
+    * `AttributeDecoratorOptions`:
+
+        * `converter`, optional, must implement `PropertyConverter` interface
+        * `serializedName`, optional
 
 ### Custom Headers
 
@@ -477,7 +483,7 @@ post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe
 
 ### Error handling
 
-Error handling is done in the `subscribe` method of the returned Observables. 
+Error handling is done in the `subscribe` method of the returned Observables.
 If your server returns valid [JSON API Error Objects](http://jsonapi.org/format/#error-objects) you can access them in your onError method:
 
 ```typescript
