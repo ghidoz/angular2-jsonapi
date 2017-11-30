@@ -29,7 +29,7 @@ export class JsonApiDatastore {
   
   protected config: DatastoreConfig;
 
-  constructor(private http: Http) {}
+  constructor(protected http: Http) {}
 
   /** @deprecated - use findAll method to take all models **/
   query<T extends JsonApiModel>(
@@ -164,7 +164,7 @@ export class JsonApiDatastore {
     this._headers = headers;
   }
 
-  private buildUrl<T extends JsonApiModel>(
+  protected buildUrl<T extends JsonApiModel>(
     modelType: ModelType<T>,
     params?: any,
     id?: string,
@@ -187,7 +187,7 @@ export class JsonApiDatastore {
     return queryParams ? `${url}?${queryParams}` : url;
   }
 
-  private getRelationships(data: any): any {
+  protected getRelationships(data: any): any {
     let relationships: any;
 
     for (const key in data) {
@@ -217,14 +217,14 @@ export class JsonApiDatastore {
     return relationships;
   }
 
-  private isValidToManyRelation(objects: Array<any>): boolean {
+  protected isValidToManyRelation(objects: Array<any>): boolean {
     const isJsonApiModel = objects.every((item) => item instanceof JsonApiModel);
     const relationshipType: string = isJsonApiModel ? objects[0].modelConfig.type : '';
 
     return isJsonApiModel ? objects.every((item: JsonApiModel) => item.modelConfig.type === relationshipType) : false;
   }
 
-  private buildSingleRelationshipData(model: JsonApiModel): any {
+  protected buildSingleRelationshipData(model: JsonApiModel): any {
     const relationshipType: string = model.modelConfig.type;
     const relationShipData: { type: string, id?: string, attributes?: any } = { type: relationshipType };
 
@@ -238,7 +238,7 @@ export class JsonApiDatastore {
     return relationShipData;
   }
 
-  private extractQueryData<T extends JsonApiModel>(
+  protected extractQueryData<T extends JsonApiModel>(
     res: any,
     modelType: ModelType<T>,
     withMeta = false
@@ -265,12 +265,12 @@ export class JsonApiDatastore {
     }
   }
 
-  private deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
+  protected deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
     data.attributes = this.transformSerializedNamesToPropertyNames(modelType, data.attributes);
     return new modelType(this, data);
   }
 
-  private extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
+  protected extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
     const body: any = res.json();
 
     if (!body) {
@@ -319,7 +319,7 @@ export class JsonApiDatastore {
     return new metaModel(body);
   }
 
-  private getOptions(customHeaders?: Headers): RequestOptions {
+  protected getOptions(customHeaders?: Headers): RequestOptions {
     const requestHeaders = new Headers();
 
     requestHeaders.set('Accept', 'application/vnd.api+json');
@@ -361,7 +361,7 @@ export class JsonApiDatastore {
     }
   }
 
-  private resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
+  protected resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
     // TODO check why is attributesMetadata from the arguments never used
     // tslint:disable-next-line:no-param-reassign
     attributesMetadata = res[AttributeMetadata];
@@ -380,7 +380,7 @@ export class JsonApiDatastore {
     return res;
   }
 
-  private updateRelationships(model: JsonApiModel, relationships: any): JsonApiModel {
+  protected updateRelationships(model: JsonApiModel, relationships: any): JsonApiModel {
     const modelsTypes: any = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).models;
 
     for (const relationship in relationships) {
@@ -408,12 +408,12 @@ export class JsonApiDatastore {
     return model;
   }
 
-  private get datastoreConfig(): DatastoreConfig {
+  protected get datastoreConfig(): DatastoreConfig {
     const configFromDecorator: DatastoreConfig = Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor);
     return Object.assign(configFromDecorator, this.config);
   }
 
-  private transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
+  protected transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
     
@@ -426,7 +426,7 @@ export class JsonApiDatastore {
     return properties;
   }
 
-  private getModelPropertyNames(model: JsonApiModel) {
+  protected getModelPropertyNames(model: JsonApiModel) {
     return Reflect.getMetadata('AttributeMapping', model);
   }
 }
