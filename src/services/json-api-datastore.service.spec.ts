@@ -312,7 +312,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.method).toEqual(RequestMethod.Post);
         const obj = c.request.json().data;
         expect(obj.attributes.name).toEqual(AUTHOR_NAME);
-        expect(obj.attributes.dob).toEqual(format(parse(AUTHOR_BIRTH), 'YYYY-MM-DDTHH:mm:ss[Z]'));
+        expect(obj.attributes.dob).toEqual(format(parse(AUTHOR_BIRTH), 'YYYY-MM-DDTHH:mm:ssZ'));
         expect(obj.id).toBeUndefined();
         expect(obj.type).toBe('authors');
         expect(obj.relationships).toBeUndefined();
@@ -442,7 +442,7 @@ describe('JsonApiDatastore', () => {
         expect(c.request.method).toEqual(RequestMethod.Patch);
         const obj = c.request.json().data;
         expect(obj.attributes.name).toEqual('Rowling');
-        expect(obj.attributes.dob).toEqual(format(parse('1965-07-31'), 'YYYY-MM-DDTHH:mm:ss[Z]'));
+        expect(obj.attributes.dob).toEqual(format(parse('1965-07-31'), 'YYYY-MM-DDTHH:mm:ssZ'));
         expect(obj.id).toBe(AUTHOR_ID);
         expect(obj.type).toBe('authors');
         expect(obj.relationships).toBeUndefined();
