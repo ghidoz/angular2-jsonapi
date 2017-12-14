@@ -7,6 +7,6 @@ export class DateConverter implements PropertyConverter {
   }
 
   unmask(value: any) {
-    return format(value, 'YYYY-MM-DDTHH:mm:ss[Z]');
+    return format(value, 'YYYY-MM-DDTHH:mm:ssZ');
   }
 }
