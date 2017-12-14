@@ -126,10 +126,6 @@ export class JsonApiDatastore {
 
     return httpCall
       .map((res) => res.status === 201 ? this.extractRecordData(res, modelType, model) : model)
-      .catch((error) => {
-        console.error(error);
-        return Observable.of(model);
-      })
       .map((res) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
       .map((res) => this.updateRelationships(res, relationships))
       .catch((res) => this.handleError(res));
