@@ -134,7 +134,7 @@ export class Post extends JsonApiModel {
     @Attribute()
     content: string;
 
-    @Attribute('created-at')
+    @Attribute({ serializedName: 'created-at' })
     createdAt: Date;
 
     @HasMany()
