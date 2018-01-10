@@ -186,7 +186,7 @@ getPosts(){
     this.datastore.findAll(Post, {
         page: { size: 10, number: 1}
     }).subscribe(
-        (posts: Post[]) => console.log(posts)
+        (posts: JsonApiQueryData<Post>) => console.log(posts.getModels())
     );
 }
 ```
