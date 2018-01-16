@@ -1,3 +1,17 @@
+# [4.0.3] (2018-01-16)
+
+### Features
+
+* Update peer dependencies to support Angular v5
+
+# [4.0.2] (2017-11-06)
+
+### Bug fixes
+
+* Fix date timezone
+* Fix falsy attributes mapping
+* Tweak methods visibility
+
 # [4.0.1] (2017-11-06)
 
 ### Bug fixes
