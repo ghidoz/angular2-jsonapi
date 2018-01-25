@@ -28,6 +28,7 @@ A lightweight Angular 2 adapter for [JSON API](http://jsonapi.org/)
     - [Error handling](#error-handling)
     - [Dates](#dates)
 - [Development](#development)
+- [Additional tools](#additional-tools)
 - [License](#licence)
 
 ## Introduction
@@ -540,6 +541,9 @@ To lint all `*.ts` files:
 ```bash
 $ npm run lint
 ```
+
+## Additional tools 
+* Gem for generating the model definitions based on active model serializers: https://github.com/oncore-education/jsonapi_models 
 
 ## Thanks
 
