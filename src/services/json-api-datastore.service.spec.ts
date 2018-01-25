@@ -108,10 +108,10 @@ describe('JsonApiDatastore', () => {
       backend.connections.subscribe((c: MockConnection) => {
         expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}`);
         expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/` + 'authors?' +
-            encodeURIComponent('page[size]') + '=10&' +
-            encodeURIComponent('page[number]') + '=1&' +
-            encodeURIComponent('include') + '=comments&' +
-            encodeURIComponent('filter[title][keyword]') + '=Tolkien');
+          encodeURIComponent('page[size]') + '=10&' +
+          encodeURIComponent('page[number]') + '=1&' +
+          encodeURIComponent('include') + '=comments&' +
+          encodeURIComponent('filter[title][keyword]') + '=Tolkien');
         expect(c.request.method).toEqual(RequestMethod.Get);
       });
       datastore.query(Author, {
@@ -458,6 +458,25 @@ describe('JsonApiDatastore', () => {
       author.name = 'Rowling';
       author.date_of_birth = parse('1965-07-31');
       author.save().subscribe();
+    });
+
+    it('should remove the relationship', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        const obj = c.request.json().data;
+        expect(obj.relationships.author.data).toBeNull();
+      });
+
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+      book.author = new Author(datastore, {
+        id: AUTHOR_ID
+      });
+
+      book.author = null;
+
+      book.save().subscribe();
+
     });
   });
 });

@@ -99,7 +99,7 @@ describe('JsonApiModel', () => {
         author.books.forEach((book: Book, index: number) => {
           expect(book.author).toBeDefined();
           expect(book.author).toEqual(author);
-          expect(book.author.books[index]).toEqual(author.books[index]);
+          expect(book.author!.books[index]).toEqual(author.books[index]);
         });
 
       });

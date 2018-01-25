@@ -29,6 +29,5 @@ export class Book extends JsonApiModel {
   @BelongsTo()
   firstChapter: Chapter;
 
-  @BelongsTo()
-  author: Author;
+  @BelongsTo()  author: Author | null;
 }

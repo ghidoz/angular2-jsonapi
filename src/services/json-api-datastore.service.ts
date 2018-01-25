@@ -15,7 +15,7 @@ import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { AttributeMetadata } from '../constants/symbols';
 
-export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
+export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; [key: string]: any };
 
 @Injectable()
 export class JsonApiDatastore {
@@ -23,8 +23,8 @@ export class JsonApiDatastore {
   private _headers: Headers;
   // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-  private toQueryString: Function = this.datastoreConfig.overrides 
-    && this.datastoreConfig.overrides.toQueryString ? 
+  private toQueryString: Function = this.datastoreConfig.overrides
+    && this.datastoreConfig.overrides.toQueryString ?
       this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   // tslint:enable:max-line-length
 
@@ -199,14 +199,15 @@ export class JsonApiDatastore {
     return queryParams ? `${url}?${queryParams}` : url;
   }
 
-  protected getRelationships(data: any): any {
+  protected getRelationships<T extends JsonApiModel>(model: T): any {
     let relationships: any;
+    const data = <any>model;
 
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
           relationships = relationships || {};
-          
+
           if (data[key].id) {
             relationships[key] = {
               data: this.buildSingleRelationshipData(data[key])
@@ -226,7 +227,22 @@ export class JsonApiDatastore {
       }
     }
 
+    this.relationsToBeDeleted(model).forEach((toDelete) => {
+      relationships = relationships || {};
+      relationships[toDelete] = { data: null };
+    });
+
     return relationships;
+  }
+
+  private relationsToBeDeleted<T extends JsonApiModel>(model: T | {[key: string]: any}) {
+    const belongsToMetadata: [{propertyName: string, relationship: string}] = Reflect.getMetadata('BelongsTo', model);
+    if (belongsToMetadata == null) {
+      return [];
+    }
+    return belongsToMetadata.filter((entity) => model.hasOwnProperty(entity.propertyName))
+      .filter((entity) => model[entity.propertyName] === null)
+      .map((entity) => entity.relationship);
   }
 
   protected isValidToManyRelation(objects: Array<any>): boolean {
@@ -238,17 +254,18 @@ export class JsonApiDatastore {
 
   protected buildSingleRelationshipData(model: JsonApiModel): any {
     const relationshipType: string = model.modelConfig.type;
-    const relationShipData: { type: string, id?: string, attributes?: any } = { type: relationshipType };
+    const relationshipData: { type: string, id?: string, attributes?: any } = { type: relationshipType };
 
     if (model.id) {
-      relationShipData.id = model.id;
+      relationshipData.id = model.id;
     } else {
       const attributesMetadata: any = Reflect.getMetadata('Attribute', model);
-      relationShipData.attributes = this.getDirtyAttributes(attributesMetadata, model);
+      relationshipData.attributes = this.getDirtyAttributes(attributesMetadata, model);
     }
 
-    return relationShipData;
+    return relationshipData;
   }
+
 
   protected extractQueryData<T extends JsonApiModel>(
     res: any,
@@ -398,7 +415,7 @@ export class JsonApiDatastore {
 
         if (propertyHasMany) {
           relationshipModel[propertyHasMany.propertyName] = relationshipModel[propertyHasMany.propertyName] || [];
-          
+
           const indexOfModel = relationshipModel[propertyHasMany.propertyName].indexOf(model);
 
           if (indexOfModel === -1) {
@@ -421,7 +438,7 @@ export class JsonApiDatastore {
   protected transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
-    
+
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
       if (attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
@@ -434,4 +451,6 @@ export class JsonApiDatastore {
   protected getModelPropertyNames(model: JsonApiModel) {
     return Reflect.getMetadata('AttributeMapping', model);
   }
+
+
 }
