@@ -27,7 +27,16 @@ export class JsonApiDatastore {
     && this.datastoreConfig.overrides.toQueryString ? 
       this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   // tslint:enable:max-line-length
-  
+
+  private get getDirtyAttributes() {
+    if (this.datastoreConfig.overrides
+    && this.datastoreConfig.overrides.getDirtyAttributes) {
+      return this.datastoreConfig.overrides.getDirtyAttributes;
+    } else {
+      return JsonApiDatastore.getDirtyAttributes;
+    }
+  }
+
   protected config: DatastoreConfig;
 
   constructor(protected http: Http) {}
@@ -79,7 +88,7 @@ export class JsonApiDatastore {
     return new modelType(this, { attributes: data });
   }
 
-  private getDirtyAttributes(attributesMetadata: any): { string: any} {
+  private static getDirtyAttributes(attributesMetadata: any): { string: any} {
     const dirtyData: any = {};
 
     for (const propertyName in attributesMetadata) {
@@ -235,7 +244,7 @@ export class JsonApiDatastore {
       relationShipData.id = model.id;
     } else {
       const attributesMetadata: any = Reflect.getMetadata('Attribute', model);
-      relationShipData.attributes = this.getDirtyAttributes(attributesMetadata);
+      relationShipData.attributes = this.getDirtyAttributes(attributesMetadata, model);
     }
 
     return relationShipData;
