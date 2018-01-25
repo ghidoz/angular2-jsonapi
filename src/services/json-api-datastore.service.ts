@@ -115,7 +115,7 @@ export class JsonApiDatastore {
         relationships,
         type: typeName,
         id: model.id,
-        attributes: this.getDirtyAttributes(attributesMetadata)
+        attributes: this.getDirtyAttributes(attributesMetadata, model)
       }
     };
 
