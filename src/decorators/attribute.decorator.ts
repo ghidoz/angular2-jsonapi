@@ -22,9 +22,8 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
       if (attrConverter) {
         if (!forSerialisation) {
           return attrConverter.mask(value);
-        } else {
-          return attrConverter.unmask(value);
         }
+        return attrConverter.unmask(value);
       }
 
       return value;
