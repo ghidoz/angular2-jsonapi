@@ -135,7 +135,7 @@ export class JsonApiDatastore {
     }
 
     return httpCall
-      .map((res) => [200, 201].includes(res.status) ? this.extractRecordData(res, modelType, model) : model)
+      .map((res) => [200, 201].indexOf(res.status) !== -1 ? this.extractRecordData(res, modelType, model) : model)
       .catch((res) => {
         if (res == null) {
           return Observable.of(model);
