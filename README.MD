@@ -185,7 +185,10 @@ constructor(private datastore: Datastore) { }
 
 getPosts(){
     this.datastore.findAll(Post, {
-        page: { size: 10, number: 1}
+        page: { size: 10, number: 1 },
+        filter: {
+          title: 'My Post',
+        },
     }).subscribe(
         (posts: JsonApiQueryData<Post>) => console.log(posts.getModels())
     );
