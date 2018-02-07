@@ -288,7 +288,7 @@ export class JsonApiDatastore {
       throw new Error('no body in response');
     }
 
-    if (body.data) {
+    if (!body.data) {
       if (!model) {
         throw new Error('expected data in response');
       }
