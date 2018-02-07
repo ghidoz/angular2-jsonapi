@@ -338,7 +338,7 @@ this.datastore.findRecord(Post, '1', {
 
 The library will try to resolve relationships on infinite levels connecting nested objects by reference. So that you can have a `Post`, with a list of `Comment`s, that have a `User` that has `Post`s, that have `Comment`s... etc.
 
-**Note**: If you `include` multiple relationships, do not use whitespace in the `include` string (e.g. `comments, comments.user`) as those will be encoded to `%20` and result in a broken URL.
+**Note**: If you `include` multiple relationships, **do not** use whitespaces in the `include` string (e.g. `comments, comments.user`) as those will be encoded to `%20` and this results in a broken URL.
 
 #### Creating Records
 
