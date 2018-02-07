@@ -135,7 +135,7 @@ export class JsonApiDatastore {
     }
 
     return httpCall
-      .map((res) => res.status === 201 ? this.extractRecordData(res, modelType, model) : model)
+      .map((res) => [200, 201].includes(res.status) ? this.extractRecordData(res, modelType, model) : model)
       .catch((res) => {
         if (res == null) {
           return Observable.of(model);
@@ -286,6 +286,10 @@ export class JsonApiDatastore {
 
     if (!body) {
       throw new Error('no body in response');
+    }
+    
+    if (!body.data) {
+      return model
     }
 
     if (model) {
