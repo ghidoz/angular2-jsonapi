@@ -289,7 +289,7 @@ export class JsonApiDatastore {
     }
     
     if (!body.data) {
-      return model
+      return model;
     }
 
     if (model) {
