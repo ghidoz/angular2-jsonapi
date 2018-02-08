@@ -289,7 +289,7 @@ export class JsonApiDatastore {
     }
 
     if (!body.data) {
-      if (!model) {
+      if (res.status === 201 || !model) {
         throw new Error('expected data in response');
       }
       return model;
