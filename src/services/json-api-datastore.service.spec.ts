@@ -457,7 +457,71 @@ describe('JsonApiDatastore', () => {
   });
 
   describe('updateRecord', () => {
-    it('should update author', () => {
+    it('should update author with 200 response (no data)', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}/authors`);
+        expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors/1`);
+        expect(c.request.method).toEqual(RequestMethod.Patch);
+        const obj = c.request.json().data;
+        expect(obj.attributes.name).toEqual('Rowling');
+        expect(obj.attributes.dob).toEqual(format(parse('1965-07-31'), 'YYYY-MM-DDTHH:mm:ssZ'));
+        expect(obj.id).toBe(AUTHOR_ID);
+        expect(obj.type).toBe('authors');
+        expect(obj.relationships).toBeUndefined();
+        c.mockRespond(new Response(new ResponseOptions({ status: 200, body: {} })));
+      });
+      const author = new Author(datastore, {
+        id: AUTHOR_ID,
+        attributes: {
+          date_of_birth: parse(AUTHOR_BIRTH),
+          name: AUTHOR_NAME
+        }
+      });
+      author.name = 'Rowling';
+      author.date_of_birth = parse('1965-07-31');
+      author.save().subscribe((val) => {
+        expect(val.name).toEqual(author.name);
+      });
+    });
+
+    it('should update author with 204 response', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}/authors`);
+        expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors/1`);
+        expect(c.request.method).toEqual(RequestMethod.Patch);
+        const obj = c.request.json().data;
+        expect(obj.attributes.name).toEqual('Rowling');
+        expect(obj.attributes.dob).toEqual(format(parse('1965-07-31'), 'YYYY-MM-DDTHH:mm:ssZ'));
+        expect(obj.id).toBe(AUTHOR_ID);
+        expect(obj.type).toBe('authors');
+        expect(obj.relationships).toBeUndefined();
+        c.mockRespond(new Response(new ResponseOptions({ status: 204 })));
+      });
+      const author = new Author(datastore, {
+        id: AUTHOR_ID,
+        attributes: {
+          date_of_birth: parse(AUTHOR_BIRTH),
+          name: AUTHOR_NAME
+        }
+      });
+      author.name = 'Rowling';
+      author.date_of_birth = parse('1965-07-31');
+      author.save().subscribe((val) => {
+        expect(val.name).toEqual(author.name);
+      });
+    });
+
+    it('should integrate server updates on 200 response', () => {
+      const author = new Author(datastore, {
+        id: AUTHOR_ID,
+        attributes: {
+          date_of_birth: parse(AUTHOR_BIRTH),
+          name: AUTHOR_NAME
+        }
+      });
+      author.name = 'Rowling';
+      author.date_of_birth = parse('1965-07-31');
+
       backend.connections.subscribe((c: MockConnection) => {
         expect(c.request.url).not.toEqual(`${BASE_URL}/${API_VERSION}/authors`);
         expect(c.request.url).toEqual(`${BASE_URL}/${API_VERSION}/authors/1`);
@@ -469,17 +533,22 @@ describe('JsonApiDatastore', () => {
         expect(obj.type).toBe('authors');
         expect(obj.relationships).toBeUndefined();
 
+        c.mockRespond(new Response(new ResponseOptions({
+          status: 200,
+          body: {
+            data: {
+              id: obj.id,
+              type: obj.type,
+              attributes: {
+                name: 'Potter',
+              }
+            }
+          }
+        })));
       });
-      const author = new Author(datastore, {
-        id: AUTHOR_ID,
-        attributes: {
-          date_of_birth: parse(AUTHOR_BIRTH),
-          name: AUTHOR_NAME
-        }
+      author.save().subscribe((val) => {
+        expect(val.name).toEqual('Potter');
       });
-      author.name = 'Rowling';
-      author.date_of_birth = parse('1965-07-31');
-      author.save().subscribe();
     });
   });
 });
