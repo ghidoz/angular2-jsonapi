@@ -43,8 +43,16 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['ChromeHeadless'],
-    singleRun: true
+    browsers: ['ChromeHeadlessNoSandbox'],
+    singleRun: true,
+    customLaunchers: {
+      // We can't use the sandbox in container so we disable it.
+      // See https://github.com/travis-ci/travis-ci/issues/8836#issuecomment-359018652
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    }
   };
 
   config.set(_config);
