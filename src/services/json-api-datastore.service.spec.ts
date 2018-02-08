@@ -342,6 +342,28 @@ describe('JsonApiDatastore', () => {
       });
     });
 
+    it('should throw error on new author with 201 response but no body', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        expect(c.request.method).toEqual(RequestMethod.Post);
+        c.mockRespond(new Response(new ResponseOptions({ status: 201 })));
+      });
+      const author = datastore.createRecord(Author, {
+        name: AUTHOR_NAME
+      });
+      expect(() => author.save().subscribe()).toThrow(new Error('no body in response'));
+    });
+
+    it('should throw error on new author with 201 response but no data', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        expect(c.request.method).toEqual(RequestMethod.Post);
+        c.mockRespond(new Response(new ResponseOptions({ status: 201, body: {} })));
+      });
+      const author = datastore.createRecord(Author, {
+        name: AUTHOR_NAME
+      });
+      expect(() => author.save().subscribe()).toThrow(new Error('expected data in response'));
+    });
+
     it('should create new author with 204 response', () => {
       backend.connections.subscribe((c: MockConnection) => {
         expect(c.request.method).toEqual(RequestMethod.Post);
