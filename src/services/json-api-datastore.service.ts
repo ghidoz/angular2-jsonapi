@@ -23,8 +23,8 @@ export class JsonApiDatastore {
   private _headers: Headers;
   // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
-  private toQueryString: Function = this.datastoreConfig.overrides 
-    && this.datastoreConfig.overrides.toQueryString ? 
+  private toQueryString: Function = this.datastoreConfig.overrides
+    && this.datastoreConfig.overrides.toQueryString ?
       this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   // tslint:enable:max-line-length
 
@@ -135,7 +135,7 @@ export class JsonApiDatastore {
     }
 
     return httpCall
-      .map((res) => res.status === 201 ? this.extractRecordData(res, modelType, model) : model)
+      .map((res) => [200, 201].indexOf(res.status) !== -1 ? this.extractRecordData(res, modelType, model) : model)
       .catch((res) => {
         if (res == null) {
           return Observable.of(model);
@@ -206,7 +206,7 @@ export class JsonApiDatastore {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
           relationships = relationships || {};
-          
+
           if (data[key].id) {
             relationships[key] = {
               data: this.buildSingleRelationshipData(data[key])
@@ -286,6 +286,13 @@ export class JsonApiDatastore {
 
     if (!body) {
       throw new Error('no body in response');
+    }
+
+    if (!body.data) {
+      if (res.status === 201 || !model) {
+        throw new Error('expected data in response');
+      }
+      return model;
     }
 
     if (model) {
@@ -398,7 +405,7 @@ export class JsonApiDatastore {
 
         if (propertyHasMany) {
           relationshipModel[propertyHasMany.propertyName] = relationshipModel[propertyHasMany.propertyName] || [];
-          
+
           const indexOfModel = relationshipModel[propertyHasMany.propertyName].indexOf(model);
 
           if (indexOfModel === -1) {
@@ -421,7 +428,7 @@ export class JsonApiDatastore {
   protected transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
-    
+
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
       if (attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
