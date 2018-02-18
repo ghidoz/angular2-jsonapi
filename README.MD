@@ -190,7 +190,7 @@ getPosts(){
           title: 'My Post',
         },
     }).subscribe(
-        (posts: JsonApiCollection<Post>) => console.log(posts.getModels())
+        (posts: JsonApiQueryData<Post>) => console.log(posts.getModels())
     );
 }
 ```

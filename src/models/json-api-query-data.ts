@@ -1,4 +1,4 @@
-export class JsonApiDocument<T> {
+export class JsonApiQueryData<T> {
   constructor(protected data: Array<T> | T, protected meta?: any) {}
 
   public getModels() : T[] {
