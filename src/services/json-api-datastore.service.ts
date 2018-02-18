@@ -9,7 +9,7 @@ import 'rxjs/add/observable/throw';
 import 'rxjs/add/observable/of';
 import { JsonApiModel } from '../models/json-api.model';
 import { ErrorResponse } from '../models/error-response.model';
-import { JsonApiQueryData } from '../models/json-api-query-data';
+import { JsonApiDocument } from '../models/json-api-document';
 import * as qs from 'qs';
 import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
@@ -60,7 +60,7 @@ export class JsonApiDatastore {
     params?: any,
     headers?: Headers,
     customUrl?: string
-  ): Observable<JsonApiQueryData<T>> {
+  ): Observable<JsonApiDocument<T>> {
     const options: RequestOptions = this.getOptions(headers);
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
 
@@ -254,7 +254,7 @@ export class JsonApiDatastore {
     res: any,
     modelType: ModelType<T>,
     withMeta = false
-  ): T[] | JsonApiQueryData<T> {
+  ): T[] | JsonApiDocument<T> {
     const body: any = res.json();
     const models: T[] = [];
 
@@ -271,7 +271,7 @@ export class JsonApiDatastore {
     });
 
     if (withMeta && withMeta === true) {
-      return new JsonApiQueryData(models, this.parseMeta(body, modelType));
+      return new JsonApiDocument(models, this.parseMeta(body, modelType));
     }
     return models;
   }
