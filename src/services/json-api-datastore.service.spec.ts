@@ -294,6 +294,30 @@ describe('JsonApiDatastore', () => {
       });
     });
 
+    it('should get author with custom metadata', () => {
+      backend.connections.subscribe((c: MockConnection) => {
+        c.mockRespond(new Response(
+          new ResponseOptions({
+            body: JSON.stringify({
+              data: getAuthorData(),
+              meta: {
+                dates: {
+                  generatedAt: 1518950882
+                }
+              }
+            })
+          })
+        ));
+      });
+
+      datastore.findOne(Author, '1').subscribe((document) => {
+        expect(document.getModel()).toBeDefined();
+        expect(document.getModel().id).toBe(AUTHOR_ID);
+        expect(document.getModel().date_of_birth).toEqual(parse(AUTHOR_BIRTH));
+        expect(document.getMeta().meta.dates.generatedAt).toEqual(1518950882);
+      });
+    });
+
     it('should generate correct query string for array params with findRecord', () => {
       backend.connections.subscribe((c: MockConnection) => {
         const decodedQueryString = decodeURI(c.request.url).split('?')[1];
