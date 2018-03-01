@@ -159,7 +159,7 @@ export class JsonApiModel {
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-        if (level <= 1) {
+        if (level <= 2) {
           newObject.syncRelationships(relationshipData, included, level + 1);
         }
         relationshipList.push(newObject);
@@ -182,7 +182,7 @@ export class JsonApiModel {
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-      if (level <= 1) {
+      if (level <= 2) {
         newObject.syncRelationships(relationshipData, included, level + 1);
       }
 

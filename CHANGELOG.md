@@ -1,3 +1,9 @@
+# [4.1.0] (2018-03-01)
+
+### Bug fixes
+
+  * Fix creating nested models passed through included property
+
 # [4.0.3] (2018-01-16)
 
 ### Features
