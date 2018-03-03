@@ -69,6 +69,19 @@ export class JsonApiDatastore {
       .catch((res: any) => this.handleError(res));
   }
 
+  private fetchRecord<T extends JsonApiModel>(
+    modelType: ModelType<T>,
+    id: string,
+    params?: any,
+    headers?: Headers,
+    customUrl?: string,
+  ): Observable<Response> {
+    const options: RequestOptions = this.getOptions(headers);
+    const url: string = this.buildUrl(modelType, params, id, customUrl);
+
+    return this.http.get(url, options);
+  }
+
   findOne<T extends JsonApiModel>(
     modelType: ModelType<T>,
     id: string,
@@ -76,12 +89,9 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
-    const options: RequestOptions = this.getOptions(headers);
-    const url: string = this.buildUrl(modelType, params, id, customUrl);
-
-    return this.http.get(url, options)
-      .map((res) => this.extractRecordData(res, modelType, true))
-      .catch((res: any) => this.handleError(res));
+    return this.fetchRecord(modelType, id, params, headers, customUrl)
+        .map((res) => this.extractRecordData(res, modelType, true))
+        .catch((res: any) => this.handleError(res));
   }
 
   findRecord<T extends JsonApiModel>(
@@ -91,10 +101,7 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<T> {
-    const options: RequestOptions = this.getOptions(headers);
-    const url: string = this.buildUrl(modelType, params, id, customUrl);
-
-    return this.http.get(url, options)
+    return this.fetchRecord(modelType, id, params, headers, customUrl)
       .map((res) => this.extractRecordData(res, modelType))
       .catch((res: any) => this.handleError(res));
   }
