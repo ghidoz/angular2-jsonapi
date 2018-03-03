@@ -203,8 +203,14 @@ let posts = this.datastore.peekAll(Post);
 
 
 #### Retrieving a Single Record
+Use `findOne()` to retrieve a record by its type and ID including metadata:
+```typescript
+this.datastore.findOne(Post, '1').subscribe(
+    (post: JsonApiQueryData<Post>) => console.log(post.getModel())
+);
+```
 
-Use `findRecord()` to retrieve a record by its type and ID:
+If you dont need Metadata you can use `findRecord()` to retrieve a record by its type and ID:
 
 ```typescript
 this.datastore.findRecord(Post, '1').subscribe(

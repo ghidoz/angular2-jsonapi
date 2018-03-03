@@ -69,6 +69,31 @@ export class JsonApiDatastore {
       .catch((res: any) => this.handleError(res));
   }
 
+  private fetchRecord<T extends JsonApiModel>(
+    modelType: ModelType<T>,
+    id: string,
+    params?: any,
+    headers?: Headers,
+    customUrl?: string,
+  ): Observable<Response> {
+    const options: RequestOptions = this.getOptions(headers);
+    const url: string = this.buildUrl(modelType, params, id, customUrl);
+
+    return this.http.get(url, options);
+  }
+
+  findOne<T extends JsonApiModel>(
+    modelType: ModelType<T>,
+    id: string,
+    params?: any,
+    headers?: Headers,
+    customUrl?: string
+  ): Observable<JsonApiQueryData<T>> {
+    return this.fetchRecord(modelType, id, params, headers, customUrl)
+        .map((res) => this.extractRecordData(res, modelType, true))
+        .catch((res: any) => this.handleError(res));
+  }
+
   findRecord<T extends JsonApiModel>(
     modelType: ModelType<T>,
     id: string,
@@ -76,10 +101,7 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<T> {
-    const options: RequestOptions = this.getOptions(headers);
-    const url: string = this.buildUrl(modelType, params, id, customUrl);
-
-    return this.http.get(url, options)
+    return this.fetchRecord(modelType, id, params, headers, customUrl)
       .map((res) => this.extractRecordData(res, modelType))
       .catch((res: any) => this.handleError(res));
   }
@@ -135,7 +157,11 @@ export class JsonApiDatastore {
     }
 
     return httpCall
-      .map((res) => [200, 201].indexOf(res.status) !== -1 ? this.extractRecordData(res, modelType, model) : model)
+      .map(
+          (res) => [200, 201].indexOf(res.status) !== -1
+              ? this.extractRecordData(res, modelType, false, model)
+              : model
+      )
       .catch((res) => {
         if (res == null) {
           return Observable.of(model);
@@ -281,7 +307,12 @@ export class JsonApiDatastore {
     return new modelType(this, data);
   }
 
-  protected extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
+  protected extractRecordData<T extends JsonApiModel>(
+      res: Response,
+      modelType: ModelType<T>,
+      withMeta = false,
+      model?: T
+  ): T | JsonApiQueryData<T> {
     const body: any = res.json();
 
     if (!body) {
@@ -305,6 +336,10 @@ export class JsonApiDatastore {
     if (body.included) {
       deserializedModel.syncRelationships(body.data, body.included, 0);
       this.addToStore(deserializedModel);
+    }
+
+    if (withMeta && withMeta === true) {
+      return new JsonApiQueryData(deserializedModel, this.parseMeta(body, modelType));
     }
 
     return deserializedModel;
