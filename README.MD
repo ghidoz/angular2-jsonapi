@@ -89,7 +89,7 @@ export class AppModule { }
 Firstly, create your `Datastore` service:
 - Extend the `JsonApiDatastore` class
 - Decorate it with `@JsonApiDatastoreConfig`, set the `baseUrl` for your APIs and map your models (Optional: you can set `apiVersion`, `baseUrl` will be suffixed with it)
-- Pass the `Http` depencency to the parent constructor.
+- Pass the `HttpClient` depencency to the parent constructor.
 
 ```typescript
 import { JsonApiDatastoreConfig, JsonApiDatastore, DatastoreConfig } from 'angular2-jsonapi';
@@ -107,7 +107,7 @@ const config: DatastoreConfig = {
 @JsonApiDatastoreConfig(config)
 export class Datastore extends JsonApiDatastore {
 
-    constructor(http: Http) {
+    constructor(http: HttpClient) {
         super(http);
     }
 
@@ -547,8 +547,8 @@ To lint all `*.ts` files:
 $ npm run lint
 ```
 
-## Additional tools 
-* Gem for generating the model definitions based on active model serializers: https://github.com/oncore-education/jsonapi_models 
+## Additional tools
+* Gem for generating the model definitions based on active model serializers: https://github.com/oncore-education/jsonapi_models
 
 ## Thanks
 
