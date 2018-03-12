@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { JsonApiDatastore, JsonApiDatastoreConfig } from '../src';
 import { Author } from './models/author.model';
 import { Book } from './models/book.model';
@@ -18,7 +18,7 @@ export const API_VERSION = 'v1';
   }
 })
 export class Datastore extends JsonApiDatastore {
-  constructor(http: Http) {
+  constructor(http: HttpClient) {
     super(http);
   }
 }
