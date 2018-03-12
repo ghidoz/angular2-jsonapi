@@ -47,7 +47,6 @@
     "@angular/compiler": "^4.4.3",
     "@angular/compiler-cli": "^4.4.3",
     "@angular/core": "^4.4.3",
-    "@angular/http": "^4.4.3",
     "@angular/platform-browser": "^4.4.3",
     "@angular/platform-browser-dynamic": "^4.4.3",
     "@angular/platform-server": "^4.4.3",
