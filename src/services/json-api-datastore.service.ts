@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, RequestOptions, Response } from '@angular/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import find from 'lodash-es/find';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
@@ -39,7 +39,7 @@ export class JsonApiDatastore {
 
   protected config: DatastoreConfig;
 
-  constructor(protected http: Http) {}
+  constructor(protected http: HttpClient) {}
 
   /** @deprecated - use findAll method to take all models **/
   query<T extends JsonApiModel>(
@@ -48,9 +48,9 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<T[]> {
-    const options: RequestOptions = this.getOptions(headers);
+    const requestHeaders: HttpHeaders = this.buildHeaders(headers);
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
-    return this.http.get(url, options)
+    return this.http.get(url, { headers: requestHeaders })
       .map((res: any) => this.extractQueryData(res, modelType))
       .catch((res: any) => this.handleError(res));
   }
@@ -61,10 +61,10 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
-    const options: RequestOptions = this.getOptions(headers);
+    const requestHeaders: HttpHeaders = this.buildHeaders(headers);
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
 
-    return this.http.get(url, options)
+    return this.http.get(url, { headers: requestHeaders })
       .map((res: any) => this.extractQueryData(res, modelType, true))
       .catch((res: any) => this.handleError(res));
   }
@@ -76,10 +76,10 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<T> {
-    const options: RequestOptions = this.getOptions(headers);
+    const requestHeaders: HttpHeaders = this.buildHeaders(headers);
     const url: string = this.buildUrl(modelType, params, id, customUrl);
 
-    return this.http.get(url, options)
+    return this.http.get(url, { headers: requestHeaders, observe: 'response' })
       .map((res) => this.extractRecordData(res, modelType))
       .catch((res: any) => this.handleError(res));
   }
@@ -114,11 +114,11 @@ export class JsonApiDatastore {
     const modelType = <ModelType<T>>model.constructor;
     const modelConfig: ModelConfig = model.modelConfig;
     const typeName: string = modelConfig.type;
-    const options: RequestOptions = this.getOptions(headers);
+    const requestHeaders: HttpHeaders = this.buildHeaders(headers);
     const relationships: any = this.getRelationships(model);
     const url: string = this.buildUrl(modelType, params, model.id, customUrl);
 
-    let httpCall: Observable<Response>;
+    let httpCall: Observable<HttpResponse<Object>>;
     const body: any = {
       data: {
         relationships,
@@ -129,9 +129,9 @@ export class JsonApiDatastore {
     };
 
     if (model.id) {
-      httpCall = this.http.patch(url, body, options);
+      httpCall = this.http.patch(url, body, { headers: requestHeaders, observe: 'response' });
     } else {
-      httpCall = this.http.post(url, body, options);
+      httpCall = this.http.post(url, body, { headers: requestHeaders, observe: 'response' });
     }
 
     return httpCall
@@ -155,10 +155,10 @@ export class JsonApiDatastore {
     headers?: Headers,
     customUrl?: string
   ): Observable<Response> {
-    const options: RequestOptions = this.getOptions(headers);
+    const requestHeaders: HttpHeaders = this.buildHeaders(headers);
     const url: string = this.buildUrl(modelType, null, id, customUrl);
 
-    return this.http.delete(url, options).catch((res: any) => this.handleError(res));
+    return this.http.delete(url, { headers: requestHeaders }).catch((res: HttpErrorResponse) => this.handleError(res));
   }
 
   peekRecord<T extends JsonApiModel>(modelType: ModelType<T>, id: string): T | null {
@@ -182,6 +182,7 @@ export class JsonApiDatastore {
     id?: string,
     customUrl?: string
   ): string {
+    // TODO: use HttpParams instead of appending a string to the url
     const queryParams: string = this.toQueryString(params);
 
     if (customUrl) {
@@ -251,11 +252,10 @@ export class JsonApiDatastore {
   }
 
   protected extractQueryData<T extends JsonApiModel>(
-    res: any,
+    body: any,
     modelType: ModelType<T>,
     withMeta = false
   ): T[] | JsonApiQueryData<T> {
-    const body: any = res.json();
     const models: T[] = [];
 
     body.data.forEach((data: any) => {
@@ -281,10 +281,16 @@ export class JsonApiDatastore {
     return new modelType(this, data);
   }
 
-  protected extractRecordData<T extends JsonApiModel>(res: Response, modelType: ModelType<T>, model?: T): T {
-    const body: any = res.json();
-
-    if (!body) {
+  protected extractRecordData<T extends JsonApiModel>(
+    res: HttpResponse<Object>,
+    modelType: ModelType<T>,
+    model?: T
+  ): T {
+    const body: any = res.body;
+    // Error in Angular < 5.2.4 (see https://github.com/angular/angular/issues/20744)
+    // null is converted to 'null', so this is temporary needed to make testcase possible
+    // (and to avoid a decrease of the coverage)
+    if (!body || body === 'null') {
       throw new Error('no body in response');
     }
 
@@ -312,16 +318,15 @@ export class JsonApiDatastore {
 
   protected handleError(error: any): ErrorObservable {
 
-    try {
-      const body: any = error.json();
-
-      if (body.errors && body.errors instanceof Array) {
-        const errors: ErrorResponse = new ErrorResponse(body.errors);
-        console.error(error, errors);
-        return Observable.throw(errors);
-      }
-    } catch (e) {
-        // no valid JSON
+    if (
+      error instanceof HttpErrorResponse &&
+      error.error instanceof Object &&
+      error.error.errors &&
+      error.error.errors instanceof Array
+    ) {
+      const errors: ErrorResponse = new ErrorResponse(error.error.errors);
+      console.error(error, errors);
+      return Observable.throw(errors);
     }
 
     console.error(error);
@@ -333,15 +338,23 @@ export class JsonApiDatastore {
     return new metaModel(body);
   }
 
-  protected getOptions(customHeaders?: Headers): RequestOptions {
-    const requestHeaders = new Headers();
+  /** @deprecated - use buildHeaders method to build request headers **/
+  protected getOptions(customHeaders?: Headers): any {
+    return {
+      headers: this.buildHeaders(customHeaders),
+    };
+  }
 
-    requestHeaders.set('Accept', 'application/vnd.api+json');
-    requestHeaders.set('Content-Type', 'application/vnd.api+json');
+  protected buildHeaders(customHeaders?: Headers): HttpHeaders {
+    const requestHeaders: any = {
+      Accept: 'application/vnd.api+json',
+      'Content-Type': 'application/vnd.api+json'
+    };
+
     if (this._headers) {
       this._headers.forEach((values, name) => {
         if (name !== undefined) {
-          requestHeaders.set(name, values);
+          requestHeaders[name] = values;
         }
       });
     }
@@ -349,12 +362,12 @@ export class JsonApiDatastore {
     if (customHeaders) {
       customHeaders.forEach((values, name) => {
         if (name !== undefined) {
-          requestHeaders.set(name, values);
+          requestHeaders[name] = values;
         }
       });
     }
 
-    return new RequestOptions({ headers: requestHeaders });
+    return new HttpHeaders(requestHeaders);
   }
 
   private _toQueryString(params: any): string {
