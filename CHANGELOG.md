@@ -1,3 +1,9 @@
+# [5.0.0] (2018-11-04)
+
+### BREAKING CHANGES
+
+  * Replace HttpModule with HttpClientModule
+
 # [4.1.0] (2018-03-01)
 
 ### Bug fixes
