@@ -1,3 +1,5 @@
+export type MetaModelType<T> = { new(response: any): T; };
+
 export class JsonApiMetaModel {
   public links: Array<any>;
   public meta: any;
