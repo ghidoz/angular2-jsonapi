@@ -32,9 +32,8 @@ export class JsonApiDatastore {
     if (this.datastoreConfig.overrides
     && this.datastoreConfig.overrides.getDirtyAttributes) {
       return this.datastoreConfig.overrides.getDirtyAttributes;
-    } else {
-      return JsonApiDatastore.getDirtyAttributes;
     }
+    return JsonApiDatastore.getDirtyAttributes;
   }
 
   protected config: DatastoreConfig;
@@ -316,7 +315,7 @@ export class JsonApiDatastore {
     return deserializedModel;
   }
 
-  protected handleError(error: any): ErrorObservable {
+  protected handleError(error: any): ErrorObservable<any> {
 
     if (
       error instanceof HttpErrorResponse &&
