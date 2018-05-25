@@ -198,9 +198,33 @@ export class JsonApiModel {
       return peek;
     }
 
-    const newObject: T = new modelType(this._datastore, data);
+    const newObject: T = this._datastore.deserializeModel(modelType, data);
     this._datastore.addToStore(newObject);
 
     return newObject;
   }
+
+  // public static deserialize<T extends JsonApiModel>(modelType: ModelType<T>, data: any, datastore: JsonApiDatastore) {
+  //   console.log('JsonApiModel.deserialize');
+  //   data.attributes = JsonApiModel.transformSerializedNamesToPropertyNames(modelType, data.attributes);
+  //   return new modelType(datastore, data);
+  // }
+  //
+  // // tslint:disable-next-line:max-line-length
+  // protected static transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
+  //   const serializedNameToPropertyName = JsonApiModel.getModelPropertyNames(modelType.prototype);
+  //   const properties: any = {};
+  //
+  //   Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
+  //     if (attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
+  //       properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
+  //     }
+  //   });
+  //
+  //   return properties;
+  // }
+  //
+  // protected static getModelPropertyNames(model: JsonApiModel) {
+  //   return Reflect.getMetadata('AttributeMapping', model);
+  // }
 }
