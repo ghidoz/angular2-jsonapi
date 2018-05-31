@@ -4,7 +4,6 @@ npm-debug.log
 
 # TypeScript
 src/compiled
-/dist
 
 # JetBrains
 .idea
