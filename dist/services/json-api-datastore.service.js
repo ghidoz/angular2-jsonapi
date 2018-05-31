@@ -343,7 +343,7 @@ var JsonApiDatastore = /** @class */ (function () {
         var serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
         var properties = {};
         Object.keys(serializedNameToPropertyName).forEach(function (serializedName) {
-            if (attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
+            if (attributes && attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
                 properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
             }
         });
