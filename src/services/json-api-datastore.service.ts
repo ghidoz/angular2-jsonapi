@@ -201,6 +201,7 @@ export class JsonApiDatastore {
   }
 
   protected getRelationships(data: any): any {
+    const belongsToRelationships = Reflect.getMetadata('BelongsTo', data);
     let relationships: any;
 
     for (const key in data) {
@@ -223,6 +224,12 @@ export class JsonApiDatastore {
           relationships[key] = {
             data: relationshipData
           };
+        } else if (data[key] === null 
+          && !!belongsToRelationships.find((element: any) => element.relationship === key)) {
+          relationships = relationships || {};
+          relationships[key] = {
+            data: null
+          };                           	                 
         }
       }
     }
