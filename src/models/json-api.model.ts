@@ -198,7 +198,7 @@ export class JsonApiModel {
       return peek;
     }
 
-    const newObject: T = new modelType(this._datastore, data);
+    const newObject: T = this._datastore.deserializeModel(modelType, data);
     this._datastore.addToStore(newObject);
 
     return newObject;

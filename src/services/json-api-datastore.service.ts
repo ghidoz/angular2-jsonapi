@@ -276,7 +276,7 @@ export class JsonApiDatastore {
     return models;
   }
 
-  protected deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
+  public deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
     data.attributes = this.transformSerializedNamesToPropertyNames(modelType, data.attributes);
     return new modelType(this, data);
   }
