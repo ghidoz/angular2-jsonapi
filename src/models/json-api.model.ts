@@ -160,7 +160,7 @@ export class JsonApiModel {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = remainingModels.find((x) => x.id === item.id && x.type === typeName);
+      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName });
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
@@ -186,7 +186,7 @@ export class JsonApiModel {
   ): T | null {
     const id: string = data.id;
 
-    const relationshipData: any = remainingModels.find((x) => x.id === id && x.type === typeName);
+    const relationshipData: any = find(remainingModels, { id, type: typeName });
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
