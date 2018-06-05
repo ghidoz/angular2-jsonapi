@@ -18,10 +18,10 @@ export class JsonApiModel {
     }
   }
 
-  syncRelationships(data: any, included: any, level: number): void {
+  syncRelationships(data: any, included: any, level: number, remainingModels?: Array<any>): void {
     if (data) {
       this.parseHasMany(data, included, level);
-      this.parseBelongsTo(data, included, level);
+      this.parseBelongsTo(data, included);
     }
   }
 
@@ -110,7 +110,7 @@ export class JsonApiModel {
     }
   }
 
-  private parseBelongsTo(data: any, included: any, level: number): void {
+  private parseBelongsTo(data: any, included: Array<any>): void {
     const belongsTo: any = Reflect.getMetadata('BelongsTo', this);
 
     if (belongsTo) {
@@ -128,7 +128,7 @@ export class JsonApiModel {
                 dataRelationship,
                 included,
                 typeName,
-                level
+                included
               );
 
               if (relationshipModel) {
@@ -171,19 +171,20 @@ export class JsonApiModel {
   private getBelongsToRelationship<T extends JsonApiModel>(
     modelType: ModelType<T>,
     data: any,
-    included: any,
+    included: Array<any>,
     typeName: string,
-    level: number
+    remainingModels: Array<any>
   ): T | null {
     const id: string = data.id;
-    const relationshipData: any = find(included, { id, type: typeName });
+    const relationshipData: any = find(remainingModels, { id, type: typeName });
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-      if (level <= 2) {
-        newObject.syncRelationships(relationshipData, included, level + 1);
-      }
+      const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+      remainingModels.splice(indexOfNewlyFoundModel, 1);
+
+      newObject.syncRelationships(relationshipData, included, 0, remainingModels);
 
       return newObject;
     }
