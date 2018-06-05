@@ -136,12 +136,13 @@ describe('JsonApiModel', () => {
           const NEW_BOOK_TITLE = 'The Hobbit';
           author = new Author(datastore, DATA);
           author.syncRelationships(DATA, INCLUDED);
-          INCLUDED.forEach((model) => {
+          const newIncluded = INCLUDED.concat([]);
+          newIncluded.forEach((model) => {
             if (model.type === 'books') {
               model.attributes.title = NEW_BOOK_TITLE;
             }
           });
-          author.syncRelationships(DATA, INCLUDED);
+          author.syncRelationships(DATA, newIncluded);
           author.books.forEach((book) => {
             expect(book.title).toBe(NEW_BOOK_TITLE);
           });

@@ -10,6 +10,8 @@ export class JsonApiModel {
   id: string;
   [key: string]: any;
 
+  lastSyncModels: Array<any>;
+
   // tslint:disable-next-line:variable-name
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
@@ -19,6 +21,10 @@ export class JsonApiModel {
   }
 
   syncRelationships(data: any, included: any, remainingModels?: Array<any>): void {
+    if (this.lastSyncModels === included) {
+      return;
+    }
+
     if (data) {
       let modelsForProcessing = remainingModels;
 
@@ -29,6 +35,8 @@ export class JsonApiModel {
       this.parseHasMany(data, included, modelsForProcessing);
       this.parseBelongsTo(data, included, modelsForProcessing);
     }
+
+    this.lastSyncModels = included;
   }
 
   save(params?: any, headers?: Headers): Observable<this> {
@@ -97,8 +105,14 @@ export class JsonApiModel {
               const modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
 
               if (modelType) {
-                // tslint:disable-next-line:max-line-length
-                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, remainingModels);
+                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(
+                  modelType,
+                  relationship.data,
+                  included,
+                  typeName,
+                  remainingModels
+                );
+
                 if (relationshipModels.length > 0) {
                   allModels = allModels.concat(relationshipModels);
                 }
@@ -166,13 +180,15 @@ export class JsonApiModel {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
         const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
-        remainingModels.splice(indexOfNewlyFoundModel, 1);
+        const modelsForProcessing = remainingModels.concat([]);
+        modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
 
-        newObject.syncRelationships(relationshipData, included, remainingModels);
+        newObject.syncRelationships(relationshipData, included, modelsForProcessing);
 
         relationshipList.push(newObject);
       }
     });
+
     return relationshipList;
   }
 
@@ -192,9 +208,10 @@ export class JsonApiModel {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
       const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
-      remainingModels.splice(indexOfNewlyFoundModel, 1);
+      const modelsForProcessing = remainingModels.concat([]);
+      modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
 
-      newObject.syncRelationships(relationshipData, included, remainingModels);
+      newObject.syncRelationships(relationshipData, included, modelsForProcessing);
 
       return newObject;
     }
