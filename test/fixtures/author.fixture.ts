@@ -1,4 +1,6 @@
 import {getSampleBook} from './book.fixture';
+import { getSampleChapter } from './chapter.fixture';
+import { getSampleSection } from './section.fixture';
 
 export const AUTHOR_ID = '1';
 export const AUTHOR_NAME = 'J. R. R. Tolkien';
@@ -56,45 +58,50 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
 
   for (let i = 1; i <= totalBooks; i++) {
     const book: any = getSampleBook(i, AUTHOR_ID);
+    responseArray.push(book);
 
     if (relationship && relationship.indexOf('books.chapters') !== -1) {
       book.relationships.chapters.data = [];
       for (let ic = 1; ic <= totalChapters; ic++) {
         chapterId++;
         book.relationships.chapters.data.push({
-          id: '' + chapterId,
+          id: `${chapterId}`,
           type: 'chapters'
         });
 
-        responseArray.push({
-          id: '' + chapterId,
-          type: 'chapters',
-          attributes: {
-            title: CHAPTER_TITLE,
-            ordering: chapterId,
-            created_at: '2016-10-01T12:54:32Z',
-            updated_at: '2016-10-01T12:54:32Z'
-          },
-          relationships: {
-            book: {
-              links: {
-                self: '/v1/authors/288/relationships/book',
-                related: '/v1/authors/288/book'
-              },
-              data: {
-                id: '' + i,
-                type: 'books'
-              }
-            }
-          },
-          links: {
-            self: '/v1/authors/288'
-          }
-        });
+        const chapter = getSampleChapter(i, `${chapterId}`, CHAPTER_TITLE);
+
+        responseArray.push(chapter);
       }
     }
-    responseArray.push(book);
+
+    if (relationship && relationship.indexOf('books.firstChapter') !== -1) {
+      const firstChapterId = '1';
+
+      book.relationships.firstChapter = {
+        data: {
+          id: firstChapterId,
+          type: 'chapters'
+        }
+      };
+
+      const findFirstChapterInclude = responseArray.find((chapter) => chapter.id === firstChapterId);
+
+      if (!findFirstChapterInclude) {
+        const chapter = getSampleChapter(i, `${firstChapterId}`, CHAPTER_TITLE);
+        responseArray.push(chapter);
+      }
+    }
+
+    if (relationship && relationship.indexOf('books.firstChapter.firstSection') !== -1) {
+      const section = getSampleSection('1', '1');
+      responseArray.push(section);
+    }
   }
 
   return responseArray;
+}
+
+function includeBooks() {
+
 }

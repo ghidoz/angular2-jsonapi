@@ -148,5 +148,39 @@ describe('JsonApiModel', () => {
         });
       });
     });
+
+    describe('parseBelongsTo', () => {
+      it('should parse the first level of belongTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(BOOK_NUMBER, 'books.chapters,books.firstChapter', 5);
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED, 0);
+
+        expect(author.books[0].firstChapter).toBeDefined();
+      });
+
+      it('should parse the second level of belongTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED, 0);
+
+        console.log(author.books[0].firstChapter.firstSection);
+
+        expect(author.books[0].firstChapter.firstSection).toBeDefined();
+      });
+    });
   });
 });
