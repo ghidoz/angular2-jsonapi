@@ -1,3 +1,8 @@
+
+### Bug fixes
+
+  * Fix serializedName in included relationships ([#174](https://github.com/ghidoz/angular2-jsonapi/issues/174))
+
 # [5.0.0] (2018-11-04)
 
 ### BREAKING CHANGES
