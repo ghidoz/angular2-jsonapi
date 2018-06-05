@@ -6,6 +6,7 @@ import { Book } from './models/book.model';
 import { Chapter } from './models/chapter.model';
 import { Section } from './models/section.model';
 import { Paragraph } from './models/paragraph.model';
+import { Sentence } from './models/sentence.model';
 
 export const BASE_URL = 'http://localhost:8080';
 export const API_VERSION = 'v1';
@@ -19,6 +20,7 @@ export const API_VERSION = 'v1';
     chapters: Chapter,
     paragraphs: Paragraph,
     sections: Section,
+    sentences: Sentence,
   }
 })
 export class Datastore extends JsonApiDatastore {

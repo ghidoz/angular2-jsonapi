@@ -150,7 +150,7 @@ describe('JsonApiModel', () => {
     });
 
     fdescribe('parseBelongsTo', () => {
-      it('should parse the first level of belongTo relationships', () => {
+      it('should parse the first level of belongsTo relationships', () => {
         const REL = 'books';
         const BOOK_NUMBER = 2;
         const CHAPTERS_NUMBER = 4;
@@ -163,7 +163,7 @@ describe('JsonApiModel', () => {
         expect(author.books[0].firstChapter).toBeDefined();
       });
 
-      it('should parse the second level of belongTo relationships', () => {
+      it('should parse the second level of belongsTo relationships', () => {
         const REL = 'books';
         const BOOK_NUMBER = 2;
         const CHAPTERS_NUMBER = 4;
@@ -177,12 +177,10 @@ describe('JsonApiModel', () => {
         author = new Author(datastore, DATA);
         author.syncRelationships(DATA, INCLUDED, 0);
 
-        console.log(author.books[0].firstChapter.firstSection);
-
         expect(author.books[0].firstChapter.firstSection).toBeDefined();
       });
 
-      it('should parse the third level of belongTo relationships', () => {
+      it('should parse the third level of belongsTo relationships', () => {
         const REL = 'books';
         const BOOK_NUMBER = 2;
         const CHAPTERS_NUMBER = 4;
@@ -197,9 +195,25 @@ describe('JsonApiModel', () => {
         author = new Author(datastore, DATA);
         author.syncRelationships(DATA, INCLUDED, 0);
 
-        console.log(author.books[0].firstChapter.firstSection.firstParagraph);
-
         expect(author.books[0].firstChapter.firstSection.firstParagraph).toBeDefined();
+      });
+
+      it('should parse the fourth level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph,books.firstChapter.firstSection.firstParagraph.firstSentence',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED, 0);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph.firstSentence).toBeDefined();
       });
     });
   });

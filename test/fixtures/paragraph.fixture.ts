@@ -13,6 +13,12 @@ export function getSampleParagraph(paragraphId: string, sectionId: string, conte
           id: sectionId,
           type: 'sections'
         }
+      },
+      firstSentence: {
+        data: {
+          id: '1',
+          type: 'sentences'
+        }
       }
     }
   };

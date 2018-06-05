@@ -2,19 +2,15 @@ import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.d
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
-import { Sentence } from './sentence.model';
-import { Section } from './section.model';
+import { Paragraph } from './paragraph.model';
 
 @JsonApiModelConfig({
-  type: 'paragraphs'
+  type: 'sentences'
 })
-export class Paragraph extends JsonApiModel {
+export class Sentence extends JsonApiModel {
   @Attribute()
   content: string;
 
   @BelongsTo()
-  section: Section;
-
-  @BelongsTo()
-  firstSentence: Sentence;
+  paragraph: Paragraph;
 }
