@@ -452,6 +452,6 @@ export class JsonApiDatastore {
   }
 
   protected getModelPropertyNames(model: JsonApiModel) {
-    return Reflect.getMetadata('AttributeMapping', model);
+    return Reflect.getMetadata('AttributeMapping', model) || [];
   }
 }
