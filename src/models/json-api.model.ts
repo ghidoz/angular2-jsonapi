@@ -8,12 +8,14 @@ import { AttributeMetadata } from '../constants/symbols';
 
 export class JsonApiModel {
   id: string;
+  meta: any;
   [key: string]: any;
 
   // tslint:disable-next-line:variable-name
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
       this.id = data.id;
+      this.meta = data.meta;
       Object.assign(this, data.attributes);
     }
   }
