@@ -149,7 +149,7 @@ describe('JsonApiModel', () => {
       });
     });
 
-    fdescribe('parseBelongsTo', () => {
+    describe('parseBelongsTo', () => {
       it('should parse the first level of belongsTo relationships', () => {
         const REL = 'books';
         const BOOK_NUMBER = 2;
