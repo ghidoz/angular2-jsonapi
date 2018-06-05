@@ -276,7 +276,7 @@ export class JsonApiDatastore {
     return models;
   }
 
-  protected deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
+  public deserializeModel<T extends JsonApiModel>(modelType: ModelType<T>, data: any) {
     data.attributes = this.transformSerializedNamesToPropertyNames(modelType, data.attributes);
     return new modelType(this, data);
   }
@@ -443,7 +443,7 @@ export class JsonApiDatastore {
     const properties: any = {};
 
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
-      if (attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
+      if (attributes && attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
       }
     });
