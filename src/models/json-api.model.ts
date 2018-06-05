@@ -18,7 +18,7 @@ export class JsonApiModel {
     }
   }
 
-  syncRelationships(data: any, included: any, level: number, remainingModels?: Array<any>): void {
+  syncRelationships(data: any, included: any, remainingModels?: Array<any>): void {
     if (data) {
       let modelsForProcessing = remainingModels;
 
@@ -26,7 +26,7 @@ export class JsonApiModel {
         modelsForProcessing = [].concat(included);
       }
 
-      this.parseHasMany(data, included, level, modelsForProcessing);
+      this.parseHasMany(data, included, modelsForProcessing);
       this.parseBelongsTo(data, included, modelsForProcessing);
     }
   }
@@ -77,7 +77,7 @@ export class JsonApiModel {
   }
 
 
-  private parseHasMany(data: any, included: any, level: number, remainingModels: Array<any>): void {
+  private parseHasMany(data: any, included: any, remainingModels: Array<any>): void {
     const hasMany: any = Reflect.getMetadata('HasMany', this);
 
     if (hasMany) {
@@ -98,7 +98,7 @@ export class JsonApiModel {
 
               if (modelType) {
                 // tslint:disable-next-line:max-line-length
-                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level, remainingModels);
+                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, remainingModels);
                 if (relationshipModels.length > 0) {
                   allModels = allModels.concat(relationshipModels);
                 }
@@ -155,20 +155,21 @@ export class JsonApiModel {
     data: any,
     included: any,
     typeName: string,
-    level: number,
     remainingModels: Array<any>
   ): Array<T> {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(included, { id: item.id, type: typeName });
+      const relationshipData: any = remainingModels.find((x) => x.id === item.id && x.type === typeName);
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-        if (level <= 2) {
-          newObject.syncRelationships(relationshipData, included, level + 1, remainingModels);
-        }
+        const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+        remainingModels.splice(indexOfNewlyFoundModel, 1);
+
+        newObject.syncRelationships(relationshipData, included, remainingModels);
+
         relationshipList.push(newObject);
       }
     });
@@ -193,7 +194,7 @@ export class JsonApiModel {
       const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
       remainingModels.splice(indexOfNewlyFoundModel, 1);
 
-      newObject.syncRelationships(relationshipData, included, 0, remainingModels);
+      newObject.syncRelationships(relationshipData, included, remainingModels);
 
       return newObject;
     }

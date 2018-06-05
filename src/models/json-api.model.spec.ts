@@ -72,7 +72,7 @@ describe('JsonApiModel', () => {
         const BOOK_NUMBER = 4;
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -90,7 +90,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
         datastore.addToStore(author);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         author.books.forEach((book: Book, index: number) => {
           expect(book.author).toBeDefined();
           expect(book.author).toEqual(author);
@@ -106,7 +106,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData(REL, BOOK_NUMBER);
         const INCLUDED = getIncludedBooks(BOOK_NUMBER, REL, CHAPTERS_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -135,13 +135,13 @@ describe('JsonApiModel', () => {
           const INCLUDED = getIncludedBooks(BOOK_NUMBER);
           const NEW_BOOK_TITLE = 'The Hobbit';
           author = new Author(datastore, DATA);
-          author.syncRelationships(DATA, INCLUDED, 0);
+          author.syncRelationships(DATA, INCLUDED);
           INCLUDED.forEach((model) => {
             if (model.type === 'books') {
               model.attributes.title = NEW_BOOK_TITLE;
             }
           });
-          author.syncRelationships(DATA, INCLUDED, 0);
+          author.syncRelationships(DATA, INCLUDED);
           author.books.forEach((book) => {
             expect(book.title).toBe(NEW_BOOK_TITLE);
           });
@@ -158,7 +158,7 @@ describe('JsonApiModel', () => {
         const INCLUDED = getIncludedBooks(BOOK_NUMBER, 'books.chapters,books.firstChapter', 5);
 
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
 
         expect(author.books[0].firstChapter).toBeDefined();
       });
@@ -175,7 +175,7 @@ describe('JsonApiModel', () => {
         );
 
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
 
         expect(author.books[0].firstChapter.firstSection).toBeDefined();
       });
@@ -193,7 +193,7 @@ describe('JsonApiModel', () => {
         );
 
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
 
         expect(author.books[0].firstChapter.firstSection.firstParagraph).toBeDefined();
       });
@@ -211,7 +211,7 @@ describe('JsonApiModel', () => {
         );
 
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
 
         expect(author.books[0].firstChapter.firstSection.firstParagraph.firstSentence).toBeDefined();
       });
