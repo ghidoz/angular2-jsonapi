@@ -13,6 +13,12 @@ export function getSampleSection(sectionId: string, chapterId: string, content: 
           id: chapterId,
           type: 'chapters'
         }
+      },
+      firstParagraph: {
+        data: {
+          id: '1',
+          type: 'paragraphs'
+        }
       }
     }
   };

@@ -1,6 +1,7 @@
 import {getSampleBook} from './book.fixture';
 import { getSampleChapter } from './chapter.fixture';
 import { getSampleSection } from './section.fixture';
+import { getSampleParagraph } from './paragraph.fixture';
 
 export const AUTHOR_ID = '1';
 export const AUTHOR_NAME = 'J. R. R. Tolkien';
@@ -96,6 +97,11 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
     if (relationship && relationship.indexOf('books.firstChapter.firstSection') !== -1) {
       const section = getSampleSection('1', '1');
       responseArray.push(section);
+    }
+
+    if (relationship && relationship.indexOf('books.firstChapter.firstSection.firstParagraph') !== -1) {
+      const paragraph = getSampleParagraph('1', '1');
+      responseArray.push(paragraph);
     }
   }
 

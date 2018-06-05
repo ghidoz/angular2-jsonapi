@@ -149,7 +149,7 @@ describe('JsonApiModel', () => {
       });
     });
 
-    describe('parseBelongsTo', () => {
+    fdescribe('parseBelongsTo', () => {
       it('should parse the first level of belongTo relationships', () => {
         const REL = 'books';
         const BOOK_NUMBER = 2;
@@ -180,6 +180,26 @@ describe('JsonApiModel', () => {
         console.log(author.books[0].firstChapter.firstSection);
 
         expect(author.books[0].firstChapter.firstSection).toBeDefined();
+      });
+
+      it('should parse the third level of belongTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED, 0);
+
+        console.log(author.books[0].firstChapter.firstSection.firstParagraph);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph).toBeDefined();
       });
     });
   });

@@ -3,18 +3,14 @@ import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
 import { Chapter } from './chapter.model';
-import { Paragraph } from './paragraph.model';
 
 @JsonApiModelConfig({
-  type: 'sections'
+  type: 'paragraphs'
 })
-export class Section extends JsonApiModel {
+export class Paragraph extends JsonApiModel {
   @Attribute()
   content: string;
 
   @BelongsTo()
-  firstParagraph: Paragraph;
-
-  @BelongsTo()
-  chapter: Chapter;
+  section: Section;
 }
