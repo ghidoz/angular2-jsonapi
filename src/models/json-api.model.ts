@@ -194,7 +194,7 @@ export class JsonApiModel {
     const peek = this._datastore.peekRecord(modelType, data.id);
 
     if (peek) {
-      _.extend(peek, data.attributes);
+      _.extend(peek, this._datastore.transformSerializedNamesToPropertyNames(modelType, data.attributes));
       return peek;
     }
 
