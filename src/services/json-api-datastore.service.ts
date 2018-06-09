@@ -21,8 +21,8 @@ export class JsonApiDatastore {
   // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
   private toQueryString: Function = this.datastoreConfig.overrides
-  && this.datastoreConfig.overrides.toQueryString ?
-    this.datastoreConfig.overrides.toQueryString : this._toQueryString;
+    && this.datastoreConfig.overrides.toQueryString ?
+      this.datastoreConfig.overrides.toQueryString : this._toQueryString;
   // tslint:enable:max-line-length
 
   private get getDirtyAttributes() {
@@ -149,8 +149,6 @@ export class JsonApiDatastore {
         map((res) => this.updateRelationships(res, relationships))
       );
   }
-
-
 
   deleteRecord<T extends JsonApiModel>(
     modelType: ModelType<T>,
