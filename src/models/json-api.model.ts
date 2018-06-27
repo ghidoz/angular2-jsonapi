@@ -7,17 +7,25 @@ import * as _ from 'lodash';
 import { AttributeMetadata } from '../constants/symbols';
 
 export class JsonApiModel {
-  id: string;
-  meta: any;
   [key: string]: any;
 
   // tslint:disable-next-line:variable-name
-  constructor(private _datastore: JsonApiDatastore, data?: any) {
+  constructor(private _datastore: JsonApiDatastore, protected data?: any) {
     if (data) {
-      this.id = data.id;
-      this.meta = data.meta;
       Object.assign(this, data.attributes);
     }
+  }
+
+  get id(): string {
+    return this.data.id;
+  }
+
+  get meta(): any {
+    return this.data.meta;
+  }
+
+  get relationships(): any {
+    return this.data.relationships;
   }
 
   syncRelationships(data: any, included: any, level: number): void {
