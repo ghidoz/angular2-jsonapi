@@ -25,9 +25,9 @@ export class JsonApiModel {
     }
   }
 
-  save(params?: any, headers?: Headers): Observable<this> {
+  save(params?: any, headers?: Headers, customUrl?: string): Observable<this> {
     const attributesMetadata: any = this[AttributeMetadata];
-    return this._datastore.saveRecord(attributesMetadata, this, params, headers);
+    return this._datastore.saveRecord(attributesMetadata, this, params, headers, customUrl);
   }
 
   get hasDirtyAttributes() {
