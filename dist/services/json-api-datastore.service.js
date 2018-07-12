@@ -148,18 +148,19 @@ var JsonApiDatastore = /** @class */ (function () {
     };
     JsonApiDatastore.prototype.getRelationships = function (data) {
         var _this = this;
+        var belongsToRelationships = Reflect.getMetadata('BelongsTo', data);
         var relationships;
-        for (var key in data) {
+        var _loop_1 = function (key) {
             if (data.hasOwnProperty(key)) {
                 if (data[key] instanceof json_api_model_1.JsonApiModel) {
                     relationships = relationships || {};
                     if (data[key].id) {
                         relationships[key] = {
-                            data: this.buildSingleRelationshipData(data[key])
+                            data: this_1.buildSingleRelationshipData(data[key])
                         };
                     }
                 }
-                else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
+                else if (data[key] instanceof Array && data[key].length > 0 && this_1.isValidToManyRelation(data[key])) {
                     relationships = relationships || {};
                     var relationshipData = data[key]
                         .filter(function (model) { return model.id; })
@@ -168,7 +169,18 @@ var JsonApiDatastore = /** @class */ (function () {
                         data: relationshipData
                     };
                 }
+                else if (data[key] === null
+                    && !!belongsToRelationships.find(function (element) { return element.relationship === key; })) {
+                    relationships = relationships || {};
+                    relationships[key] = {
+                        data: null
+                    };
+                }
             }
+        };
+        var this_1 = this;
+        for (var key in data) {
+            _loop_1(key);
         }
         return relationships;
     };
