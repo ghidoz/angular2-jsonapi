@@ -170,7 +170,7 @@ var JsonApiDatastore = /** @class */ (function () {
                     };
                 }
                 else if (data[key] === null
-                    && !!belongsToRelationships.find(function (element) { return element.relationship === key; })) {
+                    && belongsToRelationships && !!belongsToRelationships.find(function (element) { return element.relationship === key; })) {
                     relationships = relationships || {};
                     relationships[key] = {
                         data: null
