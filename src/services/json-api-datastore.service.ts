@@ -224,12 +224,12 @@ export class JsonApiDatastore {
           relationships[key] = {
             data: relationshipData
           };
-        } else if (data[key] === null 
-          && !!belongsToRelationships.find((element: any) => element.relationship === key)) {
+        } else if (data[key] === null
+          && belongsToRelationships && !!belongsToRelationships.find((element: any) => element.relationship === key)) {
           relationships = relationships || {};
           relationships[key] = {
             data: null
-          };                           	                 
+          };
         }
       }
     }
