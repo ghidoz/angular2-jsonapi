@@ -44,7 +44,7 @@ function Attribute(options) {
             if (!instance[symbols_1.AttributeMetadata]) {
                 instance[symbols_1.AttributeMetadata] = {};
             }
-            var propertyHasDirtyAttributes = (oldValue === newValue) ? false : hasDirtyAttributes;
+            var propertyHasDirtyAttributes = typeof oldValue === 'undefined' && !isNew ? false : hasDirtyAttributes;
             instance[symbols_1.AttributeMetadata][propertyName] = {
                 newValue: newValue,
                 oldValue: oldValue,
