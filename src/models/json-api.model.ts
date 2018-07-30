@@ -11,11 +11,19 @@ export class JsonApiModel {
   [key: string]: any;
 
   // tslint:disable-next-line:variable-name
-  constructor(private _datastore: JsonApiDatastore, data?: any) {
+  constructor(private _datastore: JsonApiDatastore, protected data?: any) {
     if (data) {
       this.id = data.id;
       Object.assign(this, data.attributes);
     }
+  }
+
+  get meta(): any {
+    return this.data.meta;
+  }
+
+  get relationships(): any {
+    return this.data.relationships;
   }
 
   syncRelationships(data: any, included: any, level: number): void {
