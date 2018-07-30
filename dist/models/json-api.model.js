@@ -8,11 +8,26 @@ var JsonApiModel = /** @class */ (function () {
     // tslint:disable-next-line:variable-name
     function JsonApiModel(_datastore, data) {
         this._datastore = _datastore;
+        this.data = data;
         if (data) {
             this.id = data.id;
             Object.assign(this, data.attributes);
         }
     }
+    Object.defineProperty(JsonApiModel.prototype, "meta", {
+        get: function () {
+            return this.data.meta;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(JsonApiModel.prototype, "relationships", {
+        get: function () {
+            return this.data.relationships;
+        },
+        enumerable: true,
+        configurable: true
+    });
     JsonApiModel.prototype.syncRelationships = function (data, included, level) {
         if (data) {
             this.parseHasMany(data, included, level);
