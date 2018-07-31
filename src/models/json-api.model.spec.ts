@@ -55,6 +55,46 @@ describe('JsonApiModel', () => {
 
   });
 
+  describe('hasDirtyAttributes', () => {
+
+    it('should be instantiated with attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+    });
+
+    it('should have dirty attributes after change', () => {
+      const author: Author = new Author(datastore);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      author.name = 'Peter';
+      expect(author.hasDirtyAttributes).toBeTruthy();
+    });
+
+    it('should reset dirty attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      author.name = 'Peter';
+      author.rollbackAttributes();
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      expect(author.name).toContain(DATA.attributes.name);
+    });
+
+  });
+
   describe('syncRelationships', () => {
 
     let author: Author;
