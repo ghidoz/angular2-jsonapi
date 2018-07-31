@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/decorators/json-api-datastore-config.decorator.ts"],"names":[],"mappings":";;AAAA,gCAAuC,MAAgB;IAAhB,uBAAA,EAAA,WAAgB;IACrD,MAAM,CAAC,UAAU,MAAW;QAC1B,OAAO,CAAC,cAAc,CAAC,wBAAwB,EAAE,MAAM,EAAE,MAAM,CAAC,CAAC;IACnE,CAAC,CAAC;AACJ,CAAC;AAJD,wDAIC","file":"json-api-datastore-config.decorator.js","sourceRoot":""}
