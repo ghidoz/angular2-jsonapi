@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpErrorResponse } from '@angul
 import find from 'lodash-es/find';
 import { map, catchError } from 'rxjs/operators';
 import { throwError, of, Observable } from 'rxjs';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { JsonApiModel } from '../models/json-api.model';
 import { ErrorResponse } from '../models/error-response.model';
 import { JsonApiQueryData } from '../models/json-api-query-data';
@@ -320,7 +319,7 @@ export class JsonApiDatastore {
     return deserializedModel;
   }
 
-  protected handleError(error: any): ErrorObservable<any> {
+  protected handleError(error: any): Observable<any> {
 
     if (
       error instanceof HttpErrorResponse &&
