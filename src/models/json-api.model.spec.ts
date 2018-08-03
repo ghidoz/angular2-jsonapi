@@ -72,7 +72,7 @@ describe('JsonApiModel', () => {
         const BOOK_NUMBER = 4;
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -90,7 +90,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
         datastore.addToStore(author);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         author.books.forEach((book: Book, index: number) => {
           expect(book.author).toBeDefined();
           expect(book.author).toEqual(author);
@@ -106,7 +106,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData(REL, BOOK_NUMBER);
         const INCLUDED = getIncludedBooks(BOOK_NUMBER, REL, CHAPTERS_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -135,17 +135,86 @@ describe('JsonApiModel', () => {
           const INCLUDED = getIncludedBooks(BOOK_NUMBER);
           const NEW_BOOK_TITLE = 'The Hobbit';
           author = new Author(datastore, DATA);
-          author.syncRelationships(DATA, INCLUDED, 0);
-          INCLUDED.forEach((model) => {
+          author.syncRelationships(DATA, INCLUDED);
+          const newIncluded = INCLUDED.concat([]);
+          newIncluded.forEach((model) => {
             if (model.type === 'books') {
               model.attributes.title = NEW_BOOK_TITLE;
             }
           });
-          author.syncRelationships(DATA, INCLUDED, 0);
+          author.syncRelationships(DATA, newIncluded);
           author.books.forEach((book) => {
             expect(book.title).toBe(NEW_BOOK_TITLE);
           });
         });
+      });
+    });
+
+    describe('parseBelongsTo', () => {
+      it('should parse the first level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(BOOK_NUMBER, 'books.chapters,books.firstChapter', 5);
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter).toBeDefined();
+      });
+
+      it('should parse the second level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection).toBeDefined();
+      });
+
+      it('should parse the third level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph).toBeDefined();
+      });
+
+      it('should parse the fourth level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph,books.firstChapter.firstSection.firstParagraph.firstSentence',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph.firstSentence).toBeDefined();
       });
     });
   });

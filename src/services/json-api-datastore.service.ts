@@ -263,7 +263,7 @@ export class JsonApiDatastore {
       this.addToStore(model);
 
       if (body.included) {
-        model.syncRelationships(data, body.included, 0);
+        model.syncRelationships(data, body.included);
         this.addToStore(model);
       }
 
@@ -309,7 +309,7 @@ export class JsonApiDatastore {
     const deserializedModel = model || this.deserializeModel(modelType, body.data);
     this.addToStore(deserializedModel);
     if (body.included) {
-      deserializedModel.syncRelationships(body.data, body.included, 0);
+      deserializedModel.syncRelationships(body.data, body.included);
       this.addToStore(deserializedModel);
     }
 
