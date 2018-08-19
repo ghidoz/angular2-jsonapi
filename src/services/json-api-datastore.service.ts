@@ -13,6 +13,15 @@ import { AttributeMetadata } from '../constants/symbols';
 
 export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastore, data: any): T; };
 
+/**
+ * HACK/FIXME:
+ * Type 'symbol' cannot be used as an index type.
+ * TypeScript 2.9.x
+ * See https://github.com/Microsoft/TypeScript/issues/24587.
+ */
+// tslint:disable-next-line:variable-name
+const AttributeMetadataIndex: string = AttributeMetadata as any;
+
 @Injectable()
 export class JsonApiDatastore {
   // tslint:disable-next-line:variable-name
@@ -355,7 +364,7 @@ export class JsonApiDatastore {
     };
 
     if (this._headers) {
-      this._headers.forEach((values, name) => {
+      this._headers.forEach((values: string, name: string) => {
         if (name !== undefined) {
           requestHeaders[name] = values;
         }
@@ -363,7 +372,7 @@ export class JsonApiDatastore {
     }
 
     if (customHeaders) {
-      customHeaders.forEach((values, name) => {
+      customHeaders.forEach((values: string, name: string) => {
         if (name !== undefined) {
           requestHeaders[name] = values;
         }
@@ -404,7 +413,7 @@ export class JsonApiDatastore {
       }
     }
 
-    res[AttributeMetadata] = attributesMetadata;
+    res[AttributeMetadataIndex] = attributesMetadata;
     return res;
   }
 
