@@ -40,6 +40,6 @@
     "inlineSourceMap": true
   },
   "angularCompilerOptions": {
-    "genDir": "src/compiled"
+    "skipTemplateCodegen": true
   }
 }
