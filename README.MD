@@ -538,7 +538,7 @@ Moreover, it should be noted that the following assumptions have been made:
 To generate all `*.js`, `*.js.map` and `*.d.ts` files:
 
 ```bash
-$ npm run ngc
+$ npm run build
 ```
 
 To lint all `*.ts` files:

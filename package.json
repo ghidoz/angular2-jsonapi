@@ -7,7 +7,7 @@
     "lint": "tslint src/**/*.ts",
     "pretest": "npm run build",
     "test": "karma start",
-    "prepublish": "ngc",
+    "prepublish": "build",
     "ngc": "ngc",
     "servetest": "npm run pretest & karma start karma.dev.conf.js"
   },
