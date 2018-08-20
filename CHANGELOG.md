@@ -1,4 +1,4 @@
-# [6.0.1-beta]
+# [6.0.2-beta]
 
   * Fix types issues
 
