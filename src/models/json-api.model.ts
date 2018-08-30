@@ -8,14 +8,22 @@ import { AttributeMetadata } from '../constants/symbols';
 
 export class JsonApiModel {
   id: string;
+  public modelInitialization: boolean = false;
+
   [key: string]: any;
 
   // tslint:disable-next-line:variable-name
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
+      this.modelInitialization = true;
       this.id = data.id;
       Object.assign(this, data.attributes);
+      this.modelInitialization = false;
     }
+  }
+
+  isModelInitialization(): boolean {
+    return this.modelInitialization;
   }
 
   syncRelationships(data: any, included: any, level: number): void {
@@ -26,17 +34,18 @@ export class JsonApiModel {
   }
 
   save(params?: any, headers?: Headers): Observable<this> {
+    this.checkChanges();
     const attributesMetadata: any = this[AttributeMetadata];
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }
 
   get hasDirtyAttributes() {
+    this.checkChanges();
     const attributesMetadata: any = this[AttributeMetadata];
     let hasDirtyAttributes = false;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         const metadata: any = attributesMetadata[propertyName];
-
         if (metadata.hasDirtyAttributes) {
           hasDirtyAttributes = true;
           break;
@@ -46,24 +55,35 @@ export class JsonApiModel {
     return hasDirtyAttributes;
   }
 
-  rollbackAttributes(): void {
+  private checkChanges() {
     const attributesMetadata: any = this[AttributeMetadata];
-    let metadata: any;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
-        if (attributesMetadata[propertyName].hasDirtyAttributes) {
-          this[propertyName] = attributesMetadata[propertyName].oldValue;
-          metadata = {
-            hasDirtyAttributes: false,
-            newValue: attributesMetadata[propertyName].oldValue,
-            oldValue: undefined
-          };
-          attributesMetadata[propertyName] = metadata;
+        const metadata: any = attributesMetadata[propertyName];
+        if (metadata.nested) {
+          this[AttributeMetadata][propertyName].hasDirtyAttributes = !_.isEqual(
+            attributesMetadata[propertyName].oldValue,
+            attributesMetadata[propertyName].newValue
+          );
+          this[AttributeMetadata][propertyName].serialisationValue = attributesMetadata[propertyName].converter(
+            Reflect.getMetadata('design:type', this, propertyName),
+            _.cloneDeep(attributesMetadata[propertyName].newValue),
+            true
+          );
         }
       }
     }
+  }
 
-    this[AttributeMetadata] = attributesMetadata;
+  rollbackAttributes(): void {
+    const attributesMetadata: any = this[AttributeMetadata];
+    for (const propertyName in attributesMetadata) {
+      if (attributesMetadata.hasOwnProperty(propertyName)) {
+        if (attributesMetadata[propertyName].hasDirtyAttributes) {
+          this[propertyName] = _.cloneDeep(attributesMetadata[propertyName].oldValue);
+        }
+      }
+    }
   }
 
   get modelConfig(): ModelConfig {

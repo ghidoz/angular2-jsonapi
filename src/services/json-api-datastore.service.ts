@@ -143,11 +143,9 @@ export class JsonApiDatastore {
 
         return this.handleError(res);
       })
-      .map((res) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
+      // .map((res) => this.resetMetadataAttributes(res, attributesMetadata, modelType))
       .map((res) => this.updateRelationships(res, relationships));
   }
-
-
 
   deleteRecord<T extends JsonApiModel>(
     modelType: ModelType<T>,
@@ -302,8 +300,10 @@ export class JsonApiDatastore {
     }
 
     if (model) {
+      model.modelInitialization = true;
       model.id = body.data.id;
       Object.assign(model, body.data.attributes);
+      model.modelInitialization = false;
     }
 
     const deserializedModel = model || this.deserializeModel(modelType, body.data);
@@ -390,7 +390,6 @@ export class JsonApiDatastore {
 
   protected resetMetadataAttributes<T extends JsonApiModel>(res: T, attributesMetadata: any, modelType: ModelType<T>) {
     // TODO check why is attributesMetadata from the arguments never used
-
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         const metadata: any = attributesMetadata[propertyName];
@@ -441,7 +440,6 @@ export class JsonApiDatastore {
   protected transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
-
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
       if (attributes && attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
