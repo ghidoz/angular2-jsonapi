@@ -12,6 +12,8 @@ export class JsonApiModel {
 
   [key: string]: any;
 
+  lastSyncModels: Array<any>;
+
   // tslint:disable-next-line:variable-name
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
@@ -26,11 +28,23 @@ export class JsonApiModel {
     return this.modelInitialization;
   }
 
-  syncRelationships(data: any, included: any, level: number): void {
-    if (data) {
-      this.parseHasMany(data, included, level);
-      this.parseBelongsTo(data, included, level);
+  syncRelationships(data: any, included: any, remainingModels?: Array<any>): void {
+    if (this.lastSyncModels === included) {
+      return;
     }
+
+    if (data) {
+      let modelsForProcessing = remainingModels;
+
+      if (!modelsForProcessing) {
+        modelsForProcessing = [].concat(included);
+      }
+
+      this.parseHasMany(data, included, modelsForProcessing);
+      this.parseBelongsTo(data, included, modelsForProcessing);
+    }
+
+    this.lastSyncModels = included;
   }
 
   save(params?: any, headers?: Headers): Observable<this> {
@@ -91,7 +105,7 @@ export class JsonApiModel {
   }
 
 
-  private parseHasMany(data: any, included: any, level: number): void {
+  private parseHasMany(data: any, included: any, remainingModels: Array<any>): void {
     const hasMany: any = Reflect.getMetadata('HasMany', this);
 
     if (hasMany) {
@@ -111,8 +125,14 @@ export class JsonApiModel {
               const modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
 
               if (modelType) {
-                // tslint:disable-next-line:max-line-length
-                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
+                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(
+                  modelType,
+                  relationship.data,
+                  included,
+                  typeName,
+                  remainingModels
+                );
+
                 if (relationshipModels.length > 0) {
                   allModels = allModels.concat(relationshipModels);
                 }
@@ -130,7 +150,7 @@ export class JsonApiModel {
     }
   }
 
-  private parseBelongsTo(data: any, included: any, level: number): void {
+  private parseBelongsTo(data: any, included: Array<any>, remainingModels: Array<any>): void {
     const belongsTo: any = Reflect.getMetadata('BelongsTo', this);
 
     if (belongsTo) {
@@ -142,13 +162,14 @@ export class JsonApiModel {
             const typeName: string = dataRelationship.type;
             // tslint:disable-next-line:max-line-length
             const modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+
             if (modelType) {
               const relationshipModel = this.getBelongsToRelationship(
                 modelType,
                 dataRelationship,
                 included,
                 typeName,
-                level
+                remainingModels
               );
 
               if (relationshipModel) {
@@ -168,22 +189,26 @@ export class JsonApiModel {
     data: any,
     included: any,
     typeName: string,
-    level: number
+    remainingModels: Array<any>
   ): Array<T> {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(included, { id: item.id, type: typeName });
+      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName });
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-        if (level <= 2) {
-          newObject.syncRelationships(relationshipData, included, level + 1);
-        }
+        const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+        const modelsForProcessing = remainingModels.concat([]);
+        modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+
+        newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+
         relationshipList.push(newObject);
       }
     });
+
     return relationshipList;
   }
 
@@ -191,22 +216,26 @@ export class JsonApiModel {
   private getBelongsToRelationship<T extends JsonApiModel>(
     modelType: ModelType<T>,
     data: any,
-    included: any,
+    included: Array<any>,
     typeName: string,
-    level: number
+    remainingModels: Array<any>
   ): T | null {
     const id: string = data.id;
-    const relationshipData: any = find(included, { id, type: typeName });
+
+    const relationshipData: any = find(remainingModels, { id, type: typeName });
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-      if (level <= 2) {
-        newObject.syncRelationships(relationshipData, included, level + 1);
-      }
+      const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+      const modelsForProcessing = remainingModels.concat([]);
+      modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+
+      newObject.syncRelationships(relationshipData, included, modelsForProcessing);
 
       return newObject;
     }
+
     return this._datastore.peekRecord(modelType, id);
   }
 

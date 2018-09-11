@@ -4,6 +4,9 @@ import { JsonApiDatastore, JsonApiDatastoreConfig, DatastoreConfig } from '../sr
 import { Author } from './models/author.model';
 import { Book } from './models/book.model';
 import { Chapter } from './models/chapter.model';
+import { Section } from './models/section.model';
+import { Paragraph } from './models/paragraph.model';
+import { Sentence } from './models/sentence.model';
 
 const BASE_URL = 'http://localhost:8080';
 const API_VERSION = 'v1';
@@ -17,7 +20,10 @@ export const API_VERSION_FROM_CONFIG = 'v2';
   models: {
     authors: Author,
     books: Book,
-    chapters: Chapter
+    chapters: Chapter,
+    paragraphs: Paragraph,
+    sections: Section,
+    sentences: Sentence,
   }
 })
 export class DatastoreWithConfig extends JsonApiDatastore {

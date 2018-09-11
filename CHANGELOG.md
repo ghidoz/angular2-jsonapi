@@ -1,7 +1,9 @@
+# [5.1.1-beta], [5.1.1] (2018-06-06)
 
 ### Bug fixes
 
   * Fix serializedName in included relationships ([#174](https://github.com/ghidoz/angular2-jsonapi/issues/174))
+  * Fix parsing belongsTo and hasMany relationships
 
 # [5.0.0] (2018-11-04)
 
