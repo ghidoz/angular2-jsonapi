@@ -1,6 +1,7 @@
 import { AttributeMetadata } from '../constants/symbols';
 import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
 import * as _ from 'lodash';
+import { serialize } from '@angular/compiler/src/i18n/serializers/xml_helper';
 
 export function NestedAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return function (target: any, propertyName: string) {

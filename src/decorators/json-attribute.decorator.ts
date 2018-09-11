@@ -45,6 +45,9 @@ export function JsonAttribute(options: AttributeDecoratorOptions = {}): Property
     };
 
     const getter = function () {
+      if (this.nestedDataSerialization) {
+        return converter(Reflect.getMetadata('design:type', target, propertyName), this['_' + propertyName], true);
+      }
       return this['_' + propertyName];
     };
 

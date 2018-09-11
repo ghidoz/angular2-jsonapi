@@ -36,7 +36,8 @@ describe('JsonApiModel', () => {
         attributes: {
           name: 'Daniele',
           surname: 'Ghidoli',
-          date_of_birth: '1987-05-25'
+          date_of_birth: '1987-05-25',
+          school: { name: 'Massachusetts Institute of Technology', students: 11319, foundation: '1861-10-04' }
         }
       };
       const author: Author = new Author(datastore, DATA);
@@ -44,6 +45,9 @@ describe('JsonApiModel', () => {
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
       expect(author.date_of_birth.getTime()).toBe(parse('1987-05-25').getTime());
+      expect(author.school.name).toBe('Massachusetts Institute of Technology');
+      expect(author.school.students).toBe(11319);
+      expect(author.school.foundation.getTime()).toBe(parse('1861-10-04').getTime());
     });
 
     it('should be instantiated without attributes', () => {

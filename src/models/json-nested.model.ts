@@ -4,6 +4,8 @@ import { JsonApiModel } from './json-api.model';
 export class JsonNestedApiModel {
   [key: string]: any;
 
+  public nestedDataSerialization: boolean = false;
+
   constructor(data?: any) {
     if (data) {
       Object.assign(this, data);
@@ -27,7 +29,8 @@ export class JsonNestedApiModel {
     const serializedNameToPropertyName = this.getModelPropertyNames();
     const properties: any = {};
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
-      if (this && this[serializedName] !== null && this[serializedName] !== undefined) {
+      if (this && this[serializedName] !== null &&
+        this[serializedName] !== undefined && serializedName !== 'nestedDataSerialization') {
         properties[serializedNameToPropertyName[serializedName]] = this[serializedName];
       }
     });

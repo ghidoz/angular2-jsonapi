@@ -1,14 +1,14 @@
-import { PropertyConverter } from '../..';
+import { JsonNestedApiModel, PropertyConverter } from '../..';
 
 export class JsonModelConverter<T> implements PropertyConverter {
   private modelType: any; // ModelType<T>
 
-  constructor(model: T) {
+  constructor(model: T, public nullValue: boolean = true) {
     this.modelType = model; // <ModelType<T>>model
   }
 
   mask(value: any): T {
-    if (!value) {
+    if (!value && !this.nullValue) {
       return new this.modelType();
     }
 
@@ -19,8 +19,14 @@ export class JsonModelConverter<T> implements PropertyConverter {
         if (item === null) {
           continue;
         }
-        const temp = new this.modelType();
-        temp.fill(item);
+        let temp;
+        if (typeof item === 'object') {
+          temp = new this.modelType();
+          temp.fill(item);
+        } else {
+          temp = item;
+        }
+
         result.push(temp);
       }
     } else {
@@ -35,14 +41,32 @@ export class JsonModelConverter<T> implements PropertyConverter {
   }
 
   unmask(value: any): any {
+    if (!value) {
+      return value;
+    }
     let result = null;
     if (Array.isArray(value)) {
       result = [];
       for (const item of value) {
-        result.push(item.serialize());
+        if (!item) {
+          continue;
+        }
+        if (item instanceof JsonNestedApiModel) {
+          item.nestedDataSerialization = true;
+          result.push(item.serialize());
+          item.nestedDataSerialization = false;
+        } else {
+          result.push(item);
+        }
       }
     } else {
-      result = value.serialize();
+      if (value instanceof JsonNestedApiModel) {
+        value.nestedDataSerialization = true;
+        result = value.serialize();
+        value.nestedDataSerialization = false;
+      } else {
+        result = value;
+      }
     }
     return result;
   }
