@@ -36,7 +36,8 @@ describe('JsonApiModel', () => {
         attributes: {
           name: 'Daniele',
           surname: 'Ghidoli',
-          date_of_birth: '1987-05-25'
+          date_of_birth: '1987-05-25',
+          school: { name: 'Massachusetts Institute of Technology', students: 11319, foundation: '1861-10-04' }
         }
       };
       const author: Author = new Author(datastore, DATA);
@@ -44,6 +45,9 @@ describe('JsonApiModel', () => {
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
       expect(author.date_of_birth.getTime()).toBe(parse('1987-05-25').getTime());
+      expect(author.school.name).toBe('Massachusetts Institute of Technology');
+      expect(author.school.students).toBe(11319);
+      expect(author.school.foundation.getTime()).toBe(parse('1861-10-04').getTime());
     });
 
     it('should be instantiated without attributes', () => {
@@ -51,6 +55,46 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBeUndefined();
       expect(author.date_of_birth).toBeUndefined();
+    });
+
+  });
+
+  describe('hasDirtyAttributes', () => {
+
+    it('should be instantiated with attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+    });
+
+    it('should have dirty attributes after change', () => {
+      const author: Author = new Author(datastore);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      author.name = 'Peter';
+      expect(author.hasDirtyAttributes).toBeTruthy();
+    });
+
+    it('should reset dirty attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      author.name = 'Peter';
+      author.rollbackAttributes();
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      expect(author.name).toContain(DATA.attributes.name);
     });
 
   });
