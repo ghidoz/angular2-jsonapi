@@ -1,4 +1,4 @@
-import { JsonNestedApiModel, PropertyConverter } from '../..';
+import { JsonApiNestedModel, PropertyConverter } from '../..';
 
 export class JsonModelConverter<T> implements PropertyConverter {
   private modelType: any; // ModelType<T>
@@ -51,7 +51,7 @@ export class JsonModelConverter<T> implements PropertyConverter {
         if (!item) {
           continue;
         }
-        if (item instanceof JsonNestedApiModel) {
+        if (item instanceof JsonApiNestedModel) {
           item.nestedDataSerialization = true;
           result.push(item.serialize());
           item.nestedDataSerialization = false;
@@ -60,7 +60,7 @@ export class JsonModelConverter<T> implements PropertyConverter {
         }
       }
     } else {
-      if (value instanceof JsonNestedApiModel) {
+      if (value instanceof JsonApiNestedModel) {
         value.nestedDataSerialization = true;
         result = value.serialize();
         value.nestedDataSerialization = false;
