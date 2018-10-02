@@ -1,7 +1,7 @@
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { JsonApiModel } from './json-api.model';
 
-export class JsonNestedApiModel {
+export class JsonApiNestedModel {
   [key: string]: any;
 
   public nestedDataSerialization: boolean = false;

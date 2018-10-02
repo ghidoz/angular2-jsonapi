@@ -1,6 +1,6 @@
-import { JsonAttribute, JsonNestedApiModel } from '../../src';
+import { JsonAttribute, JsonApiNestedModel } from '../../src';
 
-export class School extends JsonNestedApiModel {
+export class School extends JsonApiNestedModel {
 
   @JsonAttribute()
   public name: string;
