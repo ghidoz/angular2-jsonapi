@@ -72,7 +72,7 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
     const setter = function (newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
       const convertedValue = converter(targetType, newVal);
-      let oldValue = undefined;
+      let oldValue = null;
       if (this.isModelInitialization() && this.id) {
         oldValue = converter(targetType, newVal);
       } else {
