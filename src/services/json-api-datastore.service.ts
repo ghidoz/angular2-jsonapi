@@ -20,7 +20,7 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 @Injectable()
 export class JsonApiDatastore {
   // tslint:disable-next-line:variable-name
-  private _headers: Headers;
+  private _headers: HttpHeaders;
   // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
   private toQueryString: Function = this.datastoreConfig.overrides
@@ -45,7 +45,7 @@ export class JsonApiDatastore {
   query<T extends JsonApiModel>(
     modelType: ModelType<T>,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T[]> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -58,7 +58,7 @@ export class JsonApiDatastore {
   findAll<T extends JsonApiModel>(
     modelType: ModelType<T>,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -73,7 +73,7 @@ export class JsonApiDatastore {
     modelType: ModelType<T>,
     id: string,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
