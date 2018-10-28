@@ -20,7 +20,7 @@ export type ModelType<T extends JsonApiModel> = { new(datastore: JsonApiDatastor
 @Injectable()
 export class JsonApiDatastore {
   // tslint:disable-next-line:variable-name
-  private _headers: Headers;
+  private _headers: HttpHeaders;
   // tslint:disable-next-line:variable-name
   private _store: {[type: string]: {[id: string]: JsonApiModel}} = {};
   private toQueryString: Function = this.datastoreConfig.overrides
@@ -45,7 +45,7 @@ export class JsonApiDatastore {
   query<T extends JsonApiModel>(
     modelType: ModelType<T>,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T[]> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -58,7 +58,7 @@ export class JsonApiDatastore {
   findAll<T extends JsonApiModel>(
     modelType: ModelType<T>,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -73,7 +73,7 @@ export class JsonApiDatastore {
     modelType: ModelType<T>,
     id: string,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -108,7 +108,7 @@ export class JsonApiDatastore {
     attributesMetadata: any,
     model: T,
     params?: any,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T> {
     const modelType = <ModelType<T>>model.constructor;
@@ -150,7 +150,7 @@ export class JsonApiDatastore {
   deleteRecord<T extends JsonApiModel>(
     modelType: ModelType<T>,
     id: string,
-    headers?: Headers,
+    headers?: HttpHeaders,
     customUrl?: string
   ): Observable<Response> {
     const requestHeaders: HttpHeaders = this.buildHeaders(headers);
@@ -170,7 +170,7 @@ export class JsonApiDatastore {
     return typeStore ? Object.keys(typeStore).map((key) => <T>typeStore[key]) : [];
   }
 
-  set headers(headers: Headers) {
+  set headers(headers: HttpHeaders) {
     this._headers = headers;
   }
 
@@ -339,35 +339,37 @@ export class JsonApiDatastore {
   }
 
   /** @deprecated - use buildHeaders method to build request headers **/
-  protected getOptions(customHeaders?: Headers): any {
+  protected getOptions(customHeaders?: HttpHeaders): any {
     return {
       headers: this.buildHeaders(customHeaders),
     };
   }
 
-  protected buildHeaders(customHeaders?: Headers): HttpHeaders {
-    const requestHeaders: any = {
+  protected buildHeaders(customHeaders?: HttpHeaders): HttpHeaders {
+
+    let requestHeaders: HttpHeaders = new HttpHeaders({
       Accept: 'application/vnd.api+json',
       'Content-Type': 'application/vnd.api+json'
-    };
+    });
 
     if (this._headers) {
-      this._headers.forEach((values, name) => {
-        if (name !== undefined) {
-          requestHeaders[name] = values;
+      this._headers.keys().forEach((key) => {
+        if (this._headers.has(key)) {
+          requestHeaders = requestHeaders.set(key, this._headers.get(key)!);
         }
       });
     }
+
 
     if (customHeaders) {
-      customHeaders.forEach((values, name) => {
-        if (name !== undefined) {
-          requestHeaders[name] = values;
+      customHeaders.keys().forEach((key) => {
+        if (customHeaders.has(key)) {
+          requestHeaders = requestHeaders.set(key, customHeaders.get(key)!);
         }
       });
     }
 
-    return new HttpHeaders(requestHeaders);
+    return requestHeaders;
   }
 
   private _toQueryString(params: any): string {
