@@ -1,3 +1,12 @@
+# [6.0.1]
+
+  * Angular 6 support
+  * Smaller bug fixes
+
+### BREAKING CHANGES
+
+  * Required RxJS v6
+
 # [6.0.2-beta]
 
   * Fix types issues
