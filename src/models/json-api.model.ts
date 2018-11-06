@@ -1,42 +1,75 @@
 import find from 'lodash-es/find';
 import includes from 'lodash-es/includes';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import * as _ from 'lodash';
 import { AttributeMetadata } from '../constants/symbols';
+import { HttpHeaders } from '@angular/common/http';
+
+/**
+ * HACK/FIXME:
+ * Type 'symbol' cannot be used as an index type.
+ * TypeScript 2.9.x
+ * See https://github.com/Microsoft/TypeScript/issues/24587.
+ */
+// tslint:disable-next-line:variable-name
+const AttributeMetadataIndex: string = AttributeMetadata as any;
 
 export class JsonApiModel {
   id: string;
+  public modelInitialization: boolean = false;
+
   [key: string]: any;
+
+  lastSyncModels: Array<any>;
 
   // tslint:disable-next-line:variable-name
   constructor(private _datastore: JsonApiDatastore, data?: any) {
     if (data) {
+      this.modelInitialization = true;
       this.id = data.id;
       Object.assign(this, data.attributes);
+      this.modelInitialization = false;
     }
   }
 
-  syncRelationships(data: any, included: any, level: number): void {
+  isModelInitialization(): boolean {
+    return this.modelInitialization;
+  }
+
+  syncRelationships(data: any, included: any, remainingModels?: Array<any>): void {
+    if (this.lastSyncModels === included) {
+      return;
+    }
+
     if (data) {
-      this.parseHasMany(data, included, level);
-      this.parseBelongsTo(data, included, level);
+      let modelsForProcessing = remainingModels;
+
+      if (!modelsForProcessing) {
+        modelsForProcessing = [].concat(included);
+      }
+
+      this.parseHasMany(data, included, modelsForProcessing);
+      this.parseBelongsTo(data, included, modelsForProcessing);
     }
+
+    this.lastSyncModels = included;
   }
 
-  save(params?: any, headers?: Headers, customUrl?: string): Observable<this> {
-    const attributesMetadata: any = this[AttributeMetadata];
+  save(params?: any, headers?: HttpHeaders, customUrl?: string): Observable<this> {
+    this.checkChanges();
+    const attributesMetadata: any = this[AttributeMetadataIndex];
     return this._datastore.saveRecord(attributesMetadata, this, params, headers, customUrl);
   }
 
   get hasDirtyAttributes() {
-    const attributesMetadata: any = this[AttributeMetadata];
+    this.checkChanges();
+    const attributesMetadata: any = this[AttributeMetadataIndex];
     let hasDirtyAttributes = false;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         const metadata: any = attributesMetadata[propertyName];
-
         if (metadata.hasDirtyAttributes) {
           hasDirtyAttributes = true;
           break;
@@ -46,24 +79,35 @@ export class JsonApiModel {
     return hasDirtyAttributes;
   }
 
-  rollbackAttributes(): void {
+  private checkChanges() {
     const attributesMetadata: any = this[AttributeMetadata];
-    let metadata: any;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
-        if (attributesMetadata[propertyName].hasDirtyAttributes) {
-          this[propertyName] = attributesMetadata[propertyName].oldValue;
-          metadata = {
-            hasDirtyAttributes: false,
-            newValue: attributesMetadata[propertyName].oldValue,
-            oldValue: undefined
-          };
-          attributesMetadata[propertyName] = metadata;
+        const metadata: any = attributesMetadata[propertyName];
+        if (metadata.nested) {
+          this[AttributeMetadata][propertyName].hasDirtyAttributes = !_.isEqual(
+            attributesMetadata[propertyName].oldValue,
+            attributesMetadata[propertyName].newValue
+          );
+          this[AttributeMetadata][propertyName].serialisationValue = attributesMetadata[propertyName].converter(
+            Reflect.getMetadata('design:type', this, propertyName),
+            _.cloneDeep(attributesMetadata[propertyName].newValue),
+            true
+          );
         }
       }
     }
+  }
 
-    this[AttributeMetadata] = attributesMetadata;
+  rollbackAttributes(): void {
+    const attributesMetadata: any = this[AttributeMetadataIndex];
+    for (const propertyName in attributesMetadata) {
+      if (attributesMetadata.hasOwnProperty(propertyName)) {
+        if (attributesMetadata[propertyName].hasDirtyAttributes) {
+          this[propertyName] = _.cloneDeep(attributesMetadata[propertyName].oldValue);
+        }
+      }
+    }
   }
 
   get modelConfig(): ModelConfig {
@@ -71,7 +115,7 @@ export class JsonApiModel {
   }
 
 
-  private parseHasMany(data: any, included: any, level: number): void {
+  private parseHasMany(data: any, included: any, remainingModels: Array<any>): void {
     const hasMany: any = Reflect.getMetadata('HasMany', this);
 
     if (hasMany) {
@@ -91,8 +135,14 @@ export class JsonApiModel {
               const modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
 
               if (modelType) {
-                // tslint:disable-next-line:max-line-length
-                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(modelType, relationship.data, included, typeName, level);
+                const relationshipModels: JsonApiModel[] = this.getHasManyRelationship(
+                  modelType,
+                  relationship.data,
+                  included,
+                  typeName,
+                  remainingModels
+                );
+
                 if (relationshipModels.length > 0) {
                   allModels = allModels.concat(relationshipModels);
                 }
@@ -110,7 +160,7 @@ export class JsonApiModel {
     }
   }
 
-  private parseBelongsTo(data: any, included: any, level: number): void {
+  private parseBelongsTo(data: any, included: Array<any>, remainingModels: Array<any>): void {
     const belongsTo: any = Reflect.getMetadata('BelongsTo', this);
 
     if (belongsTo) {
@@ -122,13 +172,14 @@ export class JsonApiModel {
             const typeName: string = dataRelationship.type;
             // tslint:disable-next-line:max-line-length
             const modelType: ModelType<this> = Reflect.getMetadata('JsonApiDatastoreConfig', this._datastore.constructor).models[typeName];
+
             if (modelType) {
               const relationshipModel = this.getBelongsToRelationship(
                 modelType,
                 dataRelationship,
                 included,
                 typeName,
-                level
+                remainingModels
               );
 
               if (relationshipModel) {
@@ -148,22 +199,26 @@ export class JsonApiModel {
     data: any,
     included: any,
     typeName: string,
-    level: number
+    remainingModels: Array<any>
   ): Array<T> {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(included, { id: item.id, type: typeName });
+      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName });
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-        if (level <= 2) {
-          newObject.syncRelationships(relationshipData, included, level + 1);
-        }
+        const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+        const modelsForProcessing = remainingModels.concat([]);
+        modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+
+        newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+
         relationshipList.push(newObject);
       }
     });
+
     return relationshipList;
   }
 
@@ -171,22 +226,26 @@ export class JsonApiModel {
   private getBelongsToRelationship<T extends JsonApiModel>(
     modelType: ModelType<T>,
     data: any,
-    included: any,
+    included: Array<any>,
     typeName: string,
-    level: number
+    remainingModels: Array<any>
   ): T | null {
     const id: string = data.id;
-    const relationshipData: any = find(included, { id, type: typeName });
+
+    const relationshipData: any = find(remainingModels, { id, type: typeName });
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
-      if (level <= 2) {
-        newObject.syncRelationships(relationshipData, included, level + 1);
-      }
+      const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
+      const modelsForProcessing = remainingModels.concat([]);
+      modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+
+      newObject.syncRelationships(relationshipData, included, modelsForProcessing);
 
       return newObject;
     }
+
     return this._datastore.peekRecord(modelType, id);
   }
 

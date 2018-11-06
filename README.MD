@@ -508,7 +508,7 @@ this.datastore.findAll(Post).subscribe(
 );
 ```
 
-It's also possible to handle errors for all requests by overriding `handleError(error: any): ErrorObservable` in the datastore.
+It's also possible to handle errors for all requests by overriding `handleError(error: any): Observable` in the datastore.
 
 ### Dates
 
@@ -538,7 +538,7 @@ Moreover, it should be noted that the following assumptions have been made:
 To generate all `*.js`, `*.js.map` and `*.d.ts` files:
 
 ```bash
-$ npm run ngc
+$ npm run build
 ```
 
 To lint all `*.ts` files:

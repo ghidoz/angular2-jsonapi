@@ -8,6 +8,7 @@
     "function-name": false,
     "max-line-length": [true, 120],
     "no-increment-decrement": false,
+    "no-var-self": false,
     "prefer-array-literal": false,
     "ter-arrow-parens": [true, "always"],
     "ter-indent": [true, 2, {

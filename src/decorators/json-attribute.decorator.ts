@@ -1,9 +1,8 @@
-import { AttributeMetadata } from '../constants/symbols';
 import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
 import { DateConverter } from '../converters/date/date.converter';
 import * as _ from 'lodash';
 
-export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
+export function JsonAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return function (target: any, propertyName: string) {
     const converter = function (dataType: any, value: any, forSerialisation = false): any {
       let attrConverter;
@@ -31,13 +30,13 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
     };
 
     const saveAnnotations = function () {
-      const metadata = Reflect.getMetadata('Attribute', target) || {};
+      const metadata = Reflect.getMetadata('JsonAttribute', target) || {};
 
       metadata[propertyName] = {
         marked: true
       };
 
-      Reflect.defineMetadata('Attribute', metadata, target);
+      Reflect.defineMetadata('JsonAttribute', metadata, target);
 
       const mappingMetadata = Reflect.getMetadata('AttributeMapping', target) || {};
       const serializedPropertyName = options.serializedName !== undefined ? options.serializedName : propertyName;
@@ -45,44 +44,16 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
       Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
     };
 
-    const setMetadata = function (
-      instance: any,
-      oldValue: any,
-      newValue: any
-    ) {
-      const targetType = Reflect.getMetadata('design:type', target, propertyName);
-
-      if (!instance[AttributeMetadata]) {
-        instance[AttributeMetadata] = {};
-      }
-      instance[AttributeMetadata][propertyName] = {
-        newValue,
-        oldValue,
-        nested:false,
-        serializedName: options.serializedName,
-        hasDirtyAttributes: !_.isEqual(oldValue,newValue),
-        serialisationValue: converter(targetType, newValue, true)
-      };
-    };
-
     const getter = function () {
+      if (this.nestedDataSerialization) {
+        return converter(Reflect.getMetadata('design:type', target, propertyName), this['_' + propertyName], true);
+      }
       return this['_' + propertyName];
     };
 
     const setter = function (newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
-      const convertedValue = converter(targetType, newVal);
-      let oldValue = null;
-      if (this.isModelInitialization() && this.id) {
-        oldValue = converter(targetType, newVal);
-      } else {
-        if (this[AttributeMetadata] && this[AttributeMetadata][propertyName]) {
-          oldValue = this[AttributeMetadata][propertyName]['oldValue'];
-        }
-      }
-
-      this['_' + propertyName] = convertedValue;
-      setMetadata(this, oldValue, convertedValue);
+      this['_' + propertyName] = converter(targetType, newVal);
     };
 
     if (delete target[propertyName]) {
