@@ -5,6 +5,7 @@ import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.serv
 import { ModelConfig } from '../interfaces/model-config.interface';
 import * as _ from 'lodash';
 import { AttributeMetadata } from '../constants/symbols';
+import { HttpHeaders } from '@angular/common/http';
 
 export class JsonApiModel {
   id: string;
@@ -47,7 +48,7 @@ export class JsonApiModel {
     this.lastSyncModels = included;
   }
 
-  save(params?: any, headers?: Headers): Observable<this> {
+  save(params?: any, headers?: HttpHeaders): Observable<this> {
     this.checkChanges();
     const attributesMetadata: any = this[AttributeMetadata];
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);

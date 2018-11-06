@@ -14,7 +14,7 @@ import {
   BASE_URL_FROM_CONFIG,
   DatastoreWithConfig
 } from '../../test/datastore-with-config.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
 
 let datastore: Datastore;
@@ -119,7 +119,7 @@ describe('JsonApiDatastore', () => {
     it('should have custom headers', () => {
       const expectedUrl = `${BASE_URL}/${API_VERSION}/authors`;
 
-      datastore.query(Author, null, new Headers({ Authorization: 'Bearer' })).subscribe();
+      datastore.query(Author, null, new HttpHeaders({ Authorization: 'Bearer' })).subscribe();
 
       const queryRequest = httpMock.expectOne({ method: 'GET', url: expectedUrl });
       expect(queryRequest.request.headers.get('Authorization')).toEqual('Bearer');
@@ -129,8 +129,8 @@ describe('JsonApiDatastore', () => {
     it('should override base headers', () => {
       const expectedUrl = `${BASE_URL}/${API_VERSION}/authors`;
 
-      datastore.headers = new Headers({ Authorization: 'Bearer' });
-      datastore.query(Author, null, new Headers({ Authorization: 'Basic' })).subscribe();
+      datastore.headers = new HttpHeaders({ Authorization: 'Bearer' });
+      datastore.query(Author, null, new HttpHeaders({ Authorization: 'Basic' })).subscribe();
 
       const queryRequest = httpMock.expectOne({ method: 'GET', url: expectedUrl });
       expect(queryRequest.request.headers.get('Authorization')).toEqual('Basic');
