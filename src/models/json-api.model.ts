@@ -57,10 +57,10 @@ export class JsonApiModel {
     this.lastSyncModels = included;
   }
 
-  save(params?: any, headers?: HttpHeaders): Observable<this> {
+  save(params?: any, headers?: HttpHeaders, customUrl?: string): Observable<this> {
     this.checkChanges();
     const attributesMetadata: any = this[AttributeMetadataIndex];
-    return this._datastore.saveRecord(attributesMetadata, this, params, headers);
+    return this._datastore.saveRecord(attributesMetadata, this, params, headers, customUrl);
   }
 
   get hasDirtyAttributes() {
