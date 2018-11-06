@@ -8,7 +8,7 @@ describe('JsonModel converter', () => {
 
     describe('ArrayModel - simple values', () => {
       beforeEach(() => {
-        converter = new JsonModelConverter(Array);
+        converter = new JsonModelConverter(Array, { hasMany: true });
       });
 
       it('should return empty array when empty input', () => {
@@ -34,10 +34,23 @@ describe('JsonModel converter', () => {
       });
     });
 
+    describe('ArrayModel - simple values - nullable', () => {
+      beforeEach(() => {
+        converter = new JsonModelConverter(Array, { hasMany: true, nullValue: true });
+      });
+
+      it('should throw error when provided empty array when empty input', () => {
+        const VALUE = null;
+        expect(() => {
+          converter.mask(VALUE);
+        }).toThrow(new Error('ERROR: JsonModelConverter: Expected array but got ' + typeof VALUE + '.'));
+      });
+    });
+
     describe('Array model -> object values', () => {
 
       beforeEach(() => {
-        converter = new JsonModelConverter(School);
+        converter = new JsonModelConverter(School, { hasMany: true });
       });
 
       it('should return array of Schools from provided data', () => {
@@ -83,7 +96,7 @@ describe('JsonModel converter', () => {
 
     describe('ObjectModel - nullable', () => {
       beforeEach(() => {
-        converter = new JsonModelConverter(School, false);
+        converter = new JsonModelConverter(School, { nullValue: false });
       });
 
       it('should return null when null', () => {
@@ -96,7 +109,7 @@ describe('JsonModel converter', () => {
   describe('unmask method', () => {
     describe('ArrayModel - simple values', () => {
       beforeEach(() => {
-        converter = new JsonModelConverter(Array);
+        converter = new JsonModelConverter(Array, { hasMany: true });
       });
 
       it('should return serialized output when provided null', () => {
@@ -120,7 +133,7 @@ describe('JsonModel converter', () => {
     describe('Array model -> object values', () => {
 
       beforeEach(() => {
-        converter = new JsonModelConverter(School);
+        converter = new JsonModelConverter(School, { hasMany: true });
       });
 
       it('should return serialized Schools from provided Array of Schools', () => {
@@ -129,7 +142,7 @@ describe('JsonModel converter', () => {
           { name: 'Charles University', students: 51438, foundation: '1348-04-07' },
         ];
         const schools: Array<School> = [new School(DATA[0]), new School(DATA[1])];
-        const result:Array<any> = converter.unmask(schools);
+        const result: Array<any> = converter.unmask(schools);
         expect(result.length).toBe(2);
         for (const key in result) {
           expect(result[key].name).toBe(DATA[key].name);
@@ -141,7 +154,7 @@ describe('JsonModel converter', () => {
 
     describe('ObjectModel - nullable', () => {
       beforeEach(() => {
-        converter = new JsonModelConverter(School, false);
+        converter = new JsonModelConverter(School, { nullValue: false });
       });
 
       it('should return null when null', () => {

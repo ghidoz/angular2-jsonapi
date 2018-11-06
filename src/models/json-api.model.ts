@@ -1,11 +1,20 @@
 import find from 'lodash-es/find';
 import includes from 'lodash-es/includes';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import * as _ from 'lodash';
 import { AttributeMetadata } from '../constants/symbols';
 import { HttpHeaders } from '@angular/common/http';
+
+/**
+ * HACK/FIXME:
+ * Type 'symbol' cannot be used as an index type.
+ * TypeScript 2.9.x
+ * See https://github.com/Microsoft/TypeScript/issues/24587.
+ */
+// tslint:disable-next-line:variable-name
+const AttributeMetadataIndex: string = AttributeMetadata as any;
 
 export class JsonApiModel {
   id: string;
@@ -50,13 +59,13 @@ export class JsonApiModel {
 
   save(params?: any, headers?: HttpHeaders): Observable<this> {
     this.checkChanges();
-    const attributesMetadata: any = this[AttributeMetadata];
+    const attributesMetadata: any = this[AttributeMetadataIndex];
     return this._datastore.saveRecord(attributesMetadata, this, params, headers);
   }
 
   get hasDirtyAttributes() {
     this.checkChanges();
-    const attributesMetadata: any = this[AttributeMetadata];
+    const attributesMetadata: any = this[AttributeMetadataIndex];
     let hasDirtyAttributes = false;
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
@@ -91,7 +100,7 @@ export class JsonApiModel {
   }
 
   rollbackAttributes(): void {
-    const attributesMetadata: any = this[AttributeMetadata];
+    const attributesMetadata: any = this[AttributeMetadataIndex];
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
         if (attributesMetadata[propertyName].hasDirtyAttributes) {

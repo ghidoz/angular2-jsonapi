@@ -1,19 +1,33 @@
 import { JsonApiNestedModel, PropertyConverter } from '../..';
+import { JsonModelConverterConfig } from '../../interfaces/json-model-converter-config.interface';
+
+export const DEFAULT_OPTIONS: JsonModelConverterConfig = {
+  nullValue: false,
+  hasMany: false
+};
 
 export class JsonModelConverter<T> implements PropertyConverter {
   private modelType: any; // ModelType<T>
+  private options: JsonModelConverterConfig;
 
-  constructor(model: T, public nullValue: boolean = true) {
+  constructor(model: T, options: JsonModelConverterConfig = {}) {
     this.modelType = model; // <ModelType<T>>model
+    this.options = { ...DEFAULT_OPTIONS, ...options };
   }
 
-  mask(value: any): T {
-    if (!value && !this.nullValue) {
+  mask(value: any): T | Array<T> {
+    if (!value && !this.options.nullValue) {
+      if (this.options.hasMany) {
+        return [];
+      }
       return new this.modelType();
     }
 
     let result = null;
-    if (Array.isArray(value)) {
+    if (this.options.hasMany) {
+      if (!Array.isArray(value)) {
+        throw new Error('ERROR: JsonModelConverter: Expected array but got ' + typeof value + '.');
+      }
       result = [];
       for (const item of value) {
         if (item === null) {
