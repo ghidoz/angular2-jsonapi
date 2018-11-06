@@ -36,7 +36,8 @@ describe('JsonApiModel', () => {
         attributes: {
           name: 'Daniele',
           surname: 'Ghidoli',
-          date_of_birth: '1987-05-25'
+          date_of_birth: '1987-05-25',
+          school: { name: 'Massachusetts Institute of Technology', students: 11319, foundation: '1861-10-04' }
         }
       };
       const author: Author = new Author(datastore, DATA);
@@ -44,6 +45,9 @@ describe('JsonApiModel', () => {
       expect(author.id).toBe('1');
       expect(author.name).toBe('Daniele');
       expect(author.date_of_birth.getTime()).toBe(parse('1987-05-25').getTime());
+      expect(author.school.name).toBe('Massachusetts Institute of Technology');
+      expect(author.school.students).toBe(11319);
+      expect(author.school.foundation.getTime()).toBe(parse('1861-10-04').getTime());
     });
 
     it('should be instantiated without attributes', () => {
@@ -51,6 +55,46 @@ describe('JsonApiModel', () => {
       expect(author).toBeDefined();
       expect(author.id).toBeUndefined();
       expect(author.date_of_birth).toBeUndefined();
+    });
+
+  });
+
+  describe('hasDirtyAttributes', () => {
+
+    it('should be instantiated with attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+    });
+
+    it('should have dirty attributes after change', () => {
+      const author: Author = new Author(datastore);
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      author.name = 'Peter';
+      expect(author.hasDirtyAttributes).toBeTruthy();
+    });
+
+    it('should reset dirty attributes', () => {
+      const DATA = {
+        id: '1',
+        attributes: {
+          name: 'Daniele',
+          surname: 'Ghidoli',
+          date_of_birth: '1987-05-25'
+        }
+      };
+      const author: Author = new Author(datastore, DATA);
+      author.name = 'Peter';
+      author.rollbackAttributes();
+      expect(author.hasDirtyAttributes).toBeFalsy();
+      expect(author.name).toContain(DATA.attributes.name);
     });
 
   });
@@ -72,7 +116,7 @@ describe('JsonApiModel', () => {
         const BOOK_NUMBER = 4;
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -90,7 +134,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData('books', BOOK_NUMBER);
         author = new Author(datastore, DATA);
         datastore.addToStore(author);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER), 0);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
         author.books.forEach((book: Book, index: number) => {
           expect(book.author).toBeDefined();
           expect(book.author).toEqual(author);
@@ -106,7 +150,7 @@ describe('JsonApiModel', () => {
         const DATA = getAuthorData(REL, BOOK_NUMBER);
         const INCLUDED = getIncludedBooks(BOOK_NUMBER, REL, CHAPTERS_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, INCLUDED, 0);
+        author.syncRelationships(DATA, INCLUDED);
         expect(author).toBeDefined();
         expect(author.id).toBe(AUTHOR_ID);
         expect(author.books).toBeDefined();
@@ -127,7 +171,7 @@ describe('JsonApiModel', () => {
       });
 
       describe('update relationships', () => {
-        it ('should return updated relationship', () => {
+        it('should return updated relationship', () => {
           const REL = 'books';
           const BOOK_NUMBER = 1;
           const CHAPTERS_NUMBER = 4;
@@ -135,18 +179,107 @@ describe('JsonApiModel', () => {
           const INCLUDED = getIncludedBooks(BOOK_NUMBER);
           const NEW_BOOK_TITLE = 'The Hobbit';
           author = new Author(datastore, DATA);
-          author.syncRelationships(DATA, INCLUDED, 0);
-          INCLUDED.forEach((model) => {
+          author.syncRelationships(DATA, INCLUDED);
+          const newIncluded = INCLUDED.concat([]);
+          newIncluded.forEach((model) => {
             if (model.type === 'books') {
               model.attributes.title = NEW_BOOK_TITLE;
             }
           });
-          author.syncRelationships(DATA, INCLUDED, 0);
+          author.syncRelationships(DATA, newIncluded);
           author.books.forEach((book) => {
             expect(book.title).toBe(NEW_BOOK_TITLE);
           });
         });
       });
+    });
+
+    describe('parseBelongsTo', () => {
+      it('should parse the first level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(BOOK_NUMBER, 'books.chapters,books.firstChapter', 5);
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter).toBeDefined();
+      });
+
+      it('should parse the second level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection).toBeDefined();
+      });
+
+      it('should parse the third level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph).toBeDefined();
+      });
+
+      it('should parse the fourth level of belongsTo relationships', () => {
+        const REL = 'books';
+        const BOOK_NUMBER = 2;
+        const CHAPTERS_NUMBER = 4;
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        const INCLUDED = getIncludedBooks(
+          BOOK_NUMBER,
+          // tslint:disable-next-line:max-line-length
+          'books.chapters,books.firstChapter,books.firstChapter.firstSection,books.firstChapter.firstSection.firstParagraph,books.firstChapter.firstSection.firstParagraph.firstSentence',
+          5
+        );
+
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, INCLUDED);
+
+        expect(author.books[0].firstChapter.firstSection.firstParagraph.firstSentence).toBeDefined();
+      });
+    });
+  });
+
+  describe('hasDirtyAttributes & rollbackAttributes', () => {
+    const author = new Author(datastore, {
+      id: '1',
+      attributes: {
+        name: 'Daniele'
+      }
+    });
+
+    it('should return that has dirty attributes', () => {
+      author.name = 'New Name';
+      expect(author.hasDirtyAttributes).toBeTruthy();
+    });
+
+    it('should to rollback to the initial author name', () => {
+      author.rollbackAttributes();
+      expect(author.name).toEqual('Daniele');
+      expect(author.hasDirtyAttributes).toBeFalsy();
     });
   });
 });
