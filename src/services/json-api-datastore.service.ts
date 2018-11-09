@@ -70,7 +70,7 @@ export class JsonApiDatastore {
 
     return this.http.get(url, requestOptions)
       .pipe(
-        map((res: any) => this.extractQueryData(res, modelType, true)),
+        map((res: HttpResponse<object>) => this.extractQueryData(res, modelType, true)),
         catchError((res: any) => this.handleError(res))
       );
   }
@@ -267,10 +267,11 @@ export class JsonApiDatastore {
   }
 
   protected extractQueryData<T extends JsonApiModel>(
-    body: any,
+    response: HttpResponse<object>,
     modelType: ModelType<T>,
     withMeta = false
   ): Array<T> | JsonApiQueryData<T> {
+    const body: any = response.body;
     const models: T[] = [];
 
     body.data.forEach((data: any) => {
