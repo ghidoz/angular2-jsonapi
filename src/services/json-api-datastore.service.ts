@@ -66,7 +66,7 @@ export class JsonApiDatastore {
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
-    const requestOptions: object = this.buildRequestOptions({ headers });
+    const requestOptions: object = this.buildRequestOptions({ headers, observe: 'response' });
 
     return this.http.get(url, requestOptions)
       .pipe(
