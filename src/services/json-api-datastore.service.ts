@@ -122,7 +122,6 @@ export class JsonApiDatastore {
     const modelType = <ModelType<T>>model.constructor;
     const modelConfig: ModelConfig = model.modelConfig;
     const typeName: string = modelConfig.type;
-    const requestHeaders: HttpHeaders = this.buildHttpHeaders(headers);
     const relationships: any = this.getRelationships(model);
     const url: string = this.buildUrl(modelType, params, model.id, customUrl);
 
