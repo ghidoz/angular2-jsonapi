@@ -12,7 +12,6 @@ export class JsonApiNestedModel {
     }
   }
 
-
   get modelConfig(): ModelConfig {
     return Reflect.getMetadata('JsonApiModelConfig', this.constructor);
   }

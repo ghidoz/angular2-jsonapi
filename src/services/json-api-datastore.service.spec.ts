@@ -16,7 +16,6 @@ import {
 } from '../../test/datastore-with-config.service';
 import { HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
-
 let datastore: Datastore;
 let datastoreWithConfig: DatastoreWithConfig;
 let httpMock: HttpTestingController;
@@ -103,6 +102,8 @@ describe('JsonApiDatastore', () => {
           }
         }
       };
+
+      // tslint:disable-next-line:prefer-template
       const expectedUrl = `${BASE_URL}/${API_VERSION}/` + 'authors?' +
         encodeURIComponent('page[size]') + '=10&' +
         encodeURIComponent('page[number]') + '=1&' +

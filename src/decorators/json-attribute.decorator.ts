@@ -46,14 +46,14 @@ export function JsonAttribute(options: AttributeDecoratorOptions = {}): Property
 
     const getter = function () {
       if (this.nestedDataSerialization) {
-        return converter(Reflect.getMetadata('design:type', target, propertyName), this['_' + propertyName], true);
+        return converter(Reflect.getMetadata('design:type', target, propertyName), this[`_${propertyName}`], true);
       }
-      return this['_' + propertyName];
+      return this[`_${propertyName}`];
     };
 
     const setter = function (newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
-      this['_' + propertyName] = converter(targetType, newVal);
+      this[`_${propertyName}`] = converter(targetType, newVal);
     };
 
     if (delete target[propertyName]) {

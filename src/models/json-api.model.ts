@@ -113,7 +113,6 @@ export class JsonApiModel {
     return Reflect.getMetadata('JsonApiModelConfig', this.constructor);
   }
 
-
   private parseHasMany(data: any, included: any, remainingModels: Array<any>): void {
     const hasMany: any = Reflect.getMetadata('HasMany', this);
 
@@ -146,7 +145,7 @@ export class JsonApiModel {
                   allModels = allModels.concat(relationshipModels);
                 }
               } else {
-                throw { message: 'parseHasMany - Model type for relationship ' + typeName + ' not found.' };
+                throw { message: `parseHasMany - Model type for relationship ${typeName} not found.` };
               }
             }
 
@@ -185,7 +184,7 @@ export class JsonApiModel {
                 this[metadata.propertyName] = relationshipModel;
               }
             } else {
-              throw { message: 'parseBelongsTo - Model type for relationship ' + typeName + ' not found.' };
+              throw { message: `parseBelongsTo - Model type for relationship ${typeName} not found.` };
             }
           }
         }
@@ -203,7 +202,7 @@ export class JsonApiModel {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName });
+      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName } as any);
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
@@ -221,7 +220,6 @@ export class JsonApiModel {
     return relationshipList;
   }
 
-
   private getBelongsToRelationship<T extends JsonApiModel>(
     modelType: ModelType<T>,
     data: any,
@@ -231,7 +229,7 @@ export class JsonApiModel {
   ): T | null {
     const id: string = data.id;
 
-    const relationshipData: any = find(remainingModels, { id, type: typeName });
+    const relationshipData: any = find(remainingModels, { id, type: typeName } as any);
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);

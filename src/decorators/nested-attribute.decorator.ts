@@ -44,7 +44,7 @@ export function NestedAttribute(options: AttributeDecoratorOptions = {}): Proper
     };
 
     const updateMetadata = (instance: any) => {
-      const newValue = instance['_' + propertyName];
+      const newValue = instance[`_${propertyName}`];
 
       if (!instance[AttributeMetadata]) {
         instance[AttributeMetadata] = {};
@@ -69,15 +69,14 @@ export function NestedAttribute(options: AttributeDecoratorOptions = {}): Proper
     };
 
     const getter = function () {
-      return this['_' + propertyName];
+      return this[`_${propertyName}`];
     };
 
     const setter = function (newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
-      this['_' + propertyName] = converter(targetType, newVal);
+      this[`_${propertyName}`] = converter(targetType, newVal);
       updateMetadata(this);
     };
-
 
     if (delete target[propertyName]) {
       saveAnnotations();
