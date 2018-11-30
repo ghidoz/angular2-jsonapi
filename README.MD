@@ -487,6 +487,17 @@ and in the `save()` method:
 post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe();
 ```
 
+### Custom request options
+
+You can add your custom request options to be appended to each http call:
+
+```typescript
+this.datastore.requestOptions = {
+    withCredentials: false,
+    myOption: 123
+}
+```
+
 ### Error handling
 
 Error handling is done in the `subscribe` method of the returned Observables.

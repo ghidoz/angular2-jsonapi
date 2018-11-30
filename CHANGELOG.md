@@ -1,3 +1,7 @@
+# [6.1.0]
+
+  * Added support for custom request options
+
 # [6.0.1]
 
   * Angular 6 support
