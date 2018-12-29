@@ -1,5 +1,11 @@
 # [6.1.2]
 
+  ### BREAKING CHANGES
+
+  * Upgraded the library to Angular 7
+
+# [6.1.2]
+
   * Added support for custom request options
 
 # [6.1.2-beta]

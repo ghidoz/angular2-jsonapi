@@ -1,6 +1,6 @@
 {
   "name": "angular2-jsonapi",
-  "version": "6.1.2",
+  "version": "7.0.0",
   "description": "A lightweight Angular 2 adapter for JSON API",
   "scripts": {
     "build": "rimraf dist src/compiled && tslint src/**/*.ts && ngc",
