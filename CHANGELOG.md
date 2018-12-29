@@ -1,4 +1,4 @@
-# [6.1.2]
+# [7.0.0-beta]
 
   ### BREAKING CHANGES
 
