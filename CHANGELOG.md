@@ -1,4 +1,8 @@
-# [6.1.0]
+# [6.1.2]
+
+  * Added support for custom request options
+
+# [6.1.2-beta]
 
   * Added support for custom request options
 
