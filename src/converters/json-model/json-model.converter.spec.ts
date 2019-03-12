@@ -43,7 +43,7 @@ describe('JsonModel converter', () => {
         const VALUE = null;
         expect(() => {
           converter.mask(VALUE);
-        }).toThrow(new Error('ERROR: JsonModelConverter: Expected array but got ' + typeof VALUE + '.'));
+        }).toThrow(new Error(`ERROR: JsonModelConverter: Expected array but got ${typeof VALUE}.`));
       });
     });
 

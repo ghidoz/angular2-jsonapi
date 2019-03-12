@@ -98,7 +98,7 @@ export class JsonApiModel {
     }
   }
 
-  private rollbackAttributes(): void {
+  public rollbackAttributes(): void {
     const attributesMetadata: any = this[AttributeMetadataIndex];
     for (const propertyName in attributesMetadata) {
       if (attributesMetadata.hasOwnProperty(propertyName)) {
