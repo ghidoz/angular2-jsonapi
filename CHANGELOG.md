@@ -1,3 +1,8 @@
+# [6.1.3]
+
+  * Fixed rollbackAttributes to public
+  * Fixed tests
+
 # [6.1.2]
 
   * Added support for custom request options
