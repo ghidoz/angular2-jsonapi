@@ -1,5 +1,6 @@
 import { Chapter } from './chapter.model';
 import { Author } from './author.model';
+import { Category } from './category.model';
 import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.decorator';
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
@@ -31,4 +32,7 @@ export class Book extends JsonApiModel {
 
   @BelongsTo()
   author: Author;
+
+  @BelongsTo()
+  category: Category;
 }

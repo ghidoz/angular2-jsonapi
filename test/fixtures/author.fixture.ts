@@ -3,6 +3,7 @@ import { getSampleChapter } from './chapter.fixture';
 import { getSampleSection } from './section.fixture';
 import { getSampleParagraph } from './paragraph.fixture';
 import { getSampleSentence } from './sentence.fixture';
+import { getSampleCategory } from './category.fixture';
 
 export const AUTHOR_ID = '1';
 export const AUTHOR_NAME = 'J. R. R. Tolkien';
@@ -13,6 +14,8 @@ export const AUTHOR_UPDATED = '2016-09-26T21:12:45Z';
 
 export const BOOK_TITLE = 'The Fellowship of the Ring';
 export const BOOK_PUBLISHED = '1954-07-29';
+
+export const CATEGORY_ID = '1';
 
 export const CHAPTER_TITLE = 'The Return Journey';
 
@@ -59,7 +62,7 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
   let chapterId = 0;
 
   for (let i = 1; i <= totalBooks; i++) {
-    const book: any = getSampleBook(i, AUTHOR_ID);
+    const book: any = getSampleBook(i, AUTHOR_ID, CATEGORY_ID);
     responseArray.push(book);
 
     if (relationship && relationship.indexOf('books.chapters') !== -1) {
@@ -75,6 +78,23 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
 
         responseArray.push(chapter);
       }
+    }
+
+    if (relationship && relationship.indexOf('books.category') !== -1) {
+      let categoryInclude = responseArray.find((category) => {
+        return category.type === 'categories' && category.id === CATEGORY_ID;
+      });
+
+      if (!categoryInclude) {
+        categoryInclude = getSampleCategory(CATEGORY_ID);
+        categoryInclude.relationships.books = { data: [] };
+        responseArray.push(categoryInclude);
+      }
+
+      categoryInclude.relationships.books.data.push({
+        id: `${i}`,
+        type: 'books'
+      });
     }
 
     if (relationship && relationship.indexOf('books.firstChapter') !== -1) {
