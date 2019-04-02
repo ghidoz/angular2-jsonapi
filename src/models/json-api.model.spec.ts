@@ -145,10 +145,11 @@ describe('JsonApiModel', () => {
 
       it('should parse relationships included in more than one resource', () => {
         const BOOK_NUMBER = 4;
-        const DATA = getAuthorData('books.category.books', BOOK_NUMBER);
+        const REL = 'books.category.books';
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
         author = new Author(datastore, DATA);
-        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
-        author.books.forEach((book: Book, index: number) => {
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER, REL));
+        author.books.forEach((book: Book) => {
           expect(book.category).toBeDefined();
           expect(book.category.books.length).toBe(BOOK_NUMBER);
         });
