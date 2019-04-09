@@ -487,7 +487,7 @@ describe('JsonApiDatastore', () => {
       saveRequest.flush({});
     });
 
-    it('should not update invalid mixed ToMany relationships of author', () => {
+    it('should not update invalid mixed HasMany relationship of author', () => {
       const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
       const author = new Author(datastore, {
         id: AUTHOR_ID,
@@ -520,7 +520,7 @@ describe('JsonApiDatastore', () => {
       crimeBook.modelConfig.modelEndpointUrl = originalModelEndpointUrl;
     });
 
-    it('should update valid mixed ToMany relationships of author', () => {
+    it('should update valid mixed HasMany relationship of author', () => {
       const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
       const author = new Author(datastore, {
         id: AUTHOR_ID,
@@ -549,6 +549,7 @@ describe('JsonApiDatastore', () => {
 
       saveRequest.flush({});
     });
+
     it('should update author with 204 response', () => {
       const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
       const author = new Author(datastore, {
