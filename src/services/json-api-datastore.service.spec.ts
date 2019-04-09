@@ -526,7 +526,8 @@ describe('JsonApiDatastore', () => {
         id: AUTHOR_ID,
         attributes: {
           date_of_birth: parse(AUTHOR_BIRTH),
-          name: AUTHOR_NAME
+          name: AUTHOR_NAME,
+          firstNames: ['John', 'Ronald', 'Reuel']
         }
       });
 
