@@ -246,9 +246,13 @@ export class JsonApiDatastore {
 
   protected isValidToManyRelation(objects: Array<any>): boolean {
     const isJsonApiModel = objects.every((item) => item instanceof JsonApiModel);
-    const relationshipType: string = isJsonApiModel ? objects[0].modelConfig.type : '';
-
-    return isJsonApiModel ? objects.every((item: JsonApiModel) => item.modelConfig.type === relationshipType) : false;
+    if (!isJsonApiModel) {
+      return false;
+    }
+    const types = objects.map((item: JsonApiModel) => item.modelConfig.modelEndpointUrl || item.modelConfig.type);
+    return types
+      .filter((type: string, index: number, self: string[]) => self.indexOf(type) === index)
+      .length === 1;
   }
 
   protected buildSingleRelationshipData(model: JsonApiModel): any {
