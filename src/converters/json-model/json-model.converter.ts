@@ -26,7 +26,7 @@ export class JsonModelConverter<T> implements PropertyConverter {
     let result = null;
     if (this.options.hasMany) {
       if (!Array.isArray(value)) {
-        throw new Error('ERROR: JsonModelConverter: Expected array but got ' + typeof value + '.');
+        throw new Error(`ERROR: JsonModelConverter: Expected array but got ${typeof value}.`);
       }
       result = [];
       for (const item of value) {

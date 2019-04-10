@@ -8,7 +8,6 @@ export * from './decorators/json-attribute.decorator';
 export * from './decorators/json-api-model-config.decorator';
 export * from './decorators/json-api-datastore-config.decorator';
 
-
 export * from './models/json-api-meta.model';
 export * from './models/json-api.model';
 export * from './models/json-nested.model';
@@ -21,7 +20,6 @@ export * from './interfaces/datastore-config.interface';
 export * from './interfaces/model-config.interface';
 export * from './interfaces/attribute-decorator-options.interface';
 export * from './interfaces/property-converter.interface';
-
 
 export * from './providers';
 

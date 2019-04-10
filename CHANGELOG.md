@@ -1,8 +1,13 @@
-# [7.0.0-beta]
+# [7.0.0]
 
   ### BREAKING CHANGES
 
   * Upgraded the library to Angular 7
+
+# [6.1.3]
+
+  * Fixed rollbackAttributes to public
+  * Fixed tests
 
 # [6.1.2]
 
