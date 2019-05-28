@@ -3,7 +3,7 @@ import { format, parse } from 'date-fns';
 import { Author } from '../../test/models/author.model';
 import { Chapter } from '../../test/models/chapter.model';
 import { AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor } from '../../test/models/custom-author.model';
-import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData, CHAPTER_TITLE } from '../../test/fixtures/author.fixture';
+import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData } from '../../test/fixtures/author.fixture';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { API_VERSION, BASE_URL, Datastore } from '../../test/datastore.service';
 import { ErrorResponse } from '../models/error-response.model';
@@ -476,6 +476,29 @@ describe('JsonApiDatastore', () => {
       expect(obj.relationships.firstChapter).toBeUndefined();
       expect(obj.relationships['first-chapter']).toBeDefined();
       expect(obj.relationships['first-chapter'].data.id).toBe(CHAPTER_ID);
+
+      saveRequest.flush({});
+    });
+
+    it('should use correct key for ToMany-relationship', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books`;
+      const CHAPTER_ID = '1';
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+
+      book.importantChapters = [new Chapter(datastore, {
+        id: CHAPTER_ID
+      })];
+
+      book.save().subscribe();
+
+      const saveRequest = httpMock.expectOne(expectedUrl);
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.importantChapters).toBeUndefined();
+      expect(obj.relationships['important-chapters']).toBeDefined();
+      expect(obj.relationships['important-chapters'].data.length).toBe(1);
 
       saveRequest.flush({});
     });

@@ -218,6 +218,7 @@ export class JsonApiDatastore {
     let relationships: any;
 
     const belongsToMetadata: any[] = Reflect.getMetadata('BelongsTo', data) || [];
+    const hasManyMetadata: any[] = Reflect.getMetadata('HasMany', data) || [];
 
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
@@ -231,16 +232,20 @@ export class JsonApiDatastore {
               data: this.buildSingleRelationshipData(data[key])
             };
           }
-        } else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
-          relationships = relationships || {};
+        } else if (data[key] instanceof Array && data[key].length > 0) {
+          const entity = hasManyMetadata.find((entity: any) => entity.propertyName === key);
+          if (entity && this.isValidToManyRelation(data[key])) {
+            relationships = relationships || {};
 
-          const relationshipData = data[key]
-            .filter((model: JsonApiModel) => model.id)
-            .map((model: JsonApiModel) => this.buildSingleRelationshipData(model));
+            const relationshipKey = entity.relationship;
+            const relationshipData = data[key]
+              .filter((model: JsonApiModel) => model.id)
+              .map((model: JsonApiModel) => this.buildSingleRelationshipData(model));
 
-          relationships[key] = {
-            data: relationshipData
-          };
+            relationships[relationshipKey] = {
+              data: relationshipData
+            };
+          }
         }
       }
     }
