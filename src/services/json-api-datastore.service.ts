@@ -217,6 +217,8 @@ export class JsonApiDatastore {
   protected getRelationships(data: any): any {
     let relationships: any;
 
+    const toManyRelationships: any[] = Reflect.getMetadata('HasMany', data) || [];
+
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
@@ -227,9 +229,11 @@ export class JsonApiDatastore {
               data: this.buildSingleRelationshipData(data[key])
             };
           }
-        } else if (data[key] instanceof Array && data[key].length > 0 && this.isValidToManyRelation(data[key])) {
+        } else if (data[key] instanceof Array
+          && this.isToManyRelationship(key, toManyRelationships)
+          && this.containsValidToManyRelations(data[key])
+        ) {
           relationships = relationships || {};
-
           const relationshipData = data[key]
             .filter((model: JsonApiModel) => model.id)
             .map((model: JsonApiModel) => this.buildSingleRelationshipData(model));
@@ -244,7 +248,14 @@ export class JsonApiDatastore {
     return relationships;
   }
 
-  protected isValidToManyRelation(objects: Array<any>): boolean {
+  protected isToManyRelationship(key: string, toManyRelationships: any[]): boolean {
+    return !!toManyRelationships.find((property: any) => property.propertyName === key);
+  }
+
+  protected containsValidToManyRelations(objects: Array<any>): boolean {
+    if (!objects.length) {
+      return true;
+    }
     const isJsonApiModel = objects.every((item) => item instanceof JsonApiModel);
     const relationshipType: string = isJsonApiModel ? objects[0].modelConfig.type : '';
 

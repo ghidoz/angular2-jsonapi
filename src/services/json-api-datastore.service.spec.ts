@@ -548,5 +548,27 @@ describe('JsonApiDatastore', () => {
         }
       });
     });
+
+    it('should remove empty ToMany-relationships', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
+      const BOOK_NUMBER = 2;
+      const DATA = getAuthorData('books', BOOK_NUMBER);
+      const author = new Author(datastore, DATA);
+
+      author.books = [];
+
+      author.save().subscribe();
+
+      httpMock.expectNone(`${BASE_URL}/${API_VERSION}/authors`);
+      const saveRequest = httpMock.expectOne({ method: 'PATCH', url: expectedUrl });
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.books).toBeDefined();
+      expect(obj.relationships.books.data).toBeDefined();
+      expect(obj.relationships.books.data.length).toBe(0);
+
+      saveRequest.flush({});
+
+    });
   });
 });
