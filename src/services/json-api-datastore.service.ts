@@ -217,13 +217,17 @@ export class JsonApiDatastore {
   protected getRelationships(data: any): any {
     let relationships: any;
 
+    const belongsToMetadata: any[] = Reflect.getMetadata('BelongsTo', data) || [];
+
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         if (data[key] instanceof JsonApiModel) {
           relationships = relationships || {};
 
           if (data[key].id) {
-            relationships[key] = {
+            const entity = belongsToMetadata.find((entity: any) => entity.propertyName === key);
+            const relationshipKey = entity.relationship;
+            relationships[relationshipKey] = {
               data: this.buildSingleRelationshipData(data[key])
             };
           }

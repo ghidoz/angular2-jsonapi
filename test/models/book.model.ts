@@ -26,7 +26,7 @@ export class Book extends JsonApiModel {
   @HasMany()
   chapters: Chapter[];
 
-  @BelongsTo()
+  @BelongsTo({ key: 'first-chapter' })
   firstChapter: Chapter;
 
   @BelongsTo()
