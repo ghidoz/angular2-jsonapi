@@ -56,9 +56,38 @@ export class JsonApiModel {
     this.lastSyncModels = included;
   }
 
-  public save(params?: any, headers?: HttpHeaders, customUrl?: string): Observable<this> {
+  public save(): Observable<this>;
+  public save(params: {[s: string]: any}): Observable<this>;
+  public save(headers: HttpHeaders): Observable<this>;
+  public save(customUrl: string): Observable<this>;
+  public save(params: {[s: string]: any}, headers: HttpHeaders): Observable<this>;
+  public save(params: {[s: string]: any}, customUrl: string): Observable<this>;
+  public save(headers: HttpHeaders, customUrl: string): Observable<this>;
+  public save(params: {[s: string]: any}, headers: HttpHeaders, customUrl: string): Observable<this>;
+  public save(...args: any[]): Observable<this> {
     this.checkChanges();
     const attributesMetadata: any = this[AttributeMetadataIndex];
+    let [params, headers, customUrl] = args;
+
+    const length = args.length;
+
+    if (length) {
+      if (params instanceof HttpHeaders) {
+        headers = params;
+        params = {};
+      }
+
+      if (typeof params === 'string') {
+        customUrl = params;
+        params = {};
+      }
+
+      if (typeof headers === 'string') {
+        customUrl = headers;
+        headers = undefined;
+      }
+    }
+
     return this.internalDatastore.saveRecord(attributesMetadata, this, params, headers, customUrl);
   }
 
