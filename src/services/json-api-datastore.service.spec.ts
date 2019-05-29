@@ -14,7 +14,7 @@ import {
   BASE_URL_FROM_CONFIG,
   DatastoreWithConfig
 } from '../../test/datastore-with-config.service';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpRequest } from '@angular/common/http';
 
 let datastore: Datastore;
 let datastoreWithConfig: DatastoreWithConfig;
@@ -319,6 +319,23 @@ describe('JsonApiDatastore', () => {
           }
         }
       }, { status: 201, statusText: 'Created' });
+    });
+
+    it('should create new author with difference arguments', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/author/internal/`;
+      const author = datastore.createRecord(Author, {
+        name: AUTHOR_NAME,
+        date_of_birth: AUTHOR_BIRTH
+      });
+
+      author.save(`${BASE_URL}/${API_VERSION}/author/internal/`).subscribe();
+      httpMock.expectOne({ method: 'POST', url: expectedUrl });
+
+      author.save({ check: 'params' }, `${BASE_URL}/${API_VERSION}/author/internal/`).subscribe();
+      httpMock.expectOne({ method: 'POST', url: `${expectedUrl}?check=params` });
+
+      author.save(new HttpHeaders().set('Auth', '123')).subscribe();
+      httpMock.expectOne((req: HttpRequest<any>) => req.headers.get('Auth') === '123');
     });
 
     it('should throw error on new author with 201 response but no body', () => {
