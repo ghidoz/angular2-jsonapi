@@ -45,7 +45,7 @@ export class JsonApiModel {
     if (data) {
       let modelsForProcessing = remainingModels;
 
-      if (!modelsForProcessing) {
+      if (modelsForProcessing === undefined) {
         modelsForProcessing = [].concat(included);
       }
 
@@ -202,16 +202,18 @@ export class JsonApiModel {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(remainingModels, { id: item.id, type: typeName } as any);
+      const relationshipData: any = find(included, { id: item.id, type: typeName } as any);
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
 
         const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
         const modelsForProcessing = remainingModels.concat([]);
-        modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
 
-        newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+        if (indexOfNewlyFoundModel !== -1) {
+          modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+          newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+        }
 
         relationshipList.push(newObject);
       }
@@ -229,16 +231,18 @@ export class JsonApiModel {
   ): T | null {
     const id: string = data.id;
 
-    const relationshipData: any = find(remainingModels, { id, type: typeName } as any);
+    const relationshipData: any = find(included, { id, type: typeName } as any);
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);
 
       const indexOfNewlyFoundModel = remainingModels.indexOf(relationshipData);
       const modelsForProcessing = remainingModels.concat([]);
-      modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
 
-      newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+      if (indexOfNewlyFoundModel !== -1) {
+        modelsForProcessing.splice(indexOfNewlyFoundModel, 1);
+        newObject.syncRelationships(relationshipData, included, modelsForProcessing);
+      }
 
       return newObject;
     }

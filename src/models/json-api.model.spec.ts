@@ -143,6 +143,18 @@ describe('JsonApiModel', () => {
 
       });
 
+      it('should parse relationships included in more than one resource', () => {
+        const BOOK_NUMBER = 4;
+        const REL = 'books.category.books';
+        const DATA = getAuthorData(REL, BOOK_NUMBER);
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER, REL));
+        author.books.forEach((book: Book) => {
+          expect(book.category).toBeDefined();
+          expect(book.category.books.length).toBe(BOOK_NUMBER);
+        });
+      });
+
       it('should return the parsed relationships when two nested ones are included', () => {
         const REL = 'books,books.chapters';
         const BOOK_NUMBER = 2;

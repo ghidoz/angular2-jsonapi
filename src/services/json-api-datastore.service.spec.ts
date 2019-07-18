@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { format, parse } from 'date-fns';
 import { Author } from '../../test/models/author.model';
+import { Chapter } from '../../test/models/chapter.model';
 import { AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor } from '../../test/models/custom-author.model';
 import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData } from '../../test/fixtures/author.fixture';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -8,6 +9,7 @@ import { API_VERSION, BASE_URL, Datastore } from '../../test/datastore.service';
 import { ErrorResponse } from '../models/error-response.model';
 import { getSampleBook } from '../../test/fixtures/book.fixture';
 import { Book } from '../../test/models/book.model';
+import { CrimeBook } from '../../test/models/crime-book.model';
 import { JsonApiQueryData, ModelConfig } from '../index';
 import {
   API_VERSION_FROM_CONFIG,
@@ -455,6 +457,52 @@ describe('JsonApiDatastore', () => {
 
       saveRequest.flush(null, { status: 204, statusText: 'No Content' });
     });
+
+    it('should use correct key for BelongsTo-relationship', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books`;
+      const CHAPTER_ID = '1';
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+
+      book.firstChapter = new Chapter(datastore, {
+        id: CHAPTER_ID
+      });
+
+      book.save().subscribe();
+
+      const saveRequest = httpMock.expectOne(expectedUrl);
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.firstChapter).toBeUndefined();
+      expect(obj.relationships['first-chapter']).toBeDefined();
+      expect(obj.relationships['first-chapter'].data.id).toBe(CHAPTER_ID);
+
+      saveRequest.flush({});
+    });
+
+    it('should use correct key for ToMany-relationship', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books`;
+      const CHAPTER_ID = '1';
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+
+      book.importantChapters = [new Chapter(datastore, {
+        id: CHAPTER_ID
+      })];
+
+      book.save().subscribe();
+
+      const saveRequest = httpMock.expectOne(expectedUrl);
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.importantChapters).toBeUndefined();
+      expect(obj.relationships['important-chapters']).toBeDefined();
+      expect(obj.relationships['important-chapters'].data.length).toBe(1);
+
+      saveRequest.flush({});
+    });
   });
 
   describe('updateRecord', () => {
@@ -482,6 +530,70 @@ describe('JsonApiDatastore', () => {
       expect(obj.id).toBe(AUTHOR_ID);
       expect(obj.type).toBe('authors');
       expect(obj.relationships).toBeUndefined();
+
+      saveRequest.flush({});
+    });
+
+    it('should not update invalid mixed HasMany relationship of author', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
+      const author = new Author(datastore, {
+        id: AUTHOR_ID,
+        attributes: {
+          date_of_birth: parse(AUTHOR_BIRTH),
+          name: AUTHOR_NAME
+        }
+      });
+      const crimeBook = datastore.createRecord(CrimeBook, {
+        id: 124,
+        title: `Crime book - ${BOOK_TITLE}`,
+      });
+      const originalModelEndpointUrl = crimeBook.modelConfig.modelEndpointUrl;
+      crimeBook.modelConfig.modelEndpointUrl = 'crimeBooks';
+
+      author.books = [datastore.createRecord(Book, {
+        id: 123,
+        title: BOOK_TITLE,
+      }), crimeBook];
+
+      author.save().subscribe();
+
+      const saveRequest = httpMock.expectOne({ method: 'PATCH', url: expectedUrl });
+      const obj = saveRequest.request.body.data;
+      expect(obj.id).toBe(AUTHOR_ID);
+      expect(obj.type).toBe('authors');
+      expect(obj.relationships).toBeUndefined();
+
+      saveRequest.flush({});
+      crimeBook.modelConfig.modelEndpointUrl = originalModelEndpointUrl;
+    });
+
+    it('should update valid mixed HasMany relationship of author', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/authors/${AUTHOR_ID}`;
+      const author = new Author(datastore, {
+        id: AUTHOR_ID,
+        attributes: {
+          date_of_birth: parse(AUTHOR_BIRTH),
+          name: AUTHOR_NAME,
+          firstNames: ['John', 'Ronald', 'Reuel']
+        }
+      });
+
+      author.books = [datastore.createRecord(Book, {
+        id: 123,
+        title: BOOK_TITLE,
+      }), datastore.createRecord(CrimeBook, {
+        id: 125,
+        title: `Crime book - ${BOOK_TITLE}`,
+      })];
+
+      author.save().subscribe();
+
+      const saveRequest = httpMock.expectOne({ method: 'PATCH', url: expectedUrl });
+      const obj = saveRequest.request.body.data;
+      expect(obj.id).toBe(AUTHOR_ID);
+      expect(obj.type).toBe('authors');
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.books.data.length).toBe(2);
 
       saveRequest.flush({});
     });
