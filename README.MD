@@ -470,7 +470,7 @@ Content-Type: application/vnd.api+json
 You can also add your custom headers to be appended to each http call:
 
 ```typescript
-this.datastore.headers = new Headers({'Authorization': 'Bearer ' + accessToken});
+this.datastore.headers = new HttpHeaders({'Authorization': 'Bearer ' + accessToken});
 ```
 
 Or you can pass the headers as last argument of any datastore call method:
@@ -478,13 +478,13 @@ Or you can pass the headers as last argument of any datastore call method:
 ```typescript
 this.datastore.findAll(Post, {
     include: 'comments'
-}, new Headers({'Authorization': 'Bearer ' + accessToken}));
+}, new HttpHeaders({'Authorization': 'Bearer ' + accessToken}));
 ```
 
 and in the `save()` method:
 
 ```typescript
-post.save({}, new Headers({'Authorization': 'Bearer ' + accessToken})).subscribe();
+post.save({}, new HttpHeaders({'Authorization': 'Bearer ' + accessToken})).subscribe();
 ```
 
 ### Custom request options
