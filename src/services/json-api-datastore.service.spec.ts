@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { format, parse } from 'date-fns';
 import { Author } from '../../test/models/author.model';
+import { Chapter } from '../../test/models/chapter.model';
 import { AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor } from '../../test/models/custom-author.model';
 import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData } from '../../test/fixtures/author.fixture';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -454,6 +455,52 @@ describe('JsonApiDatastore', () => {
       expect(obj.relationships.author.data.id).toBe(AUTHOR_ID);
 
       saveRequest.flush(null, { status: 204, statusText: 'No Content' });
+    });
+
+    it('should use correct key for BelongsTo-relationship', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books`;
+      const CHAPTER_ID = '1';
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+
+      book.firstChapter = new Chapter(datastore, {
+        id: CHAPTER_ID
+      });
+
+      book.save().subscribe();
+
+      const saveRequest = httpMock.expectOne(expectedUrl);
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.firstChapter).toBeUndefined();
+      expect(obj.relationships['first-chapter']).toBeDefined();
+      expect(obj.relationships['first-chapter'].data.id).toBe(CHAPTER_ID);
+
+      saveRequest.flush({});
+    });
+
+    it('should use correct key for ToMany-relationship', () => {
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books`;
+      const CHAPTER_ID = '1';
+      const book = datastore.createRecord(Book, {
+        title: BOOK_TITLE
+      });
+
+      book.importantChapters = [new Chapter(datastore, {
+        id: CHAPTER_ID
+      })];
+
+      book.save().subscribe();
+
+      const saveRequest = httpMock.expectOne(expectedUrl);
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.importantChapters).toBeUndefined();
+      expect(obj.relationships['important-chapters']).toBeDefined();
+      expect(obj.relationships['important-chapters'].data.length).toBe(1);
+
+      saveRequest.flush({});
     });
   });
 

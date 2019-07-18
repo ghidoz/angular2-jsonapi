@@ -1,4 +1,4 @@
-import {getSampleBook} from './book.fixture';
+import { getSampleBook } from './book.fixture';
 import { getSampleChapter } from './chapter.fixture';
 import { getSampleSection } from './section.fixture';
 import { getSampleParagraph } from './paragraph.fixture';
@@ -80,7 +80,7 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
     if (relationship && relationship.indexOf('books.firstChapter') !== -1) {
       const firstChapterId = '1';
 
-      book.relationships.firstChapter = {
+      book.relationships['first-chapter'] = {
         data: {
           id: firstChapterId,
           type: 'chapters'
