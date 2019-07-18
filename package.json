@@ -1,6 +1,6 @@
 {
   "name": "angular2-jsonapi",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "A lightweight Angular 2 adapter for JSON API",
   "scripts": {
     "build": "rimraf dist src/compiled && tslint src/**/*.ts && ngc",
@@ -39,7 +39,6 @@
     "tslib": "^1.9.0"
   },
   "peerDependencies": {
-    "@angular/animations": "^7.1.4",
     "@angular/common": "^7.1.4",
     "@angular/compiler": "^7.1.4",
     "@angular/compiler-cli": "^7.1.4",
@@ -53,8 +52,7 @@
     "fsevents": "*"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.11.0",
-    "@angular/animations": "^7.1.4",
+    "@angular-devkit/build-angular": "^0.801.2",
     "@angular/cli": "^7.1.4",
     "@angular/common": "^7.1.4",
     "@angular/compiler": "^7.1.4",
