@@ -1,6 +1,6 @@
 import { BOOK_PUBLISHED, BOOK_TITLE } from './author.fixture';
 
-export function getSampleBook(i: number, authorId: string) {
+export function getSampleBook(i: number, authorId: string, categoryId: string = '1') {
   return {
     id: '' + i,
     type: 'books',
@@ -31,6 +31,16 @@ export function getSampleBook(i: number, authorId: string) {
         data: {
           id: authorId,
           type: 'authors'
+        }
+      },
+      category: {
+        links: {
+          self: '/v1/books/1/relationships/category',
+          related: '/v1/books/1/category'
+        },
+        data: {
+          id: categoryId,
+          type: 'categories'
         }
       }
     },
