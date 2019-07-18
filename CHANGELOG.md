@@ -1,3 +1,12 @@
+# [7.1.0]
+
+  * Allow mixed model types in a single HasMany relationships ([#216](https://github.com/ghidoz/angular2-jsonapi/pull/216))
+
+### Bug fixes
+
+  * Fix using relationship config key ([#210](https://github.com/ghidoz/angular2-jsonapi/pull/210))
+  * Fix connecting related model resources parsed from response ([#213](https://github.com/ghidoz/angular2-jsonapi/pull/213))
+
 # [7.0.0]
 
   ### BREAKING CHANGES
