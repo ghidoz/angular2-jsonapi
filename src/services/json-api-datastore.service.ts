@@ -232,7 +232,7 @@ export class JsonApiDatastore {
               data: this.buildSingleRelationshipData(data[key])
             };
           }
-        } else if (data[key] instanceof Array && data[key].length > 0) {
+        } else if (data[key] instanceof Array) {
           const entity = hasManyMetadata.find((entity: any) => entity.propertyName === key);
           if (entity && this.isValidToManyRelation(data[key])) {
             relationships = relationships || {};
@@ -254,6 +254,9 @@ export class JsonApiDatastore {
   }
 
   protected isValidToManyRelation(objects: Array<any>): boolean {
+    if (!objects.length) {
+      return true;
+    }
     const isJsonApiModel = objects.every((item) => item instanceof JsonApiModel);
     if (!isJsonApiModel) {
       return false;
