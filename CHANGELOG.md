@@ -1,3 +1,7 @@
+# [8.1.1-beta]
+
+  * Merge fixes from version 7.1.1
+
 # [8.1.0-beta]
 
   * Merge fixes from version 7 (7.1.0)
@@ -5,6 +9,10 @@
 # [8.0.0-beta]
 
   * Allow upgrade to Angular 8
+
+# [7.1.1]
+
+  * Allow removal of HasMany relations by setting empty array ([#224](https://github.com/ghidoz/angular2-jsonapi/pull/224))
 
 # [7.1.0]
 
