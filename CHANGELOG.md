@@ -1,3 +1,7 @@
+# [7.1.1]
+
+  * Allow removal of HasMany relations by setting empty array ([#224](https://github.com/ghidoz/angular2-jsonapi/pull/224))
+
 # [7.1.0]
 
   * Allow mixed model types in a single HasMany relationships ([#216](https://github.com/ghidoz/angular2-jsonapi/pull/216))
