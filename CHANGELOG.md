@@ -1,3 +1,7 @@
+# [8.1.2-beta]
+
+  * Merge fixes from version 7.1.2
+
 # [8.1.1-beta]
 
   * Merge fixes from version 7.1.1
@@ -9,6 +13,10 @@
 # [8.0.0-beta]
 
   * Allow upgrade to Angular 8
+
+# [7.1.2]
+
+  * Fix parsing has many relationships when there is no models provided
 
 # [7.1.1]
 
