@@ -1,3 +1,7 @@
+# [7.1.2]
+
+  * Fix parsing has many relationships when there is no models provided
+
 # [7.1.1]
 
   * Allow removal of HasMany relations by setting empty array ([#224](https://github.com/ghidoz/angular2-jsonapi/pull/224))
