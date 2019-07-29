@@ -120,7 +120,7 @@ export class JsonApiModel {
       for (const metadata of hasMany) {
         const relationship: any = data.relationships ? data.relationships[metadata.relationship] : null;
 
-        if (relationship && relationship.data && relationship.data.length > 0) {
+        if (relationship && relationship.data && Array.isArray(relationship.data)) {
           let allModels: JsonApiModel[] = [];
           const modelTypesFetched: any = [];
 
@@ -148,11 +148,9 @@ export class JsonApiModel {
                 throw { message: `parseHasMany - Model type for relationship ${typeName} not found.` };
               }
             }
-
-            if (allModels.length > 0) {
-              this[metadata.propertyName] = allModels;
-            }
           }
+
+          this[metadata.propertyName] = allModels;
         }
       }
     }

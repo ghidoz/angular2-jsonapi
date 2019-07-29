@@ -129,6 +129,18 @@ describe('JsonApiModel', () => {
         });
       });
 
+      it('should return an empty array for hasMany relationship when one is included without any elements', () => {
+        const BOOK_NUMBER = 0;
+        const DATA = getAuthorData('books', BOOK_NUMBER);
+        author = new Author(datastore, DATA);
+        author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER));
+
+        expect(author).toBeDefined();
+        expect(author.id).toBe(AUTHOR_ID);
+        expect(author.books).toBeDefined();
+        expect(author.books.length).toBe(BOOK_NUMBER);
+      });
+
       it('should parse infinite levels of relationships by reference', () => {
         const BOOK_NUMBER = 4;
         const DATA = getAuthorData('books', BOOK_NUMBER);
