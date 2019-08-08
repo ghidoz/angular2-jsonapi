@@ -82,6 +82,26 @@ import { JsonApiModule } from 'angular2-jsonapi';
 export class AppModule { }
 ```
 
+### Angular CLI configuration (for CLI 8.1+)
+
+Beginning from Angular CLI 8.1 the `tsconfig.json` does not sets the `emitDecoratorMetadata` option (see https://blog.ninja-squad.com/2019/07/03/angular-cli-8.1/#typescript-configuration-changes). But we need it to read the metadata from the models. So make sure to update your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+  }
+}
+```
+
+### Polyfills (for Angular 8+ AOT)
+
+Make sure to add this line in your `src/polyfills.ts` as we need it to read metadata from the models:
+
+```typescript
+import 'core-js/proposals/reflect-metadata';
+```
+
 ## Usage
 
 ### Configuration
