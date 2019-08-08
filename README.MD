@@ -94,13 +94,16 @@ Beginning from Angular CLI 8.1 the `tsconfig.json` does not sets the `emitDecora
 }
 ```
 
-### Polyfills (for Angular 8+ AOT)
+### Notice for `es2015` compilation
 
+Beginning with Angular 8 the default compile target will be `es2015` (in `tsconfig.json`). 
 Make sure to add this line in your `src/polyfills.ts` as we need it to read metadata from the models:
 
 ```typescript
 import 'core-js/proposals/reflect-metadata';
 ```
+
+**Warning**: If you have circular dependencies in your model definitions (see https://github.com/ghidoz/angular2-jsonapi/issues/236#issuecomment-519473153 for example), you need to change the compile target to `es5` as this lead to runtime errors `ReferenceError: Cannot access 'x' before initialization` (see https://github.com/angular/angular/issues/30106#issuecomment-497699838).
 
 ## Usage
 
