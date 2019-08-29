@@ -194,7 +194,7 @@ describe('JsonApiDatastore', () => {
       });
     });
 
-    xit('should get cyclic HasMany relationships', () => {
+    it('should get cyclic HasMany relationships', () => {
       const expectedQueryString = 'include=categories.members';
       const expectedUrl = encodeURI(`${BASE_URL}/${API_VERSION}/thing?${expectedQueryString}`);
 
