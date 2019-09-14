@@ -5,6 +5,13 @@ node_js:
   - '9'
   - 'node'
 
+before_install:
+  - npm i -g npm@latest
+
+install:
+  - npm ci
+  - cd projects/angular2-jsonapi && npm ci
+
 script:
   - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
 
