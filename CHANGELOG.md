@@ -1,3 +1,7 @@
+# [8.0.0]
+
+  * Restructured library to follow Angular standards
+
 # [7.1.2]
 
   * Fix parsing has many relationships when there is no models provided
