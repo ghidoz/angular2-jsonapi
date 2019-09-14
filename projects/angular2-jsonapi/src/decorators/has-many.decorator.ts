@@ -1,5 +1,5 @@
 export function HasMany(config: any = {}) {
-  return function (target: any, propertyName: string | symbol) {
+  return (target: any, propertyName: string | symbol) => {
     const annotations = Reflect.getMetadata('HasMany', target) || [];
 
     annotations.push({

@@ -3,8 +3,8 @@ import {AttributeDecoratorOptions} from '../interfaces/attribute-decorator-optio
 import * as _ from 'lodash';
 
 export function NestedAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
-  return function (target: any, propertyName: string) {
-    const converter = function (dataType: any, value: any, forSerialisation = false): any {
+  return (target: any, propertyName: string) => {
+    const converter = (dataType: any, value: any, forSerialisation = false): any => {
       let attrConverter;
 
       if (options.converter) {
@@ -27,7 +27,7 @@ export function NestedAttribute(options: AttributeDecoratorOptions = {}): Proper
       return value;
     };
 
-    const saveAnnotations = function () {
+    const saveAnnotations = () => {
       const metadata = Reflect.getMetadata('NestedAttribute', target) || {};
 
       metadata[propertyName] = {
@@ -67,11 +67,11 @@ export function NestedAttribute(options: AttributeDecoratorOptions = {}): Proper
       }
     };
 
-    const getter = function () {
+    const getter = function() {
       return this[`_${propertyName}`];
     };
 
-    const setter = function (newVal: any) {
+    const setter = function(newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
       this[`_${propertyName}`] = converter(targetType, newVal);
       updateMetadata(this);

@@ -4,8 +4,8 @@ import {DateConverter} from '../converters/date/date.converter';
 import * as _ from 'lodash';
 
 export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
-  return function (target: any, propertyName: string) {
-    const converter = function (dataType: any, value: any, forSerialisation = false): any {
+  return (target: any, propertyName: string) => {
+    const converter = (dataType: any, value: any, forSerialisation = false): any => {
       let attrConverter;
 
       if (options.converter) {
@@ -30,7 +30,7 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
       return value;
     };
 
-    const saveAnnotations = function () {
+    const saveAnnotations = () => {
       const metadata = Reflect.getMetadata('Attribute', target) || {};
 
       metadata[propertyName] = {
@@ -45,11 +45,11 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
       Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
     };
 
-    const setMetadata = function (
+    const setMetadata = (
       instance: any,
       oldValue: any,
       newValue: any
-    ) {
+    ) => {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
 
       if (!instance[AttributeMetadata]) {
@@ -58,18 +58,18 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
       instance[AttributeMetadata][propertyName] = {
         newValue,
         oldValue,
-        nested:false,
+        nested: false,
         serializedName: options.serializedName,
         hasDirtyAttributes: !_.isEqual(oldValue, newValue),
         serialisationValue: converter(targetType, newValue, true)
       };
     };
 
-    const getter = function () {
+    const getter = function() {
       return this[`_${propertyName}`];
     };
 
-    const setter = function (newVal: any) {
+    const setter = function(newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
       const convertedValue = converter(targetType, newVal);
       let oldValue = null;
@@ -77,7 +77,7 @@ export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDeco
         oldValue = converter(targetType, newVal);
       } else {
         if (this[AttributeMetadata] && this[AttributeMetadata][propertyName]) {
-          oldValue = this[AttributeMetadata][propertyName]['oldValue'];
+          oldValue = this[AttributeMetadata][propertyName].oldValue;
         }
       }
 

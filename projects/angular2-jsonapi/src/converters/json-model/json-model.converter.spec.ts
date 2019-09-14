@@ -144,11 +144,11 @@ describe('JsonModel converter', () => {
         const schools: Array<School> = [new School(DATA[0]), new School(DATA[1])];
         const result: Array<any> = converter.unmask(schools);
         expect(result.length).toBe(2);
-        for (const key in result) {
-          expect(result[key].name).toBe(DATA[key].name);
-          expect(result[key].students).toBe(DATA[key].students);
-          expect(result[key].foundation).toContain(DATA[key].foundation);
-        }
+        result.forEach((element, index: number) => {
+          expect(element.name).toBe(DATA[index].name);
+          expect(element.students).toBe(DATA[index].students);
+          expect(element.foundation).toContain(DATA[index].foundation);
+        });
       });
     });
 

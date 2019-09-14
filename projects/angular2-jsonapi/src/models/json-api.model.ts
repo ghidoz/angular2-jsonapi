@@ -18,7 +18,7 @@ const AttributeMetadataIndex: string = AttributeMetadata as any;
 
 export class JsonApiModel {
   id: string;
-  public modelInitialization: boolean = false;
+  public modelInitialization = false;
 
   [key: string]: any;
 

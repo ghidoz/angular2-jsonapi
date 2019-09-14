@@ -1,3 +1,4 @@
+/* tslint:disable:variable-name */
 import {Chapter} from './chapter.model';
 import {Author} from './author.model';
 import {Category} from './category.model';

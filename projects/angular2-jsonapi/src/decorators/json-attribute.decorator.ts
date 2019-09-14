@@ -2,8 +2,8 @@ import {AttributeDecoratorOptions} from '../interfaces/attribute-decorator-optio
 import {DateConverter} from '../converters/date/date.converter';
 
 export function JsonAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
-  return function (target: any, propertyName: string) {
-    const converter = function (dataType: any, value: any, forSerialisation = false): any {
+  return (target: any, propertyName: string) => {
+    const converter = (dataType: any, value: any, forSerialisation = false): any => {
       let attrConverter;
 
       if (options.converter) {
@@ -28,7 +28,7 @@ export function JsonAttribute(options: AttributeDecoratorOptions = {}): Property
       return value;
     };
 
-    const saveAnnotations = function () {
+    const saveAnnotations = () => {
       const metadata = Reflect.getMetadata('JsonAttribute', target) || {};
 
       metadata[propertyName] = {
@@ -43,14 +43,14 @@ export function JsonAttribute(options: AttributeDecoratorOptions = {}): Property
       Reflect.defineMetadata('AttributeMapping', mappingMetadata, target);
     };
 
-    const getter = function () {
+    const getter = function() {
       if (this.nestedDataSerialization) {
         return converter(Reflect.getMetadata('design:type', target, propertyName), this[`_${propertyName}`], true);
       }
       return this[`_${propertyName}`];
     };
 
-    const setter = function (newVal: any) {
+    const setter = function(newVal: any) {
       const targetType = Reflect.getMetadata('design:type', target, propertyName);
       this[`_${propertyName}`] = converter(targetType, newVal);
     };

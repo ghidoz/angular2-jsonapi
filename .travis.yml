@@ -10,10 +10,11 @@ before_install:
 
 install:
   - npm ci
-  - cd projects/angular2-jsonapi && npm ci
+  - cd projects/angular2-jsonapi && npm ci && cd ../..
 
 script:
   - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
+  - npm run lint
 
 after_success:
   - cat ./coverage/angular2-jsonapi/lcov.info | ./node_modules/coveralls/bin/coveralls.js

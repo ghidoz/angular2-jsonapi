@@ -4,7 +4,7 @@ import {JsonApiModel} from './json-api.model';
 export class JsonApiNestedModel {
   [key: string]: any;
 
-  public nestedDataSerialization: boolean = false;
+  public nestedDataSerialization = false;
 
   constructor(data?: any) {
     if (data) {
@@ -20,7 +20,7 @@ export class JsonApiNestedModel {
     Object.assign(this, data);
   }
 
-  public serialize(): Object {
+  public serialize(): any {
     return this.transformSerializedNamesToPropertyNames();
   }
 
