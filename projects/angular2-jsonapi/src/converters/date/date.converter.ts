@@ -11,10 +11,6 @@ export class DateConverter implements PropertyConverter {
   }
 
   unmask(value: any) {
-    if (value instanceof Date) {
-      return value.toISOString(); // format(value, 'YYYY-MM-DDTHH:mm:ssZ');
-    } else {
-      return value;
-    }
+    return value.toISOString();
   }
 }
