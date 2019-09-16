@@ -1,18 +1,11 @@
-import {TestBed} from '@angular/core/testing';
-import {parseISO} from 'date-fns';
-import {Author} from '../../test/models/author.model';
-import {
-  AUTHOR_ID,
-  BOOK_PUBLISHED,
-  BOOK_TITLE,
-  CHAPTER_TITLE,
-  getAuthorData,
-  getIncludedBooks
-} from '../../test/fixtures/author.fixture';
-import {Book} from '../../test/models/book.model';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {Datastore} from '../../test/datastore.service';
-import {Chapter} from '../../test/models/chapter.model';
+import { TestBed } from '@angular/core/testing';
+import { parseISO } from 'date-fns';
+import { Author } from '../../test/models/author.model';
+import { AUTHOR_ID, BOOK_PUBLISHED, BOOK_TITLE, CHAPTER_TITLE, getAuthorData, getIncludedBooks } from '../../test/fixtures/author.fixture';
+import { Book } from '../../test/models/book.model';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Datastore } from '../../test/datastore.service';
+import { Chapter } from '../../test/models/chapter.model';
 
 let datastore: Datastore;
 
@@ -41,7 +34,7 @@ describe('JsonApiModel', () => {
           name: 'Daniele',
           surname: 'Ghidoli',
           date_of_birth: '1987-05-25',
-          school: { name: 'Massachusetts Institute of Technology', students: 11319, foundation: '1861-10-04' }
+          school: {name: 'Massachusetts Institute of Technology', students: 11319, foundation: '1861-10-04'}
         }
       };
       const author: Author = new Author(datastore, DATA);

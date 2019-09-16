@@ -1,4 +1,4 @@
-import {PropertyConverter} from './property-converter.interface';
+import { PropertyConverter } from './property-converter.interface';
 
 export interface AttributeDecoratorOptions {
   serializedName?: string;

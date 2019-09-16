@@ -1,25 +1,21 @@
-import {TestBed} from '@angular/core/testing';
-import {parseISO} from 'date-fns';
-import {Author} from '../../test/models/author.model';
-import {Chapter} from '../../test/models/chapter.model';
-import {AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor} from '../../test/models/custom-author.model';
-import {AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData} from '../../test/fixtures/author.fixture';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {API_VERSION, BASE_URL, Datastore} from '../../test/datastore.service';
-import {ErrorResponse} from '../models/error-response.model';
-import {getSampleBook} from '../../test/fixtures/book.fixture';
-import {Book} from '../../test/models/book.model';
-import {CrimeBook} from '../../test/models/crime-book.model';
-import {
-  API_VERSION_FROM_CONFIG,
-  BASE_URL_FROM_CONFIG,
-  DatastoreWithConfig
-} from '../../test/datastore-with-config.service';
-import {HttpHeaders} from '@angular/common/http';
-import {Thing} from '../../test/models/thing';
-import {getSampleThing} from '../../test/fixtures/thing.fixture';
-import {ModelConfig} from '../interfaces/model-config.interface';
-import {JsonApiQueryData} from '../models/json-api-query-data';
+import { TestBed } from '@angular/core/testing';
+import { parseISO } from 'date-fns';
+import { Author } from '../../test/models/author.model';
+import { Chapter } from '../../test/models/chapter.model';
+import { AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor } from '../../test/models/custom-author.model';
+import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData } from '../../test/fixtures/author.fixture';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { API_VERSION, BASE_URL, Datastore } from '../../test/datastore.service';
+import { ErrorResponse } from '../models/error-response.model';
+import { getSampleBook } from '../../test/fixtures/book.fixture';
+import { Book } from '../../test/models/book.model';
+import { CrimeBook } from '../../test/models/crime-book.model';
+import { API_VERSION_FROM_CONFIG, BASE_URL_FROM_CONFIG, DatastoreWithConfig } from '../../test/datastore-with-config.service';
+import { HttpHeaders } from '@angular/common/http';
+import { Thing } from '../../test/models/thing';
+import { getSampleThing } from '../../test/fixtures/thing.fixture';
+import { ModelConfig } from '../interfaces/model-config.interface';
+import { JsonApiQueryData } from '../models/json-api-query-data';
 
 let datastore: Datastore;
 let datastoreWithConfig: DatastoreWithConfig;

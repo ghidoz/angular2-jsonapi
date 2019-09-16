@@ -1,12 +1,12 @@
 /* tslint:disable:variable-name */
-import {Chapter} from './chapter.model';
-import {Author} from './author.model';
-import {Category} from './category.model';
-import {JsonApiModelConfig} from '../../src/decorators/json-api-model-config.decorator';
-import {JsonApiModel} from '../../src/models/json-api.model';
-import {Attribute} from '../../src/decorators/attribute.decorator';
-import {HasMany} from '../../src/decorators/has-many.decorator';
-import {BelongsTo} from '../../src/decorators/belongs-to.decorator';
+import { Chapter } from './chapter.model';
+import { Author } from './author.model';
+import { Category } from './category.model';
+import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.decorator';
+import { JsonApiModel } from '../../src/models/json-api.model';
+import { Attribute } from '../../src/decorators/attribute.decorator';
+import { HasMany } from '../../src/decorators/has-many.decorator';
+import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
 
 @JsonApiModelConfig({
   type: 'books'
@@ -28,10 +28,10 @@ export class Book extends JsonApiModel {
   @HasMany()
   chapters: Chapter[];
 
-  @HasMany({ key: 'important-chapters' })
+  @HasMany({key: 'important-chapters'})
   importantChapters: Chapter[];
 
-  @BelongsTo({ key: 'first-chapter' })
+  @BelongsTo({key: 'first-chapter'})
   firstChapter: Chapter;
 
   @BelongsTo()

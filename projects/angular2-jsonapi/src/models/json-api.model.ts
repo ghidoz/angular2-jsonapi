@@ -1,11 +1,11 @@
 import find from 'lodash-es/find';
 import includes from 'lodash-es/includes';
-import {Observable} from 'rxjs';
-import {JsonApiDatastore, ModelType} from '../services/json-api-datastore.service';
-import {ModelConfig} from '../interfaces/model-config.interface';
+import { Observable } from 'rxjs';
+import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
+import { ModelConfig } from '../interfaces/model-config.interface';
 import * as _ from 'lodash';
-import {AttributeMetadata} from '../constants/symbols';
-import {HttpHeaders} from '@angular/common/http';
+import { AttributeMetadata } from '../constants/symbols';
+import { HttpHeaders } from '@angular/common/http';
 
 /**
  * HACK/FIXME:
@@ -145,7 +145,7 @@ export class JsonApiModel {
                   allModels = allModels.concat(relationshipModels);
                 }
               } else {
-                throw { message: `parseHasMany - Model type for relationship ${typeName} not found.` };
+                throw {message: `parseHasMany - Model type for relationship ${typeName} not found.`};
               }
             }
           }
@@ -182,7 +182,7 @@ export class JsonApiModel {
                 this[metadata.propertyName] = relationshipModel;
               }
             } else {
-              throw { message: `parseBelongsTo - Model type for relationship ${typeName} not found.` };
+              throw {message: `parseBelongsTo - Model type for relationship ${typeName} not found.`};
             }
           }
         }
@@ -200,7 +200,7 @@ export class JsonApiModel {
     const relationshipList: Array<T> = [];
 
     data.forEach((item: any) => {
-      const relationshipData: any = find(included, { id: item.id, type: typeName } as any);
+      const relationshipData: any = find(included, {id: item.id, type: typeName} as any);
 
       if (relationshipData) {
         const newObject: T = this.createOrPeek(modelType, relationshipData);
@@ -229,7 +229,7 @@ export class JsonApiModel {
   ): T | null {
     const id: string = data.id;
 
-    const relationshipData: any = find(included, { id, type: typeName } as any);
+    const relationshipData: any = find(included, {id, type: typeName} as any);
 
     if (relationshipData) {
       const newObject: T = this.createOrPeek(modelType, relationshipData);

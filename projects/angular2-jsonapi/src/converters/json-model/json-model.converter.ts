@@ -1,6 +1,6 @@
-import {JsonModelConverterConfig} from '../../interfaces/json-model-converter-config.interface';
-import {PropertyConverter} from '../../interfaces/property-converter.interface';
-import {JsonApiNestedModel} from '../../models/json-nested.model';
+import { JsonModelConverterConfig } from '../../interfaces/json-model-converter-config.interface';
+import { PropertyConverter } from '../../interfaces/property-converter.interface';
+import { JsonApiNestedModel } from '../../models/json-nested.model';
 
 export const DEFAULT_OPTIONS: JsonModelConverterConfig = {
   nullValue: false,
@@ -13,7 +13,7 @@ export class JsonModelConverter<T> implements PropertyConverter {
 
   constructor(model: T, options: JsonModelConverterConfig = {}) {
     this.modelType = model; // <ModelType<T>>model
-    this.options = { ...DEFAULT_OPTIONS, ...options };
+    this.options = {...DEFAULT_OPTIONS, ...options};
   }
 
   mask(value: any): T | Array<T> {

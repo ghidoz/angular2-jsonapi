@@ -1,4 +1,4 @@
-import {Overrides} from './overrides.interface';
+import { Overrides } from './overrides.interface';
 
 export interface DatastoreConfig {
   apiVersion?: string;

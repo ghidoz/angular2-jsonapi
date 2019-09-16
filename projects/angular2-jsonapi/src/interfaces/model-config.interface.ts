@@ -1,4 +1,4 @@
-import {MetaModelType} from '../models/json-api-meta.model';
+import { MetaModelType } from '../models/json-api-meta.model';
 
 export interface ModelConfig<T = any> {
   type: string;

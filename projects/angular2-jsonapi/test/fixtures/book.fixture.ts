@@ -1,4 +1,4 @@
-import {BOOK_PUBLISHED, BOOK_TITLE} from './author.fixture';
+import { BOOK_PUBLISHED, BOOK_TITLE } from './author.fixture';
 
 export function getSampleBook(i: number, authorId: string, categoryId: string = '1') {
   return {

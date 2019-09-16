@@ -1,5 +1,5 @@
-import {JsonModelConverter} from './json-model.converter';
-import {School} from '../../../test/models/school.model';
+import { JsonModelConverter } from './json-model.converter';
+import { School } from '../../../test/models/school.model';
 
 describe('JsonModel converter', () => {
   let converter: JsonModelConverter<any>;

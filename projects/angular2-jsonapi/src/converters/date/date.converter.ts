@@ -1,5 +1,5 @@
-import {parseISO} from 'date-fns';
-import {PropertyConverter} from '../../interfaces/property-converter.interface';
+import { parseISO } from 'date-fns';
+import { PropertyConverter } from '../../interfaces/property-converter.interface';
 
 export class DateConverter implements PropertyConverter {
   mask(value: any) {

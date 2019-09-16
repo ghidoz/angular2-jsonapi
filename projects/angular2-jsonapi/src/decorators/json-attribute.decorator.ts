@@ -1,5 +1,5 @@
-import {AttributeDecoratorOptions} from '../interfaces/attribute-decorator-options.interface';
-import {DateConverter} from '../converters/date/date.converter';
+import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
+import { DateConverter } from '../converters/date/date.converter';
 
 export function JsonAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return (target: any, propertyName: string) => {

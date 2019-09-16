@@ -1,6 +1,6 @@
-import {Attribute} from '../../src/decorators/attribute.decorator';
-import {JsonApiModelConfig} from '../../src/decorators/json-api-model-config.decorator';
-import {Book} from './book.model';
+import { Attribute } from '../../src/decorators/attribute.decorator';
+import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.decorator';
+import { Book } from './book.model';
 
 @JsonApiModelConfig({
   type: 'crimeBooks',

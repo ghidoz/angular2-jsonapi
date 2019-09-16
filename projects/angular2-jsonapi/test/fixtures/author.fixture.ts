@@ -1,9 +1,9 @@
-import {getSampleBook} from './book.fixture';
-import {getSampleChapter} from './chapter.fixture';
-import {getSampleSection} from './section.fixture';
-import {getSampleParagraph} from './paragraph.fixture';
-import {getSampleSentence} from './sentence.fixture';
-import {getSampleCategory} from './category.fixture';
+import { getSampleBook } from './book.fixture';
+import { getSampleChapter } from './chapter.fixture';
+import { getSampleSection } from './section.fixture';
+import { getSampleParagraph } from './paragraph.fixture';
+import { getSampleSentence } from './sentence.fixture';
+import { getSampleCategory } from './category.fixture';
 
 export const AUTHOR_ID = '1';
 export const AUTHOR_NAME = 'J. R. R. Tolkien';
@@ -87,7 +87,7 @@ export function getIncludedBooks(totalBooks: number, relationship?: string, tota
 
       if (!categoryInclude) {
         categoryInclude = getSampleCategory(CATEGORY_ID);
-        categoryInclude.relationships.books = { data: [] };
+        categoryInclude.relationships.books = {data: []};
         responseArray.push(categoryInclude);
       }
 

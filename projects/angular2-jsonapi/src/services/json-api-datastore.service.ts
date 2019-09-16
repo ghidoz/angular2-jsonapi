@@ -1,15 +1,15 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import find from 'lodash-es/find';
-import {catchError, map} from 'rxjs/operators';
-import {Observable, of, throwError} from 'rxjs';
-import {JsonApiModel} from '../models/json-api.model';
-import {ErrorResponse} from '../models/error-response.model';
-import {JsonApiQueryData} from '../models/json-api-query-data';
+import { catchError, map } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { JsonApiModel } from '../models/json-api.model';
+import { ErrorResponse } from '../models/error-response.model';
+import { JsonApiQueryData } from '../models/json-api-query-data';
 import * as qs from 'qs';
-import {DatastoreConfig} from '../interfaces/datastore-config.interface';
-import {ModelConfig} from '../interfaces/model-config.interface';
-import {AttributeMetadata} from '../constants/symbols';
+import { DatastoreConfig } from '../interfaces/datastore-config.interface';
+import { ModelConfig } from '../interfaces/model-config.interface';
+import { AttributeMetadata } from '../constants/symbols';
 import 'reflect-metadata';
 
 export type ModelType<T extends JsonApiModel> = new(datastore: JsonApiDatastore, data: any) => T;

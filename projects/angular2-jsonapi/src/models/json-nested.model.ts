@@ -1,5 +1,5 @@
-import {ModelConfig} from '../interfaces/model-config.interface';
-import {JsonApiModel} from './json-api.model';
+import { ModelConfig } from '../interfaces/model-config.interface';
+import { JsonApiModel } from './json-api.model';
 
 export class JsonApiNestedModel {
   [key: string]: any;
