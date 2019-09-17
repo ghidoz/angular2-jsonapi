@@ -1,8 +1,19 @@
 language: node_js
 sudo: false
 node_js:
-- '8'
-- '9'
+  - 'lts/*'
+  - 'node'
+
+before_install:
+  - npm i -g npm@latest
+
+install:
+  - npm ci
+  - cd projects/angular2-jsonapi && npm ci && cd ../..
+
+script:
+  - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
+  - npm run lint
 
 after_success:
-- cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  - cat ./coverage/angular2-jsonapi/lcov.info | ./node_modules/coveralls/bin/coveralls.js

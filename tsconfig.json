@@ -1,46 +1,35 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "importHelpers": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    // Angular is currently not compatible with recent TS version + strictNullCheck: https://github.com/angular/angular/issues/17863
-    "skipLibCheck": true,
-    "module": "commonjs",
-    "target": "ES5",
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true,
-    "declaration": true,
-    "outDir": "./dist",
-    "lib": [
-      "es2015",
-      "dom"
-    ],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es5",
     "typeRoots": [
       "node_modules/@types"
     ],
-    "types": [
-      "jasmine",
-      "selenium-webdriver",
-      "lodash",
-      "reflect-metadata"
-    ]
-  },
-  "files": [
-    "src/index.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
-    "node_modules/@types"
-  ],
-  "awesomeTypescriptLoaderOptions": {
-    "sourceMap": false,
-    "inlineSourceMap": true
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "angular2-jsonapi": [
+        "dist/angular2-jsonapi"
+      ],
+      "angular2-jsonapi/*": [
+        "dist/angular2-jsonapi/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
-    "skipTemplateCodegen": true
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
   }
 }
