@@ -335,7 +335,7 @@ export class JsonApiDatastore {
       this.addToStore(model);
 
       if (body.included) {
-        model.syncRelationships(data, body.included);
+        model.syncRelationships(data, body.included.concat(data));
         this.addToStore(model);
       }
 
