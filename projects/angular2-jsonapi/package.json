@@ -1,6 +1,6 @@
 {
   "name": "angular2-jsonapi",
-  "version": "8.2.0-beta",
+  "version": "8.2.1-beta",
   "description": "A lightweight Angular 2 adapter for JSON API",
   "repository": {
     "type": "git",
