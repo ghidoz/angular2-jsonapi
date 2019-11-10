@@ -569,17 +569,9 @@ Moreover, it should be noted that the following assumptions have been made:
 
 ## Development
 
-To generate all `*.js`, `*.js.map` and `*.d.ts` files:
+To install all dependencies, run `npm install` in both the root and the project's directory. The root installs the workspace dependencies and peer dependencies, and the project's directory installs the direct dependencies.
 
-```bash
-$ npm run build
-```
-
-To lint all `*.ts` files:
-
-```bash
-$ npm run lint
-```
+All other commands are the standard Angular CLI commands.
 
 ## Additional tools
 * Gem for generating the model definitions based on active model serializers: https://github.com/oncore-education/jsonapi_models
