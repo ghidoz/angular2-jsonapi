@@ -219,11 +219,15 @@ export class JsonApiDatastore {
   }
 
   public transformSerializedNamesToPropertyNames<T extends JsonApiModel>(modelType: ModelType<T>, attributes: any) {
+    if (!attributes) {
+      return {};
+    }
+
     const serializedNameToPropertyName = this.getModelPropertyNames(modelType.prototype);
     const properties: any = {};
 
     Object.keys(serializedNameToPropertyName).forEach((serializedName) => {
-      if (attributes && attributes[serializedName] !== null && attributes[serializedName] !== undefined) {
+      if (attributes[serializedName] !== undefined) {
         properties[serializedNameToPropertyName[serializedName]] = attributes[serializedName];
       }
     });

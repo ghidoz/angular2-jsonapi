@@ -696,4 +696,21 @@ describe('JsonApiDatastore', () => {
 
     });
   });
+
+  it ('should transform null values', () => {
+      const obj = datastore.transformSerializedNamesToPropertyNames(Author, {
+        name: null,
+        foo: 'bar',
+        dob: '11-11-2019',
+        updated_at: null,
+        created_at: undefined
+      });
+
+      expect(obj.name).toBe(null);
+      expect(obj.date_of_birth).toBe('11-11-2019');
+      expect(obj.updated_at).toBe(null);
+      expect(obj.created_at).toBeUndefined();
+      expect(obj.firstNames).toBeUndefined();
+      expect(obj.foo).toBeUndefined();
+  });
 });
