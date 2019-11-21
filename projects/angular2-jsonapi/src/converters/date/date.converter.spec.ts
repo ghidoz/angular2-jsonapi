@@ -8,7 +8,7 @@ describe('Date converter', () => {
 
     it('Null stays null', () => {
         const value = converter.mask(null);
-        expect(value).toBe(null);
+        expect(value).toBeNull();
     });
 
     it ( 'string is transformed to Date object', () => {
