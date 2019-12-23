@@ -16,9 +16,23 @@ import { HttpHeaders } from '@angular/common/http';
 // tslint:disable-next-line:variable-name
 const AttributeMetadataIndex: string = AttributeMetadata as any;
 
+const parseRelationshipLinks = relationships => {
+  const result = {};
+  const linksMapper = ({ links }, key) => {
+    if (links) {
+      result[key] = { links };
+    }
+  };
+
+  _.forEach(relationships || {}, linksMapper);
+
+  return result;
+};
+
 export class JsonApiModel {
   id: string;
   public modelInitialization = false;
+  public relationshipLinks = {};
 
   [key: string]: any;
 
@@ -28,6 +42,7 @@ export class JsonApiModel {
     if (data) {
       this.modelInitialization = true;
       this.id = data.id;
+      this.relationshipLinks = parseRelationshipLinks(data.relationships);
       Object.assign(this, data.attributes);
       this.modelInitialization = false;
     }
