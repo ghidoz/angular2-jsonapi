@@ -331,7 +331,7 @@ export class JsonApiDatastore {
     const models: T[] = [];
 
     body.data.forEach((data: any) => {
-      const model: T = this.deserializeModel(modelType, data);
+      const model: T = this.deserializeModel(this.datastoreConfig.models[data.type], data);
       this.addToStore(model);
 
       if (body.included) {
