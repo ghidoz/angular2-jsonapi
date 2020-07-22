@@ -292,6 +292,7 @@ export class JsonApiDatastore {
         } else if (data[key] === null) {
           const entity = belongsToMetadata.find((it: any) => it.propertyName === key);
           if (entity) {
+            relationships = relationships || {};
             const relationshipKey = entity.relationship;
             relationships[relationshipKey] = {
               data: null
