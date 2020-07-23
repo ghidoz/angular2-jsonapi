@@ -11,6 +11,9 @@ export class DateConverter implements PropertyConverter {
   }
 
   unmask(value: any) {
+    if (value === null) {
+      return null;
+    }
     return value.toISOString();
   }
 }
