@@ -1,5 +1,4 @@
-import find from 'lodash-es/find';
-import includes from 'lodash-es/includes';
+import { find, includes } from 'lodash-es';
 import { Observable } from 'rxjs';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
