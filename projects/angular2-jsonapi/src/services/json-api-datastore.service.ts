@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angul
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import find from 'lodash-es/find';
+import { find } from 'lodash-es';
 import * as qs from 'qs';
 import 'reflect-metadata';
 
