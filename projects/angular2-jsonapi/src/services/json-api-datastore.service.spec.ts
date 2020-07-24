@@ -3,7 +3,7 @@ import { parseISO } from 'date-fns';
 import { Author } from '../../test/models/author.model';
 import { Chapter } from '../../test/models/chapter.model';
 import { AUTHOR_API_VERSION, AUTHOR_MODEL_ENDPOINT_URL, CustomAuthor } from '../../test/models/custom-author.model';
-import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData } from '../../test/fixtures/author.fixture';
+import { AUTHOR_BIRTH, AUTHOR_ID, AUTHOR_NAME, BOOK_TITLE, getAuthorData, getIncludedBooks } from '../../test/fixtures/author.fixture';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { API_VERSION, BASE_URL, Datastore } from '../../test/datastore.service';
 import { ErrorResponse } from '../models/error-response.model';
@@ -694,6 +694,33 @@ describe('JsonApiDatastore', () => {
 
       saveRequest.flush({});
 
+    });
+
+    it('should remove empty BelongsTo-relationship', () => {
+      const BOOK_NUMBER = 2;
+      const DATA = getAuthorData('books', BOOK_NUMBER);
+      const author = new Author(datastore, DATA);
+      author.syncRelationships(DATA, getIncludedBooks(BOOK_NUMBER, 'books.category'));
+
+      expect(author.books).toBeDefined();
+      expect(author.books.length).toBe(BOOK_NUMBER);
+
+      const firstBook = author.books[0];
+      expect(firstBook.category).toBeDefined();
+      expect(firstBook.category.name).toBeDefined();
+
+      const expectedUrl = `${BASE_URL}/${API_VERSION}/books/${firstBook.id}`;
+
+      firstBook.category = null;
+      firstBook.save().subscribe();
+
+      const saveRequest = httpMock.expectOne({method: 'PATCH', url: expectedUrl});
+      const obj = saveRequest.request.body.data;
+      expect(obj.relationships).toBeDefined();
+      expect(obj.relationships.category).toBeDefined();
+      expect(obj.relationships.category.data).toBeNull();
+
+      saveRequest.flush({});
     });
   });
 });
