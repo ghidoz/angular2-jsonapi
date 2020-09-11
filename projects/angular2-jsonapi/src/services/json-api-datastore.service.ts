@@ -6,7 +6,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { JsonApiModel } from '../models/json-api.model';
 import { ErrorResponse } from '../models/error-response.model';
 import { JsonApiQueryData } from '../models/json-api-query-data';
-import * as qs from 'qs';
+import * as qs from 'qs-es5';
 import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { AttributeMetadata } from '../constants/symbols';
@@ -498,6 +498,6 @@ export class JsonApiDatastore {
   }
 
   private _toQueryString(params: any): string {
-    return qs.stringify(params, {arrayFormat: 'brackets'});
+    return qs.stringify(params, {arrayFormat: 'bracket'});
   }
 }

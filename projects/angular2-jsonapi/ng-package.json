@@ -6,13 +6,13 @@
     "umdModuleIds": {
       "date-fns": "date-fns",
       "lodash-es": "lodash-es",
-      "qs": "qs"
+      "qs-es5": "qs-es5"
     }
   },
   "whitelistedNonPeerDependencies": [
     "date-fns",
     "lodash-es",
-    "qs",
+    "qs-es5",
     "tslib"
   ]
 }
