@@ -497,6 +497,9 @@ export class JsonApiDatastore {
   }
 
   private _toQueryString(params: any): string {
+    if (params == null) {
+      return '';
+    }
     return Object.keys(params).map(key => key + '=' + params[key]).join('&');
   }
 }
