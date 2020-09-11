@@ -5,14 +5,12 @@
     "entryFile": "src/public-api.ts",
     "umdModuleIds": {
       "date-fns": "date-fns",
-      "lodash-es": "lodash-es",
-      "qs-es5": "qs-es5"
+      "lodash-es": "lodash-es"
     }
   },
   "whitelistedNonPeerDependencies": [
     "date-fns",
     "lodash-es",
-    "qs-es5",
     "tslib"
   ]
 }
