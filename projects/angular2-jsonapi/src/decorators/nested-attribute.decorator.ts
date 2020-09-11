@@ -1,6 +1,6 @@
 import { AttributeMetadata } from '../constants/symbols';
 import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 export function NestedAttribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return (target: any, propertyName: string) => {

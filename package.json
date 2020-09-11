@@ -10,7 +10,9 @@
     "start": "ng serve",
     "test": "ng test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash-es": "^4.17.15"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.803.4",
     "@angular-devkit/build-ng-packagr": "~0.803.4",

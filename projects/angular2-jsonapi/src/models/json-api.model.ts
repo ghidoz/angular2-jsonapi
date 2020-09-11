@@ -2,7 +2,7 @@ import { find, includes } from 'lodash-es';
 import { Observable } from 'rxjs';
 import { JsonApiDatastore, ModelType } from '../services/json-api-datastore.service';
 import { ModelConfig } from '../interfaces/model-config.interface';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import { AttributeMetadata } from '../constants/symbols';
 import { HttpHeaders } from '@angular/common/http';
 
