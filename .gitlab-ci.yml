@@ -7,7 +7,7 @@ test and lint:
   stage: test
   script:
     - npm i -g npm@latest
-    - npm ci
-    - cd projects/angular2-jsonapi && npm ci && cd ../..
+    - npm install
+    - cd projects/angular2-jsonapi && npm install && cd ../..
     - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
     - npm run lint
