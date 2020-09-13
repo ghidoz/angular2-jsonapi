@@ -1,4 +1,4 @@
-image: weltn24/up-docker-node-chrome-headless
+image: $DOCKER_REGISTRY/angular:464c8f81b76c36a3d76334ffe3dc5a43881872a6
 
 stages:
   - test
