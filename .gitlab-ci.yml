@@ -1,4 +1,4 @@
-image: node:latest
+image: weltn24/up-docker-node-chrome-headless
 
 stages:
   - test
