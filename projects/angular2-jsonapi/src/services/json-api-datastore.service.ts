@@ -10,6 +10,7 @@ import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { AttributeMetadata } from '../constants/symbols';
 import 'reflect-metadata';
+import stringify from '../utilities/stringify';
 
 export type ModelType<T extends JsonApiModel> = new(datastore: JsonApiDatastore, data: any) => T;
 
@@ -497,9 +498,6 @@ export class JsonApiDatastore {
   }
 
   private _toQueryString(params: any): string {
-    if (params == null) {
-      return '';
-    }
-    return Object.keys(params).map(key => key + '=' + params[key]).join('&');
+    return stringify(params, {arrayFormat: 'brackets'});
   }
 }
