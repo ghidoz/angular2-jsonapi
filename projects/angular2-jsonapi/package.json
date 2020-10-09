@@ -1,0 +1,36 @@
+{
+  "name": "angular2-jsonapi",
+  "version": "8.2.1",
+  "description": "A lightweight Angular 2 adapter for JSON API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ghidoz/angular2-jsonapi"
+  },
+  "author": {
+    "name": "Daniele Ghidoli",
+    "url": "http://danieleghidoli.it"
+  },
+  "keywords": [
+    "angular",
+    "angular2",
+    "json",
+    "jsonapi",
+    "api"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ghidoz/angular2-jsonapi/issues"
+  },
+  "dependencies": {
+    "date-fns": "^2.2.1",
+    "lodash-es": "^4.17.15",
+    "qs": "^6.8.0",
+    "tslib": "^1.10.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^8.2.5",
+    "@angular/core": "^8.2.5",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.5.3"
+  }
+}
