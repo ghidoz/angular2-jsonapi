@@ -6,11 +6,11 @@ import { Observable, of, throwError } from 'rxjs';
 import { JsonApiModel } from '../models/json-api.model';
 import { ErrorResponse } from '../models/error-response.model';
 import { JsonApiQueryData } from '../models/json-api-query-data';
-import * as qs from 'qs';
 import { DatastoreConfig } from '../interfaces/datastore-config.interface';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { AttributeMetadata } from '../constants/symbols';
 import 'reflect-metadata';
+import stringify from '../utilities/stringify';
 
 export type ModelType<T extends JsonApiModel> = new(datastore: JsonApiDatastore, data: any) => T;
 
@@ -508,6 +508,6 @@ export class JsonApiDatastore {
   }
 
   private _toQueryString(params: any): string {
-    return qs.stringify(params, {arrayFormat: 'brackets'});
+    return stringify(params, {arrayFormat: 'brackets'});
   }
 }

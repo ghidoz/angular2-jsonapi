@@ -1,7 +1,7 @@
 import { AttributeMetadata } from '../constants/symbols';
 import { AttributeDecoratorOptions } from '../interfaces/attribute-decorator-options.interface';
 import { DateConverter } from '../converters/date/date.converter';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 
 export function Attribute(options: AttributeDecoratorOptions = {}): PropertyDecorator {
   return (target: any, propertyName: string) => {

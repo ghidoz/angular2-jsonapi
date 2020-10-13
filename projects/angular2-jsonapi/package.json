@@ -24,13 +24,15 @@
   "dependencies": {
     "date-fns": "^2.2.1",
     "lodash-es": "^4.17.15",
-    "qs": "^6.8.0",
     "tslib": "^1.10.0"
   },
   "peerDependencies": {
-    "@angular/common": "^8.2.5",
-    "@angular/core": "^8.2.5",
+    "@angular/common": "^10.1.1",
+    "@angular/core": "^10.1.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.5.3"
+    "rxjs": "^6.6.3"
+  },
+  "devDependencies": {
+    "karma-verbose-reporter": "0.0.6"
   }
 }

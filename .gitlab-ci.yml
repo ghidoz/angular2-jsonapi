@@ -1,0 +1,14 @@
+image: $DOCKER_REGISTRY/angular:464c8f81b76c36a3d76334ffe3dc5a43881872a6
+
+stages:
+  - test
+
+test and lint:
+  stage: test
+  tags:
+  - elearnio
+  script:
+    - npm install
+    - cd projects/angular2-jsonapi && npm install && cd ../..
+    - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
+    - npm run lint
