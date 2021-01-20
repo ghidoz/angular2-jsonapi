@@ -4,6 +4,7 @@ import { JsonApiModelConfig } from '../../src/decorators/json-api-model-config.d
 import { JsonApiModel } from '../../src/models/json-api.model';
 import { Attribute } from '../../src/decorators/attribute.decorator';
 import { BelongsTo } from '../../src/decorators/belongs-to.decorator';
+import { HasMany } from '../../src/decorators/has-many.decorator';
 import { Section } from './section.model';
 
 @JsonApiModelConfig({
@@ -28,4 +29,10 @@ export class Chapter extends JsonApiModel {
 
   @BelongsTo()
   firstSection: Section;
+
+  @HasMany()
+  related: Chapter[];
+
+  @BelongsTo()
+  relatesTo: Chapter;
 }

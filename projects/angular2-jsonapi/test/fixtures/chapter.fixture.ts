@@ -1,5 +1,10 @@
-export function getSampleChapter(i: number, chapterId: string, chapterTitle: string = 'Dummy title') {
-  return {
+export function getSampleChapter(
+  i: number, chapterId: string,
+  chapterTitle: string = 'Dummy title',
+  related?: string[],
+  relatesTo?: string
+) {
+  const response: any = {
     id: chapterId,
     type: 'chapters',
     attributes: {
@@ -30,4 +35,15 @@ export function getSampleChapter(i: number, chapterId: string, chapterTitle: str
       self: '/v1/authors/288'
     }
   };
+  if (related) {
+    response.relationships.related = {
+      data: related.map(id => ({id, type: 'chapters'})),
+    };
+  }
+  if (relatesTo) {
+    response.relationships.relatesTo = {
+      data: {id: relatesTo, type: 'chapters'}
+    };
+  }
+  return response;
 }

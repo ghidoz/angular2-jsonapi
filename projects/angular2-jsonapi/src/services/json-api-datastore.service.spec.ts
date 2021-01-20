@@ -16,6 +16,7 @@ import { Thing } from '../../test/models/thing';
 import { getSampleThing } from '../../test/fixtures/thing.fixture';
 import { ModelConfig } from '../interfaces/model-config.interface';
 import { JsonApiQueryData } from '../models/json-api-query-data';
+import { getSampleChapter } from 'projects/angular2-jsonapi/test/fixtures/chapter.fixture';
 
 let datastore: Datastore;
 let datastoreWithConfig: DatastoreWithConfig;
@@ -206,6 +207,29 @@ describe('JsonApiDatastore', () => {
 
       const queryRequest = httpMock.expectOne(expectedUrl);
       queryRequest.flush(getSampleThing());
+    });
+
+    it('should handle related resource objects that are listed in primary data', () => {
+      const expectedUrl = encodeURI(`${BASE_URL}/${API_VERSION}/chapters`);
+
+      datastore.findAll(Chapter).subscribe((document) => {
+        expect(document).toBeDefined();
+        const chapters = document.getModels();
+        expect(chapters[0].relatesTo).toBeDefined();
+        expect(chapters[0].relatesTo.id).toBe('b');
+        expect(chapters[1].related).toBeDefined();
+        expect(chapters[1].related.length).toBe(2);
+        expect(chapters[0].relatesTo.related[0].id).toBe('a');
+      });
+
+      const queryRequest = httpMock.expectOne(expectedUrl);
+      queryRequest.flush({
+        data: [
+          getSampleChapter(1, 'a', 'Chapter A', null, 'b'),
+          getSampleChapter(1, 'b', 'Chapter B', ['a', 'c'], null),
+          getSampleChapter(1, 'c', 'Chapter C', null, 'b'),
+        ],
+      });
     });
 
     it('should fire error', () => {
