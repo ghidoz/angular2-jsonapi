@@ -340,14 +340,14 @@ export class JsonApiDatastore {
     const body: any = response.body;
     const models: T[] = [];
 
+    const resourceObjects = [...body.data, ...(body.included || [])];
+
     body.data.forEach((data: any) => {
       const model: T = this.deserializeModel(modelType, data);
       this.addToStore(model);
 
-      if (body.included) {
-        model.syncRelationships(data, body.included.concat(data));
-        this.addToStore(model);
-      }
+      model.syncRelationships(data, resourceObjects);
+      this.addToStore(model);
 
       models.push(model);
     });
