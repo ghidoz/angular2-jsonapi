@@ -288,7 +288,7 @@ export class JsonApiDatastore {
             };
           }
         }  else if (data[key] === null) {
-          const entity = belongsToMetadata.find((entity: any) => entity.propertyName === key);
+          const entity = belongsToMetadata.find((anEntity: any) => anEntity.propertyName === key);
 
           if (entity) {
             relationships = relationships || {};
