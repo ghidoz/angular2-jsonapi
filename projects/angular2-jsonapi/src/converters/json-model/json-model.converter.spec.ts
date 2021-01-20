@@ -1,3 +1,5 @@
+import { parseISO } from 'date-fns';
+
 import { JsonModelConverter } from './json-model.converter';
 import { School } from '../../../test/models/school.model';
 
@@ -147,7 +149,7 @@ describe('JsonModel converter', () => {
         result.forEach((element, index: number) => {
           expect(element.name).toBe(DATA[index].name);
           expect(element.students).toBe(DATA[index].students);
-          expect(element.foundation).toContain(DATA[index].foundation);
+          expect(element.foundation).toBe(parseISO(DATA[index].foundation).toISOString());
         });
       });
     });
@@ -167,7 +169,7 @@ describe('JsonModel converter', () => {
         const result = converter.unmask(new School(DATA));
         expect(result.name).toBe(DATA.name);
         expect(result.students).toBe(DATA.students);
-        expect(result.foundation).toContain(DATA.foundation);
+        expect(result.foundation).toBe(parseISO(DATA.foundation).toISOString());
       });
     });
   });
