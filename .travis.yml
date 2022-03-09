@@ -9,7 +9,6 @@ before_install:
 
 install:
   - npm ci
-  - cd projects/angular2-jsonapi && npm ci && cd ../..
 
 script:
   - npm test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadlessCI
