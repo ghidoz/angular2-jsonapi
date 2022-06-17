@@ -2,15 +2,9 @@
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/angular2-jsonapi",
   "lib": {
-    "entryFile": "src/public-api.ts",
-    "umdModuleIds": {
-      "date-fns": "date-fns",
-      "lodash": "lodash",
-      "lodash-es": "lodash-es",
-      "qs": "qs"
-    }
+    "entryFile": "src/public-api.ts"
   },
-  "whitelistedNonPeerDependencies": [
+  "allowedNonPeerDependencies": [
     "date-fns",
     "lodash-es",
     "qs",

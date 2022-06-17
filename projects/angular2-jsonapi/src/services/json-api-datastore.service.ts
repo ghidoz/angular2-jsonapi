@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { find } from 'lodash-es';
+import { find } from 'lodash';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, of, throwError } from 'rxjs';
 import { JsonApiModel } from '../models/json-api.model';
@@ -12,7 +12,7 @@ import { ModelConfig } from '../interfaces/model-config.interface';
 import { AttributeMetadata } from '../constants/symbols';
 import 'reflect-metadata';
 
-export type ModelType<T extends JsonApiModel> = new(datastore: JsonApiDatastore, data: any) => T;
+export type ModelType<T extends JsonApiModel> = new (datastore: JsonApiDatastore, data: any) => T;
 
 /**
  * HACK/FIXME:
@@ -31,7 +31,7 @@ export class JsonApiDatastore {
   private globalRequestOptions: object = {};
   private internalStore: { [type: string]: { [id: string]: JsonApiModel } } = {};
   private toQueryString: (params: any) => string = this.datastoreConfig.overrides
-  && this.datastoreConfig.overrides.toQueryString ?
+    && this.datastoreConfig.overrides.toQueryString ?
     this.datastoreConfig.overrides.toQueryString : this._toQueryString;
 
   constructor(protected http: HttpClient) {
@@ -85,7 +85,7 @@ export class JsonApiDatastore {
   ): Observable<T[]> {
     const requestHeaders: HttpHeaders = this.buildHttpHeaders(headers);
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
-    return this.http.get(url, {headers: requestHeaders})
+    return this.http.get(url, { headers: requestHeaders })
       .pipe(
         map((res: any) => this.extractQueryData(res, modelType)),
         catchError((res: any) => this.handleError(res))
@@ -99,7 +99,7 @@ export class JsonApiDatastore {
     customUrl?: string
   ): Observable<JsonApiQueryData<T>> {
     const url: string = this.buildUrl(modelType, params, undefined, customUrl);
-    const requestOptions: object = this.buildRequestOptions({headers, observe: 'response'});
+    const requestOptions: object = this.buildRequestOptions({ headers, observe: 'response' });
 
     return this.http.get(url, requestOptions)
       .pipe(
@@ -115,7 +115,7 @@ export class JsonApiDatastore {
     headers?: HttpHeaders,
     customUrl?: string
   ): Observable<T> {
-    const requestOptions: object = this.buildRequestOptions({headers, observe: 'response'});
+    const requestOptions: object = this.buildRequestOptions({ headers, observe: 'response' });
     const url: string = this.buildUrl(modelType, params, id, customUrl);
 
     return this.http.get(url, requestOptions)
@@ -126,7 +126,7 @@ export class JsonApiDatastore {
   }
 
   public createRecord<T extends JsonApiModel>(modelType: ModelType<T>, data?: any): T {
-    return new modelType(this, {attributes: data});
+    return new modelType(this, { attributes: data });
   }
 
   public saveRecord<T extends JsonApiModel>(
@@ -152,7 +152,7 @@ export class JsonApiDatastore {
       }
     };
 
-    const requestOptions: object = this.buildRequestOptions({headers, observe: 'response'});
+    const requestOptions: object = this.buildRequestOptions({ headers, observe: 'response' });
 
     if (model.id) {
       httpCall = this.http.patch<object>(url, body, requestOptions) as Observable<HttpResponse<object>>;
@@ -179,7 +179,7 @@ export class JsonApiDatastore {
     headers?: HttpHeaders,
     customUrl?: string
   ): Observable<Response> {
-    const requestOptions: object = this.buildRequestOptions({headers});
+    const requestOptions: object = this.buildRequestOptions({ headers });
     const url: string = this.buildUrl(modelType, null, id, customUrl);
 
     return this.http.delete(url, requestOptions)
@@ -287,7 +287,7 @@ export class JsonApiDatastore {
               data: relationshipData
             };
           }
-        }  else if (data[key] === null) {
+        } else if (data[key] === null) {
           const entity = belongsToMetadata.find((entity: any) => entity.propertyName === key);
 
           if (entity) {
@@ -320,7 +320,7 @@ export class JsonApiDatastore {
 
   protected buildSingleRelationshipData(model: JsonApiModel): any {
     const relationshipType: string = model.modelConfig.type;
-    const relationShipData: { type: string, id?: string, attributes?: any } = {type: relationshipType};
+    const relationShipData: { type: string, id?: string, attributes?: any } = { type: relationshipType };
 
     if (model.id) {
       relationShipData.id = model.id;
@@ -508,6 +508,6 @@ export class JsonApiDatastore {
   }
 
   private _toQueryString(params: any): string {
-    return qs.stringify(params, {arrayFormat: 'brackets'});
+    return qs.stringify(params, { arrayFormat: 'brackets' });
   }
 }

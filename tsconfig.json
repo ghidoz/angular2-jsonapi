@@ -19,6 +19,9 @@
       "es2018",
       "dom"
     ],
+    "types": [
+      "node"
+    ],
     "paths": {
       "angular2-jsonapi": [
         "dist/angular2-jsonapi"
